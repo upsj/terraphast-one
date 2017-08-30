@@ -1,6 +1,11 @@
 #include <catch.hpp>
 
-#include "../lib/clamped_uint.hpp"
+#include <terraces/clamped_uint.hpp>
+
+#include "../lib/supertree_enumerator.hpp"
+#include "../lib/supertree_variants_multitree.hpp"
+
+#include "../validation_utils.hpp"
 #include "datasets.hpp"
 
 using terraces::variants::multitree_callback;
@@ -9,7 +14,7 @@ using terraces::variants::count_callback;
 namespace terraces {
 namespace tests {
 
-TEST_CASE("app_bigint", "[app][.]") {
+TEST_CASE("app_bigint", "[app]") {
 	for (auto set : data_sets) {
 		auto data = load(std::get<0>(set), std::get<1>(set));
 
@@ -20,7 +25,7 @@ TEST_CASE("app_bigint", "[app][.]") {
 	}
 }
 
-TEST_CASE("app_clamped", "[app][.]") {
+TEST_CASE("app_clamped", "[app]") {
 	for (auto set : data_sets) {
 		auto data = load(std::get<0>(set), std::get<1>(set));
 
@@ -38,7 +43,7 @@ TEST_CASE("app_clamped", "[app][.]") {
 	}
 }
 
-TEST_CASE("app_validation", "[app][.]") {
+TEST_CASE("app_validation", "[app]") {
 	for (auto set : small_data_sets) {
 		auto data = load(std::get<0>(set), std::get<1>(set));
 
