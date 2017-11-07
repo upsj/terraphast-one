@@ -1,60 +1,91 @@
-project(terraphast)
+project(terraphast C CXX)
 
 cmake_minimum_required(VERSION 3.5)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+Option(USE_GMP "USE_GMP" OFF)
+Option(USE_THREADS "USE_THREADS" OFF)
+Option(BUILD_TESTS "BUILD_TESTS" OFF)
+Option(BUILD_C_WRAPPER "BUILD_C_WRAPPER" OFF)
+Option(DEV_ENVIRONMENT "DEV_ENVIRONMENT" OFF)
+
+#####################################################################
 # create sane environment
 #####################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+#####################################################################
 # set platform-specific options
+#####################################################################
 if(WIN32)
 	include_directories("platform/windows")
 	set(BASIC_WARNINGS "-W4")
 	set(OPTIMIZATION_FLAGS "-Oi")
-	set(GMP_LIBS "")
-	set(THREAD_LIBS "")
 else()
 	include_directories("platform/linux")
 	set(BASIC_WARNINGS "-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion")
 	set(OPTIMIZATION_FLAGS "-march=native")
-	set(GMP_LIBS gmp gmpxx)
-	set(THREAD_LIBS pthread)
 endif()
+
+#####################################################################
+# find required libraries
+#####################################################################
+set(LIBRARIES "")
+if (USE_GMP)
+	find_package(GMP REQUIRED)
+	include_directories(GMP_INCLUDE_DIR)
+	set(LIBRARIES ${LIBRARIES} ${GMP_LIBRARIES} ${GMPXX_LIBRARIES})
+endif()
+if (USE_THREADS)
+	find_package(Threads REQUIRED)
+	set(LIBRARIES ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+# Use debug version of the standard library
+if(DEV_ENVIRONMENT AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG -Werror")
+endif()
+
+#####################################################################
+# general flags 
+#####################################################################
+include_directories("include" "c_include")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASIC_WARNINGS} ${OPTIMIZATION_FLAGS}")
 
-include_directories("include" "c_include")
-
-# build libraries
+#####################################################################
+# build library
+#####################################################################
 file(GLOB lib_headers "include/terraces/*.hpp")
 file(GLOB lib_sources "lib/*.cpp")
 file(GLOB lib_int_headers "lib/*.hpp")
 add_library(terraces ${lib_sources} ${lib_headers} ${lib_int_headers})
-target_link_libraries(terraces ${THREAD_LIBS})
+target_link_libraries(terraces ${LIBRARIES})
 
-if(NOT WIN32)
+#####################################################################
+# build C library - this requires GMP!
+#####################################################################
+if(BUILD_C_WRAPPER)
+	if(!USE_GMP)
+		message(FATAL_ERROR "The C interface requires GMP to function")
+	endif()
 	file(GLOB c_lib_headers "c_include/terraces/*.h")
 	file(GLOB c_lib_sources "c_lib/*.cpp")
 	file(GLOB c_lib_int_headers "c_lib/*.hpp")
 	add_library(c_terraces ${c_lib_sources} ${c_lib_headers} ${c_lib_int_headers})
 	target_link_libraries(c_terraces terraces)
-	target_link_libraries(terraces ${THREAD_LIBS})
+	target_link_libraries(terraces ${LIBRARIES})
 endif()
 
+#####################################################################
 # build tests
-Option(BUILD_TESTS "BUILD_TESTS" OFF)
-Option(BUILD_TESTS_FULL "BUILD_TESTS_FULL" OFF)
-if(BUILD_TESTS OR BUILD_TESTS_FULL)
+#####################################################################
+if(BUILD_TESTS)
 	include_directories("Catch/include")
 	file(GLOB test_headers "test/*.hpp")
 	file(GLOB test_sources "test/*.cpp")
-	file(GLOB test_full_sources "test/full/*.cpp")
-	if (BUILD_TESTS_FULL)
-		add_executable(unittests ${test_sources} ${test_full_sources} ${test_headers})
-	else()
-		add_executable(unittests ${test_sources} ${test_headers})
-	endif()
-	target_link_libraries(unittests terraces ${GMP_LIBS} ${THREAD_LIBS})
+	add_executable(unittests ${test_sources} ${test_headers})
+	target_link_libraries(unittests terraces ${LIBRARIES})
 	add_test(NAME unittests COMMAND unittests)
 	enable_testing()
 endif()
@@ -62,13 +93,17 @@ endif()
 file(GLOB app_sources "app/*.cpp")
 file(GLOB tool_sources "tools/*.cpp")
 
+#####################################################################
 # build example app
+#####################################################################
 add_executable(app "app/main.cpp")
 add_executable(progress-app "app/progress-app.cpp")
-target_link_libraries(app terraces ${GMP_LIBS} ${THREAD_LIBS})
-target_link_libraries(progress-app terraces ${GMP_LIBS} ${THREAD_LIBS})
+target_link_libraries(app terraces ${LIBRARIES})
+target_link_libraries(progress-app terraces ${LIBRARIES})
 
+#####################################################################
 # build helper tools
+#####################################################################
 add_executable(isomorphic "tools/isomorphic.cpp")
 add_executable(reroot "tools/reroot.cpp")
 add_executable(subtree "tools/subtree.cpp")
@@ -87,10 +122,4 @@ if(BUILD_TESTS AND WIN32)
 	file(GLOB test_main_source "test/main.cpp")
 	list(REMOVE_ITEM test_sources ${test_main_source})
 	set_source_files_properties(${lib_sources} ${test_sources} ${app_sources} ${tool_sources} PROPERTIES COMPILE_FLAGS "-Za")
-endif()
-
-# Use debug version of STL
-Option(DEV_ENVIRONMENT "DEV_ENVIRONMENT" OFF)
-if(DEV_ENVIRONMENT AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG -Werror")
 endif()
