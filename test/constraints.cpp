@@ -11,8 +11,8 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("constraint extraction: full data", "[subtree_extraction],[constraints]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, 0}, {2, none, none, 1}, {4, 6, 1, 2},      {4, none, none, 3},
+	       {0, 2, 3, 4},    {0, none, none, 5}, {2, none, none, 6}};
 
 	bitmatrix bm{t.size(), 1};
 	for (index row = 0; row < t.size(); ++row) {
@@ -30,8 +30,8 @@ TEST_CASE("constraint extraction: full data", "[subtree_extraction],[constraints
 }
 
 TEST_CASE("constraint extraction: example", "[subtree_extraction],[constraints]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, 0}, {2, none, none, 1}, {4, 6, 1, 2},      {4, none, none, 3},
+	       {0, 2, 3, 4},    {0, none, none, 5}, {2, none, none, 6}};
 
 	bitmatrix bm{t.size(), 2};
 	bm.set(1, 0, true);

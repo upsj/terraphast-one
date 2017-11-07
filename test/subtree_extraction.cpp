@@ -12,19 +12,17 @@ namespace tests {
 using std::vector;
 
 TEST_CASE("subtree extraction: full data", "[subtree_extraction]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, none}, {2, none, none, 0}, {4, 6, 1, none},   {4, none, none, 1},
+	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
-	bitmatrix bm{t.size(), 1};
-	for (index row = 0; row < t.size(); ++row) {
-		if (is_leaf(t[row])) {
-			bm.set(row, 0, true);
-		}
+	bitmatrix bm{4, 1};
+	for (index row = 0; row < bm.rows(); ++row) {
+		bm.set(row, 0, true);
 	}
 
 	auto t2 = subtrees(t, bm)[0];
-	CHECK(is_rooted_tree(t));
-	CHECK(is_rooted_tree(t2));
+	check_rooted_tree(t);
+	check_rooted_tree(t2);
 	vector<index> exp_pre{0, 4, 2, 6, 1, 3, 5};
 	vector<index> exp_post{6, 1, 2, 3, 4, 5, 0};
 	auto res_pre = preorder(t2);
@@ -34,16 +32,16 @@ TEST_CASE("subtree extraction: full data", "[subtree_extraction]") {
 }
 
 TEST_CASE("subtree extraction: example", "[subtree_extraction]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, none}, {2, none, none, 0}, {4, 6, 1, none},   {4, none, none, 1},
+	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
-	bitmatrix bm{t.size(), 2};
+	bitmatrix bm{4, 2};
+	bm.set(0, 0, true);
+	bm.set(0, 1, true);
 	bm.set(1, 0, true);
-	bm.set(1, 1, true);
-	bm.set(3, 0, true);
-	bm.set(5, 0, true);
-	bm.set(5, 1, true);
-	bm.set(6, 1, true);
+	bm.set(2, 0, true);
+	bm.set(2, 1, true);
+	bm.set(3, 1, true);
 
 	auto trees = subtrees(t, bm);
 	auto t1 = trees[0];
