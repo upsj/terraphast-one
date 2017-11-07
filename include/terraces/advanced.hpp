@@ -28,16 +28,13 @@ struct supertree_data {
  * matrix.
  * \param tree The phylogenetic tree. It must be rooted at a comprehensive taxon!
  * \param data The missing data matrix. It must only contain data for the leaves.
- * \param names The name map containing names for all nodes of the tree.
- *              All inner node names will be removed after this call.
  * \param root The node index of the 'root leaf' in the input tree.
- *             It must refer to a comprehensive taxon, otherwise the constraints will be
- * inconsistent.
+ *             It must refer to the comprehensive taxon, the tree is rooted at,
+ *             otherwise the constraints will be inconsistent.
  * \returns \ref supertree_data object describing all possible supertrees equivalent to the input
  * tree.
  */
-supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, name_map& names,
-                                   index root);
+supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, index root);
 
 /**
  * Checks if a phylogenetic tree lies on a phylogenetic terrace.

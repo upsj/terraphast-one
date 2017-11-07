@@ -85,20 +85,10 @@ std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {
 	const auto& names = *tree_pair.names;
 	auto pre_cb = [&](index) { s << '('; };
 	auto post_cb = [&](index) { s << ')'; };
-	auto leaf_cb = [&](index i) { s << names[i]; };
-	auto sibling_cb = [&](index) { s << ','; };
-	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb);
-	s << ';';
-	return s;
-}
-
-std::ostream& operator<<(std::ostream& s, newick_permuted_t tree_set) {
-	const auto& t = *tree_set.t;
-	const auto& names = *tree_set.names;
-	const auto& perm = *tree_set.leaf_perm;
-	auto pre_cb = [&](index) { s << '('; };
-	auto post_cb = [&](index) { s << ')'; };
-	auto leaf_cb = [&](index i) { s << names[perm[i]]; };
+	auto leaf_cb = [&](index i) {
+		if (t[i].taxon() != none)
+			s << names[t[i].taxon()];
+	};
 	auto sibling_cb = [&](index) { s << ','; };
 	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb);
 	s << ';';
