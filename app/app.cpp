@@ -11,16 +11,11 @@
 int main(int argc, char** argv) try {
 	auto tree_file_name = std::string{};
 	auto data_file_name = std::string{};
-	if (argc == 2) {
-		tree_file_name = argv[1] + std::string{".nwk"};
-		data_file_name = argv[1] + std::string{".data"};
-	} else if (argc == 3) {
+	if (argc == 3) {
 		tree_file_name = argv[1];
 		data_file_name = argv[2];
 	} else {
-		std::cerr << "Usage: \n"
-		          << argv[0] << " <tree-file> <occurrence file>\n"
-		          << argv[0] << " <common-basename>\n";
+		std::cerr << "Usage: \n" << argv[0] << " <tree-file> <occurrence file>\n";
 		return 1;
 	}
 	auto trees = std::ostringstream{};

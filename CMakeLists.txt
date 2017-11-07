@@ -96,10 +96,8 @@ file(GLOB tool_sources "tools/*.cpp")
 #####################################################################
 # build example app
 #####################################################################
-add_executable(app "app/main.cpp")
-add_executable(progress-app "app/progress-app.cpp")
+add_executable(app "app/app.cpp")
 target_link_libraries(app terraces ${LIBRARIES})
-target_link_libraries(progress-app terraces ${LIBRARIES})
 
 #####################################################################
 # build helper tools
