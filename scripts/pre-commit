@@ -3,7 +3,7 @@
 # link this file in your git-hooks, for example with:
 #      ln .git/hooks/pre-commit pre-commit
 
-if ./format.sh check
+if ./scripts/format.sh check
 then
 	echo "nothing to format"
 else
