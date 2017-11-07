@@ -6,9 +6,9 @@
 #include <limits>
 #include <numeric>
 #include <random>
+#include <string>
 #include <unordered_set>
 #include <vector>
-#include <string>
 
 using index = std::size_t;
 constexpr static auto none = std::numeric_limits<index>::max();
