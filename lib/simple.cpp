@@ -22,12 +22,13 @@ std::ifstream open_ifstream(const std::string& filename) {
 
 std::pair<supertree_data, name_map> parse_data(const std::string& nwk_string,
                                                std::istream& matrix_stream) {
-	auto t = parse_nwk(nwk_string);
-	auto site_pair = parse_bitmatrix(matrix_stream, t.indices, t.tree.size());
-	utils::ensure<no_usable_root_error>(site_pair.second != none, "no usable root found");
-	reroot_inplace(t.tree, site_pair.second);
-	auto data = prepare_constraints(t.tree, site_pair.first, t.names, site_pair.second);
-	return {data, t.names};
+	auto occ_data = parse_bitmatrix(matrix_stream);
+	auto tree = parse_nwk(nwk_string, occ_data.indices);
+	utils::ensure<no_usable_root_error>(occ_data.comp_taxon != none,
+	                                    "No comprehensive taxon found");
+	reroot_inplace(tree, occ_data.comp_taxon);
+	auto data = prepare_constraints(tree, occ_data.matrix, occ_data.comp_taxon);
+	return {data, occ_data.names};
 }
 
 std::string read_all(std::istream& stream) {

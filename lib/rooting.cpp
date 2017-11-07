@@ -66,13 +66,15 @@ void link_to_sibling_tree(bool coming_from_left, tree& t, node old_root, node& c
 }
 }
 
-void reroot_inplace(tree& t, index root_leaf) {
-	utils::ensure<std::invalid_argument>(t[root_leaf].lchild() == none,
-	                                     "The given index root_leaf is no leaf index.");
-	utils::ensure<std::invalid_argument>(t[root_leaf].rchild() == none,
-	                                     "The given index root_leaf is no leaf index.");
-	utils::ensure<std::invalid_argument>(terraces::is_valid_tree(t),
-	                                     "The given tree is no valid tree.");
+void reroot_inplace(tree& t, index comp_taxon) {
+	index root_leaf = none;
+	for (index i = 0; i < t.size(); ++i) {
+		if (t[i].taxon() == comp_taxon) {
+			root_leaf = i;
+		}
+	}
+	assert(root_leaf != none && "The tree doesn't contain the given taxon");
+	terraces::check_rooted_tree(t);
 
 	node old_root = t[0];
 
@@ -83,7 +85,7 @@ void reroot_inplace(tree& t, index root_leaf) {
 	}
 
 	(void)old_root;
-	node new_root = node{none, none, none};
+	node new_root = node{none, none, none, none};
 	node& leaf_node = t[root_leaf];
 
 	bool coming_from_left = true;
@@ -119,10 +121,6 @@ void reroot_inplace(tree& t, index root_leaf) {
 		current_node_index = original_parent_index;
 	}
 	t[0] = new_root;
-
-	utils::ensure<std::invalid_argument>(
-	        terraces::is_valid_tree(t),
-	        "The given tree is not a valid tree anymore. Please check rooting.cpp");
 }
 
 } // namespace terraces

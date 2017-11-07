@@ -46,14 +46,14 @@ constraints compute_constraints(const std::vector<tree>& trees) {
 				auto rchild = node.rchild();
 				auto lnode = t[lchild];
 				auto rnode = t[rchild];
-				// leftmost descendant of i
-				auto i1 = outermost_nodes[i].first;
-				// rightmost descendant of lchild of i
-				auto i2 = outermost_nodes[lchild].second;
-				// leftmost descendant of rchild of i
-				auto i3 = outermost_nodes[rchild].first;
-				// rightmost descendant of i
-				auto i4 = outermost_nodes[i].second;
+				// taxon of leftmost descendant of i
+				auto i1 = t[outermost_nodes[i].first].taxon();
+				// taxon of rightmost descendant of lchild of i
+				auto i2 = t[outermost_nodes[lchild].second].taxon();
+				// taxon of leftmost descendant of rchild of i
+				auto i3 = t[outermost_nodes[rchild].first].taxon();
+				// taxon of rightmost descendant of i
+				auto i4 = t[outermost_nodes[i].second].taxon();
 
 				// if the left edge is an inner edge
 				if (!is_leaf(lnode)) {
