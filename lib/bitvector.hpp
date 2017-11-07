@@ -97,6 +97,7 @@ public:
 };
 
 using bitvector = basic_bitvector<utils::stack_allocator<index>>;
+using simple_bitvector = basic_bitvector<std::allocator<bitvector::value_type>>;
 
 template <typename Alloc>
 class bitvector_iterator {
