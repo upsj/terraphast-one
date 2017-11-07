@@ -1,4 +1,5 @@
 #include "trees_impl.hpp"
+#include "utils.hpp"
 #include <terraces/subtree_extraction.hpp>
 
 using std::vector;
@@ -9,20 +10,26 @@ using std::make_pair;
 namespace terraces {
 
 std::vector<tree> subtrees(const tree& t, const bitmatrix& occ) {
-	auto num_nodes = occ.rows();
+	auto num_nodes = num_nodes_from_leaves(occ.rows());
 	auto num_sites = occ.cols();
-	assert(t.size() == num_nodes);
-	assert(is_rooted_tree(t));
+	assert(t.size() == num_nodes && "bitmatrix and tree have incompatible sizes");
+	check_rooted_tree(t);
 
 	vector<tree> out_trees(num_sites, tree(num_nodes, node{}));
 	vector<stack<index>> tree_boundaries{num_sites, stack<index>{}};
 
-	auto node_occ = occ;
+	auto node_occ = bitmatrix{t.size(), occ.cols()};
 
 	// compute occurrences on inner nodes: bitwise or of the children
 	foreach_postorder(t, [&](index i) {
 		auto node = t[i];
-		if (!is_leaf(node)) {
+		if (is_leaf(node)) {
+			// copy data from taxon occurrence matrix
+			assert(node.taxon() != none && "leaf without taxon ID");
+			for (index site = 0; site < num_sites; ++site) {
+				node_occ.set(i, site, occ.get(node.taxon(), site));
+			}
+		} else {
 			node_occ.row_or(node.lchild(), node.rchild(), i);
 		}
 	});
@@ -44,6 +51,7 @@ std::vector<tree> subtrees(const tree& t, const bitmatrix& occ) {
 				assert(!boundary.empty());
 				auto parent = boundary.top();
 				out_tree[i].parent() = parent;
+				out_tree[i].taxon() = node.taxon();
 				if (out_tree[parent].lchild() == none) {
 					out_tree[parent].lchild() = i;
 				} else {
