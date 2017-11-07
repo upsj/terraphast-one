@@ -1,4 +1,3 @@
-
 #ifndef TERRACES_PARSER_HPP
 #define TERRACES_PARSER_HPP
 
@@ -12,29 +11,40 @@
 
 namespace terraces {
 
-/**
- * Stores a tree and its node name <-> index mapping
- */
-struct tree_set {
+struct occurrence_data {
+	bitmatrix matrix;
+	name_map names;
+	index_map indices;
+	index comp_taxon;
+};
+
+struct named_tree {
 	terraces::tree tree;
 	name_map names;
 	index_map indices;
 };
 
 /**
- * Parses a string in Newick-format and returns an
- * unrooted tree and name-table
- *
- * Will throw bad_input_error if the format is not obeyed.
+ * Parses a string in Newick format with given taxon IDs and returns the corresponding rooted tree.
+ * \throws bad_input_error if the tree is malformed or an unknown taxon is encountered.
+ * \returns the \ref tree corresponding to the input string
  */
-tree_set parse_nwk(const std::string& input);
+tree parse_nwk(const std::string& input, const index_map& taxa);
 
 /**
- * Parses a data-file and returns the associated bit-matrix as well
- * as a suitable index for rooting (or \ref none if none exists).
+ * Parses a string in Newick format and returns the corresponding rooted tree and taxon names.
+ * \throws bad_input_error if the tree is malformed or a duplicate taxon is encountered.
+ * \returns the \ref named_tree corresponding to the input string
  */
-std::pair<bitmatrix, index> parse_bitmatrix(std::istream& input, const index_map& indices,
-                                            index tree_size);
+named_tree parse_nwk(const std::string& input);
+
+/**
+ * Parses a data-file and returns the associated bit-matrix with taxon names as well as a
+ * comprehensive taxon (or \ref none if none exists).
+ * \throws bad_input_error if the data file is malformed or a duplicate taxon is encountered.
+ * \returns the \ref occurrence_data corresponding to the input stream
+ */
+occurrence_data parse_bitmatrix(std::istream& input);
 
 } // namespace terraces
 

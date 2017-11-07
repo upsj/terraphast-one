@@ -1,4 +1,3 @@
-
 #include <terraces/parser.hpp>
 
 #include <algorithm>
@@ -72,19 +71,16 @@ token next_token(Iterator& it, Iterator end) {
 	return {token_type::name, {name_begin, name_end}};
 }
 
-} // namespace parsing
-
-tree_set parse_nwk(const std::string& input) {
+template <typename NameCallback>
+tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 	auto ret = tree{};
-	auto names = name_map{""};
-	auto indices = index_map{};
 
 	auto stack = parsing::parser_stack{};
 
 	auto it = input.begin();
 	const auto end = input.end();
 
-	ret.emplace_back(none, none, none);
+	ret.emplace_back(none, none, none, none);
 	auto state = parsing::parser_state{none, 0};
 
 	for (auto token = parsing::next_token(it, end); token.type != parsing::token_type::eof;
@@ -93,26 +89,21 @@ tree_set parse_nwk(const std::string& input) {
 		case parsing::token_type::lparen: {
 			const auto parent = state.self;
 			const auto self = ret.size();
-			utils::ensure<bad_input_error>(
-			        names[parent] == "",
-			        "inner node names must come AFTER their children");
 			stack.push(state);
 			state = parsing::parser_state{parent, self};
-			ret.emplace_back(parent, none, none);
+			ret.emplace_back(parent, none, none, none);
 			ret[parent].lchild() = self;
-			names.emplace_back();
 			break;
 		}
 		case parsing::token_type::seperator: {
 			const auto parent = state.parent;
 			const auto self = ret.size();
 			state.self = self;
-			ret.emplace_back(parent, none, none);
+			ret.emplace_back(parent, none, none, none);
 			auto& parent_node = ret[parent];
 			utils::ensure<bad_input_error>(parent_node.rchild() == none,
 			                               "input tree is not binary");
 			parent_node.rchild() = self;
-			names.emplace_back();
 			break;
 			// no need to update state as the tree is binary to
 			// begin with, which means that we will now go up a level
@@ -124,77 +115,96 @@ tree_set parse_nwk(const std::string& input) {
 			break;
 		}
 		case parsing::token_type::name: {
-			if (is_leaf(ret[state.self])) {
-				names[state.self] = token.name;
-				indices[token.name] = state.self;
-			}
+			cb(ret[state.self], token.name);
 			break;
 		}
 		case parsing::token_type::eof:
 		default: { throw std::logic_error{"dafuq?"}; }
 		}
 	}
-	if (not names.front().empty() and names.front().back() == ';') {
-		names.front().pop_back();
-	}
 	utils::ensure<bad_input_error>(stack.empty(), "parentheses left unclosed");
-	return {std::move(ret), std::move(names), std::move(indices)};
+	return ret;
 }
 
-std::pair<bitmatrix, index> parse_bitmatrix(std::istream& input, const index_map& indices,
-                                            index tree_size) {
-	auto cols = index{};
-	auto rows = index{}; // mostly a dummy;
+} // namespace parsing
+
+tree parse_nwk(const std::string& input, const index_map& taxa) {
+	return parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {
+		if (is_leaf(n)) {
+			auto it = taxa.find(name);
+			utils::ensure<bad_input_error>(it != taxa.end(), "Unknown taxon " + name);
+			n.taxon() = (*it).second;
+		}
+	});
+}
+
+named_tree parse_nwk(const std::string& input) {
+	name_map names;
+	index_map indices;
+	auto t = parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {
+		if (is_leaf(n)) {
+			auto ret = indices.insert({name, names.size()});
+			utils::ensure<bad_input_error>(ret.second, "Duplicate taxon " + name);
+			n.taxon() = names.size();
+			names.emplace_back(name);
+		}
+	});
+	return {t, names, indices};
+}
+
+occurrence_data parse_bitmatrix(std::istream& input) {
+	index cols{};
+	index rows{};
 	input >> rows >> cols >> std::ws;
-	utils::ensure<bad_input_error>(2 * rows - 1 == tree_size, "mismatching tree-sizes");
-	auto line = std::string{};
-	auto suitable_root = none;
-	// last column used to check if all species are present
-	auto mat = bitmatrix{tree_size, cols + 1};
-	auto species_per_site = std::vector<std::size_t>(cols, 0);
+
+	auto comp_taxon = none;
+	bitmatrix mat{rows, cols};
+	name_map names;
+	index_map indices;
+
+	std::string line{};
 	while (std::getline(input, line)) {
 		if (line.empty()) {
 			continue;
 		}
-		const auto name_start = std::find(line.rbegin(), line.rend(), ' ').base();
-		const auto species_name = std::string{name_start, line.end()};
-		const auto species_it = indices.find(species_name);
-		utils::ensure<bad_input_error>(species_it != indices.end(),
-		                               std::string{"unknown species "} + species_name);
-		const auto species = (*species_it).second;
-
 		auto it = line.begin();
-		auto end = name_start;
-		auto all_data_available = true;
-		for (auto i = index{}; i < cols; ++i) {
+		auto end = line.end();
+		auto taxon_id = names.size();
+
+		// fill matrix
+		bool all_data_available = true;
+		for (index i = 0; i < cols; ++i) {
 			it = utils::skip_ws(it, end);
-			utils::ensure<bad_input_error>(it != end, "bad table in input");
+			utils::ensure<bad_input_error>(it != end,
+			                               "Incomplete row in data matrix: " + line);
 			auto c = *it++;
+			utils::ensure<bad_input_error>(c == '1' || c == '0',
+			                               "Invalid character in data matrix: " +
+			                                       std::string{c});
 			if (c == '1') {
-				mat.set(species, i, true);
-				mat.set(species, cols, true);
-				++species_per_site[i];
+				mat.set(taxon_id, i, true);
 			} else {
 				all_data_available = false;
 			}
 		}
-		utils::ensure<bad_input_error>(++it == end, "bad table in input");
-		if (all_data_available and suitable_root == none) {
-			suitable_root = species;
+
+		// read taxon name
+		it = utils::skip_ws(it, end);
+		utils::ensure<bad_input_error>(it != end, "Empty name in data matrix: " + line);
+		auto taxon_name = std::string{it, end};
+		auto was_inserted = indices.insert({taxon_name, names.size()}).second;
+		utils::ensure<bad_input_error>(was_inserted,
+		                               "Duplicate taxon in data matrix: " + taxon_name);
+		names.emplace_back(std::move(taxon_name));
+
+		// store comprehensive taxon
+		if (all_data_available and comp_taxon == none) {
+			comp_taxon = taxon_id;
 		}
 	}
-	for (auto name_pair : indices) {
-		bool has_species = mat.get(name_pair.second, cols);
-		utils::ensure<bad_input_error>(has_species,
-		                               std::string{"missing species "} + name_pair.first);
-	}
-	auto interesting_cols = std::vector<std::size_t>();
-	for (auto i = std::size_t{}; i < cols; ++i) {
-		if (species_per_site[i] > 1u) {
-			interesting_cols.push_back(i);
-		}
-	}
-	return {mat.get_cols(interesting_cols), suitable_root};
+	utils::ensure<bad_input_error>(rows == names.size(), "Invalid number of rows");
+
+	return {mat, names, indices, comp_taxon};
 }
 
 } // namespace terraces
