@@ -23,9 +23,9 @@ std::ostream& operator<<(std::ostream& stream, utils::named_output<constraints, 
 constraints compute_constraints(const std::vector<tree>& trees) {
 	constraints result;
 	auto num_nodes = trees[0].size();
-	std::vector<std::pair<index, index>> outermost_nodes{num_nodes, std::make_pair(none, none)};
+	std::vector<std::pair<index, index>> outermost_nodes(num_nodes, {none, none});
 
-	for (auto t : trees) {
+	for (auto& t : trees) {
 		// collect outermost nodes for each subtree (these have lca i)
 		foreach_postorder(t, [&](index i) {
 			auto node = t[i];
