@@ -80,6 +80,8 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 	auto it = input.begin();
 	const auto end = input.end();
 
+	bool unrooted = false;
+
 	ret.emplace_back(none, none, none, none);
 	auto state = parsing::parser_state{none, 0};
 
@@ -100,19 +102,34 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 		}
 		case parsing::token_type::seperator: {
 			const auto parent = state.parent;
-			const auto self = ret.size();
-			state.self = self;
-			ret.emplace_back(parent, none, none, none);
-			auto& parent_node = ret[parent];
-			utils::ensure<bad_input_error>(parent_node.rchild() == none,
-			                               "input tree is not binary");
-			parent_node.rchild() = self;
-			break;
+			if (ret[parent].rchild() != none) {
+				// (*,old,new)root, state = {root,old}
+				// -> (*,(old,new)aux)root
+				utils::ensure<bad_input_error>(parent == 0,
+				                               "input tree is not bifurcating");
+				unrooted = true;
+				auto old_node = state.self;
+				auto aux_node = ret.size();
+				auto new_node = ret.size() + 1;
+				assert(ret[0].rchild() == state.self);
+				ret.emplace_back(0, old_node, new_node, none);
+				ret.emplace_back(aux_node, none, none, none);
+				ret[0].rchild() = aux_node;
+				ret[old_node].parent() = aux_node;
+				stack.push({0, aux_node});
+				state.parent = aux_node;
+				state.self = new_node;
+			} else {
+				state.self = ret.size();
+				ret.emplace_back(parent, none, none, none);
+				ret[parent].rchild() = state.self;
+			}
 			// no need to update state as the tree is binary to
 			// begin with, which means that we will now go up a level
+			break;
 		}
 		case parsing::token_type::rparen: {
-			utils::ensure<bad_input_error>(not stack.empty(), "mismatched parenthesis");
+			utils::ensure<bad_input_error>(not stack.empty(), "mismatched parentheses");
 			state = stack.top();
 			stack.pop();
 			break;
@@ -124,6 +141,10 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 		case parsing::token_type::eof:
 		default: { throw std::logic_error{"dafuq?"}; }
 		}
+	}
+	if (unrooted) {
+		utils::ensure<bad_input_error>(!stack.empty(), "mismatched parentheses");
+		stack.pop();
 	}
 	utils::ensure<bad_input_error>(stack.empty(), "parentheses left unclosed");
 	return ret;

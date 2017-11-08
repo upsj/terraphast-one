@@ -100,6 +100,18 @@ TEST_CASE("parsing a tree with quotes, three leaves and two inner nodes", "[pars
 	CHECK(indices.size() == 3);
 }
 
+TEST_CASE("parsing an unrooted tree with three leaves", "[parser]") {
+	const auto results = parse_new_nwk("(foo,bar,'baz')");
+	auto exp_names = name_map{"foo", "bar", "baz"};
+	auto exp_tree = tree{{none, 1, 3, none},
+	                     {0, none, none, 0},
+	                     {3, none, none, 1},
+	                     {0, 2, 4, none},
+	                     {3, none, none, 2}};
+	CHECK(results.names == exp_names);
+	CHECK(results.tree == exp_tree);
+}
+
 TEST_CASE("parsing trees with mismatching parentheses", "[parser]") {
 	// too many closing parentheses
 	CHECK_THROWS_AS(parse_new_nwk("((,),))"), bad_input_error);
@@ -110,7 +122,7 @@ TEST_CASE("parsing trees with mismatching parentheses", "[parser]") {
 	// ternary nodes (simple)
 	CHECK_THROWS_AS(parse_new_nwk("((,,),"), bad_input_error);
 	// ternary nodes (complex)
-	CHECK_THROWS_AS(parse_new_nwk("((,),((,),),)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("(,((,),((,),),))"), bad_input_error);
 }
 
 TEST_CASE("parsing trees invalid format", "[parser]") {
