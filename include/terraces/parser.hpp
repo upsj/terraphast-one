@@ -36,7 +36,7 @@ tree parse_nwk(const std::string& input, const index_map& taxa);
  * \throws bad_input_error if the tree is malformed or a duplicate taxon is encountered.
  * \returns the \ref named_tree corresponding to the input string
  */
-named_tree parse_nwk(const std::string& input);
+named_tree parse_new_nwk(const std::string& input);
 
 /**
  * Parses a data-file and returns the associated bit-matrix with taxon names as well as a

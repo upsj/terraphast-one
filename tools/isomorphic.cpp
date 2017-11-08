@@ -20,7 +20,7 @@ std::vector<tree> read_trees(std::string file) {
 		std::getline(tree_file, tree_string);
 	}
 	{
-		auto fst_tree = parse_nwk(tree_string);
+		auto fst_tree = parse_new_nwk(tree_string);
 		indices = fst_tree.indices;
 		trees.push_back(fst_tree.tree);
 	}

@@ -141,7 +141,7 @@ tree parse_nwk(const std::string& input, const index_map& taxa) {
 	});
 }
 
-named_tree parse_nwk(const std::string& input) {
+named_tree parse_new_nwk(const std::string& input) {
 	name_map names;
 	index_map indices;
 	auto t = parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {

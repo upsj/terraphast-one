@@ -11,7 +11,7 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("parsing a tree with just a root-node", "[parser]") {
-	const auto results = parse_nwk("foo");
+	const auto results = parse_new_nwk("foo");
 	const auto& tree = results.tree;
 	const auto& names = results.names;
 	const auto& indices = results.indices;
@@ -24,7 +24,7 @@ TEST_CASE("parsing a tree with just a root-node", "[parser]") {
 }
 
 TEST_CASE("parsing a tree with one real node", "[parser]") {
-	const auto results = parse_nwk("(foo)bar");
+	const auto results = parse_new_nwk("(foo)bar");
 	const auto& tree = results.tree;
 	const auto& names = results.names;
 	const auto& indices = results.indices;
@@ -41,7 +41,7 @@ TEST_CASE("parsing a tree with one real node", "[parser]") {
 }
 
 TEST_CASE("parsing a tree with three leaves and two inner nodes", "[parser]") {
-	const auto results = parse_nwk("((foo,bar)inner, baz)outer");
+	const auto results = parse_new_nwk("((foo,bar)inner, baz)outer");
 	const auto& tree = results.tree;
 	const auto& names = results.names;
 	const auto& indices = results.indices;
@@ -71,7 +71,7 @@ TEST_CASE("parsing a tree with three leaves and two inner nodes", "[parser]") {
 }
 
 TEST_CASE("parsing a tree with quotes, three leaves and two inner nodes", "[parser]") {
-	const auto results = parse_nwk("((foo,bar)'inner', 'baz')outer");
+	const auto results = parse_new_nwk("((foo,bar)'inner', 'baz')outer");
 	const auto& tree = results.tree;
 	const auto& names = results.names;
 	const auto& indices = results.indices;
@@ -102,24 +102,24 @@ TEST_CASE("parsing a tree with quotes, three leaves and two inner nodes", "[pars
 
 TEST_CASE("parsing trees with mismatching parentheses", "[parser]") {
 	// too many closing parentheses
-	CHECK_THROWS_AS(parse_nwk("((,),))"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((,),))"), bad_input_error);
 	// too many opening parentheses
-	CHECK_THROWS_AS(parse_nwk("((,)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((,)"), bad_input_error);
 	// too many opening parentheses
-	CHECK_THROWS_AS(parse_nwk("((,),"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((,),"), bad_input_error);
 	// ternary nodes (simple)
-	CHECK_THROWS_AS(parse_nwk("((,,),"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((,,),"), bad_input_error);
 	// ternary nodes (complex)
-	CHECK_THROWS_AS(parse_nwk("((,),((,),),)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((,),((,),),)"), bad_input_error);
 }
 
 TEST_CASE("parsing trees invalid format", "[parser]") {
 	// inner node names must come after their children.
-	CHECK_THROWS_AS(parse_nwk("a(,)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("a(,)"), bad_input_error);
 }
 
 TEST_CASE("parsing trees with unclosed quotes", "[parser]") {
-	CHECK_THROWS_AS(parse_nwk("(('a',''),(('c,),),)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("(('a',''),(('c,),),)"), bad_input_error);
 }
 
 TEST_CASE("parsing a datafile with three species and two cols", "[parser],[data-parser]") {
