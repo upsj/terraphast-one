@@ -7,10 +7,10 @@ namespace terraces {
 
 /**
  * Re-roots the given tree in-place.
- * The given \p root_leaf will be placed to the right of the root.
+ * The leaf corresponding to the given \p comp_taxon will be placed to the right of the root.
  * child of our new root, with the rest of the tree being the left subtree.
  */
-void reroot_inplace(tree& t, index root_leaf);
+void reroot_inplace(tree& t, index comp_taxon);
 
 } // namespace terraces
 

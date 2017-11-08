@@ -3,7 +3,7 @@
 namespace terraces {
 
 multitree_iterator::multitree_iterator(const multitree_node* root)
-        : m_tree(2 * root->num_leaves - 1), m_leaves(m_tree.size(), none), m_choices(m_tree.size()),
+        : m_tree(2 * root->num_leaves - 1), m_choices(m_tree.size()),
           m_unconstrained_choices(m_tree.size()) {
 	m_choices[0] = {root};
 	init_subtree(0);
@@ -12,7 +12,7 @@ multitree_iterator::multitree_iterator(const multitree_node* root)
 void multitree_iterator::init_subtree(index i, index single_leaf) {
 	m_tree[i].lchild() = none;
 	m_tree[i].rchild() = none;
-	m_leaves[i] = single_leaf;
+	m_tree[i].taxon() = single_leaf;
 }
 
 void multitree_iterator::init_subtree(index i, multitree_nodes::two_leaves two_leaves) {
@@ -20,11 +20,9 @@ void multitree_iterator::init_subtree(index i, multitree_nodes::two_leaves two_l
 	const auto r = i + 2;
 	m_tree[i].lchild() = l;
 	m_tree[i].rchild() = r;
-	m_tree[l] = {i, none, none};
-	m_tree[r] = {i, none, none};
-	m_leaves[i] = none;
-	m_leaves[l] = two_leaves.left_leaf;
-	m_leaves[r] = two_leaves.right_leaf;
+	m_tree[i].taxon() = none;
+	m_tree[l] = {i, none, none, two_leaves.left_leaf};
+	m_tree[r] = {i, none, none, two_leaves.right_leaf};
 }
 
 void multitree_iterator::init_subtree(index i, multitree_nodes::unconstrained unconstrained) {
@@ -37,17 +35,15 @@ void multitree_iterator::init_subtree_unconstrained(index i, multitree_nodes::un
 	auto& node = m_tree[i];
 	if (bip.num_leaves() <= 2) {
 		if (bip.num_leaves() == 1) {
-			m_leaves[i] = data.begin[bip.leftmost_leaf()];
 			node.lchild() = none;
 			node.rchild() = none;
+			node.taxon() = data.begin[bip.leftmost_leaf()];
 		} else {
-			m_leaves[i] = none;
-			m_leaves[i + 1] = data.begin[bip.leftmost_leaf()];
-			m_leaves[i + 2] = data.begin[bip.rightmost_leaf()];
 			node.lchild() = i + 1;
 			node.rchild() = i + 2;
-			m_tree[i + 1] = {i, none, none};
-			m_tree[i + 2] = {i, none, none};
+			node.taxon() = none;
+			m_tree[i + 1] = {i, none, none, data.begin[bip.leftmost_leaf()]};
+			m_tree[i + 2] = {i, none, none, data.begin[bip.rightmost_leaf()]};
 		}
 	} else {
 		const auto lbip = small_bipartition{bip.left_mask()};
@@ -56,9 +52,9 @@ void multitree_iterator::init_subtree_unconstrained(index i, multitree_nodes::un
 		const auto right = i + 1 + 2 * lbip.num_leaves() - 1;
 		node.lchild() = left;
 		node.rchild() = right;
+		node.taxon() = none;
 		m_unconstrained_choices[left] = lbip;
 		m_unconstrained_choices[right] = rbip;
-		m_leaves[i] = none;
 		m_tree[node.lchild()].parent() = i;
 		m_tree[node.rchild()].parent() = i;
 
@@ -75,11 +71,11 @@ void multitree_iterator::init_subtree(index i, multitree_nodes::inner_node inner
 	const auto rindex = lindex + (2 * left->num_leaves - 1);
 	m_tree[i].lchild() = lindex;
 	m_tree[i].rchild() = rindex;
+	m_tree[i].taxon() = none;
 	m_tree[lindex].parent() = i;
 	m_tree[rindex].parent() = i;
 	m_choices[lindex] = {left};
 	m_choices[rindex] = {right};
-	m_leaves[i] = none;
 	init_subtree(lindex);
 	init_subtree(rindex);
 }

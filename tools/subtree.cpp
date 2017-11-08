@@ -17,7 +17,7 @@ int main(int argc, char** argv) try {
 	auto tree_file = std::ifstream{argv[1]};
 	auto tree_string = std::string{};
 	std::getline(tree_file, tree_string);
-	auto data = terraces::parse_nwk(tree_string);
+	auto data = terraces::parse_new_nwk(tree_string);
 
 	auto names_file = std::ifstream{argv[2]};
 	std::set<std::string> names;

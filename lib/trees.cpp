@@ -1,83 +1,36 @@
 #include "trees_impl.hpp"
+#include "utils.hpp"
 #include <algorithm>
 #include <ostream>
 
 namespace terraces {
 
-bool is_rooted_tree(const tree& t) {
-	if (!is_valid_tree(t)) {
-		return false;
-	}
+void check_rooted_tree(const tree& t) {
+	// check edge cases
+	assert(t.size() != 0 && "tree is empty");
+	assert((t.size() != 1 || (is_leaf(t[0]) && is_root(t[0]))) && "invalid trivial tree");
 
 	// check if parent/child assignment is symmetric
 	for (index i = 0; i < t.size(); ++i) {
-		if (is_leaf(t[i])) {
-			continue;
-		}
-
-		auto lc = t[i].lchild();
-		auto rc = t[i].rchild();
-		assert(lc < t.size());
-		assert(rc < t.size());
-		if (t[lc].parent() != i || t[rc].parent() != i) {
-			return false;
-		}
-	}
-
-	return is_root(t[0]);
-}
-
-bool is_valid_tree(const tree& t) {
-	index n_edges = 0;
-	bool found_root = false;
-	// first: degree check
-	for (auto& n : t) {
-		index degree = 0;
-		for (auto i : n.data) {
-			if (i != none) {
-				++degree;
-			}
-		}
-		if (degree == 0) {
-			return false;
-		}
-		// we must not have multiple roots
-		if (degree == 2) {
-			if (found_root) {
-				return false;
-			}
-			found_root = true;
-		}
-		n_edges += degree;
-	}
-
-	// second: number of edges
-	if (n_edges % 2 != 0) {
-		// must be even
-		return false;
-	}
-	n_edges /= 2;
-	if (n_edges != t.size() - 1) {
-		return false;
-	}
-
-	// third: reverse-edge for each edge
-	for (index i = 0; i < t.size(); ++i) {
-		for (index m = 0; m < 3; ++m) {
-			index j = t[i].data[m];
-			if (j == none) {
-				continue;
-			}
-			assert(j < t.size());
-			// we have the edge i->j and look for j->i
-			auto nj = t[j].data;
-			if (std::count(nj.begin(), nj.end(), i) != 1) {
-				return false;
-			}
+		auto n = t[i];
+		if (is_leaf(n)) {
+			// leaf l: child of parent is correct
+			auto p = n.parent();
+			assert(p < t.size() && "parent overflow");
+			assert((t[p].lchild() == i || t[p].rchild() == i) &&
+			       "leaf's parent doesn't point to leaf");
+		} else {
+			// inner n: parent of lc and rc is correct
+			auto lc = n.lchild();
+			auto rc = n.rchild();
+			assert(lc < t.size() && "lchild overflow");
+			assert(rc < t.size() && "rchild overflow");
+			assert(t[lc].parent() == i && t[rc].parent() == i &&
+			       "nodes children don't point to node");
+			assert(lc != rc && "lchild == rchild");
 		}
 	}
-
-	return true;
+	assert(is_root(t[0]) && "first node is not the root");
 }
 
 std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {
@@ -85,20 +38,10 @@ std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {
 	const auto& names = *tree_pair.names;
 	auto pre_cb = [&](index) { s << '('; };
 	auto post_cb = [&](index) { s << ')'; };
-	auto leaf_cb = [&](index i) { s << names[i]; };
-	auto sibling_cb = [&](index) { s << ','; };
-	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb);
-	s << ';';
-	return s;
-}
-
-std::ostream& operator<<(std::ostream& s, newick_permuted_t tree_set) {
-	const auto& t = *tree_set.t;
-	const auto& names = *tree_set.names;
-	const auto& perm = *tree_set.leaf_perm;
-	auto pre_cb = [&](index) { s << '('; };
-	auto post_cb = [&](index) { s << ')'; };
-	auto leaf_cb = [&](index i) { s << names[perm[i]]; };
+	auto leaf_cb = [&](index i) {
+		if (t[i].taxon() != none)
+			s << names[t[i].taxon()];
+	};
 	auto sibling_cb = [&](index) { s << ','; };
 	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb);
 	s << ';';
@@ -117,52 +60,4 @@ std::vector<index> postorder(const tree& t) {
 	return result;
 }
 
-void print_tree_dot_unrooted(const tree& t, const name_map& names, std::ostream& output,
-                             std::string name_prefix) {
-	output << "strict graph {\n";
-	index i = 0;
-	for (auto n : t) {
-		if (is_root(n)) {
-			index u = n.lchild();
-			index v = n.rchild();
-			if (names[u] == "") {
-				output << "\"" << name_prefix << u << "\"";
-			} else {
-				output << "\"" << name_prefix << names[u] << "\"";
-			}
-			output << " -- ";
-			if (names[v] == "") {
-				output << "\"" << name_prefix << v << "\"";
-			} else {
-				output << "\"" << name_prefix << names[v] << "\"";
-			}
-			output << ";\r\n";
-		} else {
-			for (auto v : n.data) {
-				if (v != none && !is_root(t[v])) {
-					if (names[i] == "") {
-						output << "\"" << name_prefix << i << "\"";
-					} else {
-						output << "\"" << name_prefix << names[i] << "\"";
-					}
-					output << " -- ";
-					if (names[v] == "") {
-						output << "\"" << name_prefix << v << "\"";
-					} else {
-						output << "\"" << name_prefix << names[v] << "\"";
-					}
-					output << ";\r\n";
-				}
-			}
-			if (names[i] == "") {
-				output << "\"" << name_prefix << i << "\" [shape=point];\r\n";
-			} else {
-				output << "\"" << name_prefix << names[i] << "\" [label=\""
-				       << names[i] << "\"];\r\n";
-			}
-		}
-		++i;
-	}
-	output << "}";
-}
 } // namespace terraces

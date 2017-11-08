@@ -10,11 +10,9 @@ namespace tests {
 inline void check_unique_trees(multitree_node* root, index num_trees) {
 	multitree_iterator it(root);
 
-	utils::free_list fl;
-	utils::stack_allocator<index> alloc(fl, bitvector::alloc_size(root->num_leaves));
-	std::vector<std::vector<bitvector>> bipartitions;
+	std::vector<std::vector<simple_bitvector>> bipartitions;
 	do {
-		bipartitions.push_back(tree_bipartitions(it.tree(), it.leaves(), alloc));
+		bipartitions.push_back(tree_bipartitions(it.tree()));
 	} while (it.next());
 	// check that all trees are unique
 	std::sort(bipartitions.begin(), bipartitions.end());

@@ -45,7 +45,6 @@ struct multitree_iterator_choicepoint {
 class multitree_iterator {
 private:
 	terraces::tree m_tree;
-	permutation m_leaves;
 	std::vector<multitree_iterator_choicepoint> m_choices;
 	std::vector<small_bipartition> m_unconstrained_choices;
 
@@ -65,7 +64,6 @@ public:
 	multitree_iterator(const multitree_node* root);
 	bool next();
 	const terraces::tree& tree() const { return m_tree; }
-	const permutation& leaves() const { return m_leaves; }
 };
 
 } // namespace terraces

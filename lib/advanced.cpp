@@ -3,7 +3,6 @@
 #include <terraces/clamped_uint.hpp>
 #include <terraces/errors.hpp>
 #include <terraces/subtree_extraction.hpp>
-#include <terraces/supertree.hpp>
 
 #include "supertree_enumerator.hpp"
 #include "supertree_variants.hpp"
@@ -11,13 +10,12 @@
 
 namespace terraces {
 
-supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, name_map& names,
-                                   index root) {
+supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, index root) {
 	auto trees = subtrees(tree, data);
 	auto constraints = compute_constraints(trees);
 	deduplicate_constraints(constraints);
-	auto num_leaves = remap_to_leaves(tree, constraints, names, root);
 
+	auto num_leaves = data.rows();
 	return {constraints, num_leaves, root};
 }
 

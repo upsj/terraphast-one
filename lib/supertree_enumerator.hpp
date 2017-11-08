@@ -2,7 +2,6 @@
 #define SUPERTREE_ENUMERATOR_HPP
 
 #include <atomic>
-#include <terraces/supertree.hpp>
 #include <thread>
 
 #include "bipartitions.hpp"

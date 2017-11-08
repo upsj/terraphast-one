@@ -11,16 +11,26 @@
 
 using namespace terraces;
 
-std::vector<tree_set> read_trees(std::string file) {
-	std::vector<tree_set> trees;
+std::vector<tree> read_trees(std::string file) {
+	std::vector<tree> trees;
 	auto tree_file = std::ifstream{file};
 	auto tree_string = std::string{};
+	index_map indices;
+	while (tree_string.empty()) {
+		std::getline(tree_file, tree_string);
+	}
+	{
+		auto fst_tree = parse_new_nwk(tree_string);
+		indices = fst_tree.indices;
+		trees.push_back(fst_tree.tree);
+	}
+
 	do {
 		std::getline(tree_file, tree_string);
 		if (tree_string.empty()) {
 			continue;
 		}
-		trees.push_back(parse_nwk(tree_string));
+		trees.push_back(parse_nwk(tree_string, indices));
 	} while (!tree_file.eof());
 
 	return trees;

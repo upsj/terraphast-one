@@ -8,12 +8,9 @@
 
 namespace terraces {
 
-bool is_isomorphic(const tree_set& fst, const tree_set& snd);
-bool is_isomorphic(const tree& fst, const std::vector<index>& fst_leaves, const tree& snd,
-                   const std::vector<index>& snd_leaves);
+bool is_isomorphic(const tree& fst, const tree& snd);
 
-std::vector<bitvector> tree_bipartitions(const tree& t, const std::vector<index>& leaves,
-                                         utils::stack_allocator<index> alloc);
+std::vector<simple_bitvector> tree_bipartitions(const tree& t);
 
 } // namespace terraces
 

@@ -11,40 +11,36 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("constraint extraction: full data", "[subtree_extraction],[constraints]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, none}, {2, none, none, 0}, {4, 6, 1, none},   {4, none, none, 1},
+	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
-	bitmatrix bm{t.size(), 1};
-	for (index row = 0; row < t.size(); ++row) {
-		if (is_leaf(t[row])) {
-			bm.set(row, 0, true);
-		}
+	bitmatrix bm{4, 1};
+	for (index row = 0; row < bm.rows(); ++row) {
+		bm.set(row, 0, true);
 	}
 
 	auto ts = subtrees(t, bm);
 	auto result = compute_constraints(ts);
-	auto required = constraints{{3, 6, 5}, {1, 6, 3}};
-	// auto required = constraints{{6, 3, 5}, {6, 1, 3}}; TODO These should work equivalently -
-	// find out the details!
+	auto required = constraints{{1, 3, 2}, {0, 3, 1}};
 	CHECK(result == required);
 }
 
 TEST_CASE("constraint extraction: example", "[subtree_extraction],[constraints]") {
-	tree t{{none, 4, 5}, {2, none, none}, {4, 6, 1},      {4, none, none},
-	       {0, 2, 3},    {0, none, none}, {2, none, none}};
+	tree t{{none, 4, 5, none}, {2, none, none, 0}, {4, 6, 1, none},   {4, none, none, 1},
+	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
-	bitmatrix bm{t.size(), 2};
+	bitmatrix bm{4, 2};
+	bm.set(0, 0, true);
+	bm.set(0, 1, true);
 	bm.set(1, 0, true);
-	bm.set(1, 1, true);
-	bm.set(3, 0, true);
-	bm.set(5, 0, true);
-	bm.set(5, 1, true);
-	bm.set(6, 1, true);
+	bm.set(2, 0, true);
+	bm.set(2, 1, true);
+	bm.set(3, 1, true);
 
 	auto trees = subtrees(t, bm);
 
 	auto result = compute_constraints(trees);
-	auto required = constraints{{3, 1, 5}, {1, 6, 5}};
+	auto required = constraints{{1, 0, 2}, {0, 3, 2}};
 	CHECK(result == required);
 }
 

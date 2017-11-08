@@ -20,15 +20,9 @@ inline bool is_leaf(const node& n) {
 
 /**
  * Returns whether a tree is a valid rooted tree.
- * This means it is valid and the last node is its root.
+ * This means it is valid and the first node is its root.
  */
-bool is_rooted_tree(const tree& t);
-
-/**
- * Returns whether a tree is valid.
- * This means it has no cycles and only nodes of degree 1 and 3 (and the root)
- */
-bool is_valid_tree(const tree& t);
+void check_rooted_tree(const tree& t);
 
 template <typename Result>
 Result count_unrooted_trees(index num_leaves) {
@@ -38,6 +32,13 @@ Result count_unrooted_trees(index num_leaves) {
 	}
 	return result;
 }
+
+inline index num_leaves_from_nodes(index num_nodes) {
+	assert(num_nodes % 2 != 0);
+	return (num_nodes + 1) / 2;
+}
+
+inline index num_nodes_from_leaves(index num_nodes) { return 2 * num_nodes - 1; }
 
 template <typename F1, typename F2, typename F3, typename F4>
 void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf_cb) {
