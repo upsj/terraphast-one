@@ -16,14 +16,12 @@ TEST_CASE("constraint extraction: full data", "[subtree_extraction],[constraints
 
 	bitmatrix bm{4, 1};
 	for (index row = 0; row < bm.rows(); ++row) {
-		if (is_leaf(t[row])) {
-			bm.set(row, 0, true);
-		}
+		bm.set(row, 0, true);
 	}
 
 	auto ts = subtrees(t, bm);
 	auto result = compute_constraints(ts);
-	auto required = constraints{{3, 6, 5}, {1, 6, 3}};
+	auto required = constraints{{1, 3, 2}, {0, 3, 1}};
 	CHECK(result == required);
 }
 
@@ -35,14 +33,14 @@ TEST_CASE("constraint extraction: example", "[subtree_extraction],[constraints]"
 	bm.set(0, 0, true);
 	bm.set(0, 1, true);
 	bm.set(1, 0, true);
-	bm.set(1, 0, true);
+	bm.set(2, 0, true);
 	bm.set(2, 1, true);
 	bm.set(3, 1, true);
 
 	auto trees = subtrees(t, bm);
 
 	auto result = compute_constraints(trees);
-	auto required = constraints{{3, 1, 5}, {1, 6, 5}};
+	auto required = constraints{{1, 0, 2}, {0, 3, 2}};
 	CHECK(result == required);
 }
 
