@@ -89,6 +89,9 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 		case parsing::token_type::lparen: {
 			const auto parent = state.self;
 			const auto self = ret.size();
+			utils::ensure<bad_input_error>(
+			        ret[state.self].taxon() == none,
+			        "Inner node names must come after the closing parentheses");
 			stack.push(state);
 			state = parsing::parser_state{parent, self};
 			ret.emplace_back(parent, none, none, none);
