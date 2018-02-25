@@ -7,8 +7,9 @@ namespace terraces {
 
 void check_rooted_tree(const tree& t) {
 	// check edge cases
-	assert(t.size() != 0 && "tree is empty");
-	assert((t.size() != 1 || (is_leaf(t[0]) && is_root(t[0]))) && "invalid trivial tree");
+	utils::ensure<std::invalid_argument>(t.size() != 0, "tree is empty");
+	utils::ensure<std::invalid_argument>((t.size() != 1 || (is_leaf(t[0]) && is_root(t[0]))),
+	                                     "invalid trivial tree");
 
 	// check if parent/child assignment is symmetric
 	for (index i = 0; i < t.size(); ++i) {
@@ -16,21 +17,23 @@ void check_rooted_tree(const tree& t) {
 		if (is_leaf(n)) {
 			// leaf l: child of parent is correct
 			auto p = n.parent();
-			assert(p < t.size() && "parent overflow");
-			assert((t[p].lchild() == i || t[p].rchild() == i) &&
-			       "leaf's parent doesn't point to leaf");
+			utils::ensure<std::invalid_argument>(p < t.size(), "parent overflow");
+			utils::ensure<std::invalid_argument>(
+			        (t[p].lchild() == i || t[p].rchild() == i),
+			        "leaf's parent doesn't point to leaf");
 		} else {
 			// inner n: parent of lc and rc is correct
 			auto lc = n.lchild();
 			auto rc = n.rchild();
-			assert(lc < t.size() && "lchild overflow");
-			assert(rc < t.size() && "rchild overflow");
-			assert(t[lc].parent() == i && t[rc].parent() == i &&
-			       "nodes children don't point to node");
-			assert(lc != rc && "lchild == rchild");
+			utils::ensure<std::invalid_argument>(lc < t.size(), "lchild overflow");
+			utils::ensure<std::invalid_argument>(rc < t.size(), "rchild overflow");
+			utils::ensure<std::invalid_argument>(t[lc].parent() == i &&
+			                                             t[rc].parent() == i,
+			                                     "nodes children don't point to node");
+			utils::ensure<std::invalid_argument>(lc != rc, "lchild == rchild");
 		}
 	}
-	assert(is_root(t[0]) && "first node is not the root");
+	utils::ensure<std::invalid_argument>(is_root(t[0]), "first node is not the root");
 }
 
 std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {

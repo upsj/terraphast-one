@@ -33,4 +33,4 @@ std::ostream& operator<<(std::ostream& stream, const big_integer& val) {
 }
 
 } // namespace terraces
-#endif
+#endif // USE_GMP

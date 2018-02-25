@@ -24,18 +24,20 @@ constexpr index max_index = std::numeric_limits<index>::max();
 }
 
 bool add_overflow(index a, index b, index& result) {
+	result = a + b;
 	if (max_index - b < a) {
-		result = max_index;
+		return true;
 	} else {
-		result += b;
+		return false;
 	}
 }
 
 bool mul_overflow(index a, index b, index& result) {
+	result = a * b;
 	if (max_index / b < a) {
-		result = max_index;
+		return true;
 	} else {
-		result *= b;
+		return false;
 	}
 }
 
