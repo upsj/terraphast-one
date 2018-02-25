@@ -1,7 +1,7 @@
 #ifndef BITS_HPP
 #define BITS_HPP
 
-#include "intrinsics.hpp"
+#include <intrinsics.hpp>
 
 namespace terraces {
 namespace bits {

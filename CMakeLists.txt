@@ -18,7 +18,6 @@ add_library(terraces
 		lib/bitvector.hpp
 		lib/clamped_uint.cpp
 		lib/constraints.cpp
-		lib/intrinsics.hpp
 		lib/multitree.cpp
 		lib/multitree.hpp
 		lib/multitree_impl.hpp
@@ -89,19 +88,6 @@ if(DEV_ENVIRONMENT AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 #####################################################################
-# set platform-specific options, include platform-specific files
-#####################################################################
-if(WIN32)
-	target_sources(terraces PRIVATE lib/intrinsics_cl.cpp)
-	target_compile_options(terraces PRIVATE -Oi -W4 -WX)
-	target_compile_options(terraces_c PRIVATE -WX)
-else()
-	target_sources(terraces PRIVATE lib/intrinsics_gcc_clang.cpp)
-	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
-	target_compile_options(terraces_c PRIVATE -Werror)
-endif()
-
-#####################################################################
 # build tools
 #####################################################################
 add_executable(app "app/app.cpp")
@@ -155,11 +141,25 @@ enable_testing()
 
 set_target_properties(terraces terraces_c app isomorphic reroot subtree tree_gen site_gen unittests PROPERTIES CXX_STANDARD 14)
 
-# Most of our files only compile with disabled language extensions for VC++
-# Unfortunately, Catch uses some windows-specific features, so we have to
-# enable these extensions for the Catch main method (more specific: not disable them)
+#####################################################################
+# set platform-specific options, include platform-specific files
+#####################################################################
 if(WIN32)
+	target_include_directories(terraces PRIVATE lib/cl)
+	target_include_directories(unittests PRIVATE lib/cl)
+	target_compile_options(terraces PRIVATE -Oi -W4)
+	target_compile_options(terraces_c PRIVATE -W4)
+
+	# Most of our files only compile with disabled language extensions for VC++
+	# Unfortunately, Catch uses some windows-specific features, so we have to
+	# enable these extensions for the Catch main method (more specific: not disable them)
 	file(GLOB ALL_SOURCES lib/*.cpp test/*.cpp tools/*.cpp app/*.cpp)
 	list(REMOVE_ITEM ALL_SOURCES "test/main.cpp")
 	set_source_files_properties(${ALL_SOURCES} PROPERTIES COMPILE_FLAGS "-Za")
+else()
+	target_include_directories(terraces PRIVATE lib/gcc_clang)
+	target_include_directories(unittests PRIVATE lib/gcc_clang)
+	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
+	target_compile_options(terraces_c PRIVATE -Werror)
+endif()
 endif()
