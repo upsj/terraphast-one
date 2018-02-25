@@ -1,5 +1,6 @@
 #include "trees_impl.hpp"
 #include "utils.hpp"
+#include <terraces/errors.hpp>
 #include <terraces/subtree_extraction.hpp>
 
 using std::vector;
@@ -12,7 +13,8 @@ namespace terraces {
 std::vector<tree> subtrees(const tree& t, const bitmatrix& occ) {
 	auto num_nodes = num_nodes_from_leaves(occ.rows());
 	auto num_sites = occ.cols();
-	assert(t.size() == num_nodes && "bitmatrix and tree have incompatible sizes");
+	utils::ensure<bad_input_error>(t.size() == num_nodes,
+	                               "bitmatrix and tree have incompatible sizes");
 	check_rooted_tree(t);
 	auto node_occ = bitmatrix{t.size(), occ.cols()};
 	std::vector<index> num_leaves_per_site(occ.cols(), 0);
