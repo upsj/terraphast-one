@@ -83,8 +83,6 @@ target_link_libraries(terraces_c terraces)
 #####################################################################
 # internal compiler flags
 #####################################################################
-target_compile_options(terraces PRIVATE -Werror)
-target_compile_options(terraces_c PRIVATE -Werror)
 if(DEV_ENVIRONMENT AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(terraces PUBLIC _GLIBCXX_DEBUG) # PUBLIC to maintain ABI compatibility
 	target_compile_definitions(terraces_c PRIVATE _GLIBCXX_DEBUG) # PRIVATE since no stdlib objects are used
@@ -95,10 +93,12 @@ endif()
 #####################################################################
 if(WIN32)
 	target_sources(terraces PRIVATE lib/intrinsics_cl.cpp)
-	target_compile_options(terraces PRIVATE -Oi -W4)
+	target_compile_options(terraces PRIVATE -Oi -W4 -WX)
+	target_compile_options(terraces_c PRIVATE -WX)
 else()
 	target_sources(terraces PRIVATE lib/intrinsics_gcc_clang.cpp)
-	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion)
+	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
+	target_compile_options(terraces_c PRIVATE -Werror)
 endif()
 
 #####################################################################
