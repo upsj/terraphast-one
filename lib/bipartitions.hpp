@@ -70,4 +70,4 @@ std::ostream& operator<<(std::ostream& stream, const bipartition_iterator& it);
 
 } // namespace terraces
 
-#endif
+#endif // TERRACES_BIPARTITIONS_HPP

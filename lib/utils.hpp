@@ -39,4 +39,4 @@ void ensure(bool b, Args&&... args) {
 } // namespace utils
 } // namespace terraces
 
-#endif
+#endif // TERRACES_UTILS_HPP

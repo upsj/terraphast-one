@@ -17,7 +17,7 @@ private:
 	index m_count;
 #ifndef NDEBUG
 	bool m_ranks_dirty;
-#endif
+#endif // NDEBUG
 
 public:
 	basic_ranked_bitvector(index size, Alloc alloc)
@@ -25,7 +25,7 @@ public:
 		base::add_sentinel();
 #ifndef NDEBUG
 		m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 	}
 
 	/** Sets a bit in the bitvector. */
@@ -33,21 +33,21 @@ public:
 		base::set(i);
 #ifndef NDEBUG
 		m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 	}
 	/** Clears a bit in the bitvector. */
 	void clr(index i) {
 		base::clr(i);
 #ifndef NDEBUG
 		m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 	}
 	/** Flips a bit in the bitvector. */
 	void flip(index i) {
 		base::flip(i);
 #ifndef NDEBUG
 		m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 	}
 
 	/** Clears all bits in the bitvector. */
@@ -97,7 +97,7 @@ void basic_ranked_bitvector<Alloc>::blank() {
 	base::blank();
 #ifndef NDEBUG
 	m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 }
 
 template <typename Alloc>
@@ -105,7 +105,7 @@ void basic_ranked_bitvector<Alloc>::bitwise_xor(const basic_bitvector<Alloc>& ot
 	base::bitwise_xor(other);
 #ifndef NDEBUG
 	m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 }
 
 template <typename Alloc>
@@ -113,7 +113,7 @@ void basic_ranked_bitvector<Alloc>::invert() {
 	base::invert();
 #ifndef NDEBUG
 	m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 }
 
 template <typename Alloc>
@@ -122,7 +122,7 @@ void basic_ranked_bitvector<Alloc>::set_bitwise_or(const basic_bitvector<Alloc>&
 	base::set_bitwise_or(fst, snd);
 #ifndef NDEBUG
 	m_ranks_dirty = true;
-#endif
+#endif // NDEBUG
 }
 
 template <typename Alloc>
@@ -135,7 +135,7 @@ void basic_ranked_bitvector<Alloc>::update_ranks() {
 	assert(m_count > 0);
 #ifndef NDEBUG
 	m_ranks_dirty = false;
-#endif
+#endif // NDEBUG
 }
 
 /** Returns a basic_ranked_bitvector<Alloc> containing size elements. */

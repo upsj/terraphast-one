@@ -86,4 +86,4 @@ bool operator==(const stack_allocator<T>& lhs, const stack_allocator<T>& rhs) {
 } // namespace utils
 } // namespace terraces
 
-#endif
+#endif // TERRACES_STACK_ALLOCATOR_HPP

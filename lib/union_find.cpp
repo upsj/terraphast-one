@@ -8,7 +8,7 @@ namespace terraces {
 union_find::union_find(index n, utils::stack_allocator<index> a) : m_parent(n, n, a) {
 #ifndef NDEBUG
 	m_compressed = true;
-#endif
+#endif // NDEBUG
 }
 
 index union_find::find(index x) {
@@ -30,13 +30,13 @@ void union_find::compress() {
 	}
 #ifndef NDEBUG
 	m_compressed = true;
-#endif
+#endif // NDEBUG
 }
 
 void union_find::merge(index x, index y) {
 #ifndef NDEBUG
 	m_compressed = false;
-#endif
+#endif // NDEBUG
 	index i = find(x);
 	index j = find(y);
 	if (i == j) {

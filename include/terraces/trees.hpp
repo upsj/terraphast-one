@@ -77,4 +77,4 @@ using index_map = std::unordered_map<std::string, index>;
 
 } // namespace terraces
 
-#endif
+#endif // TERRACES_TREES_HPP

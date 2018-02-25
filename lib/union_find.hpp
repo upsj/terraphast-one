@@ -17,7 +17,7 @@ private:
 	std::vector<index, utils::stack_allocator<index>> m_parent;
 #ifndef NDEBUG
 	bool m_compressed;
-#endif
+#endif // NDEBUG
 
 public:
 	union_find(index, utils::stack_allocator<index> a);
@@ -34,4 +34,4 @@ public:
 
 } // namespace terraces
 
-#endif
+#endif // TERRACES_UNION_FIND_HPP

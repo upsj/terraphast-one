@@ -35,4 +35,4 @@ private:
 };
 }
 
-#endif
+#endif // TERRACES_BITMATRIX_HPP
