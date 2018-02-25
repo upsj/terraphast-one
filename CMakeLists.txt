@@ -121,6 +121,9 @@ target_link_libraries(app terraces)
 # build tests
 #####################################################################
 
+add_library(Catch INTERFACE)
+target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/Catch/single_include)
+
 add_executable(unittests
 		test/main.cpp
 		test/bipartitions.cpp
@@ -145,7 +148,7 @@ add_executable(unittests
 		test/c_api.cpp
 		test/c_api_gmp.cpp
 )
-target_link_libraries(unittests terraces terraces_c)
+target_link_libraries(unittests terraces terraces_c Catch)
 add_test(NAME unittests COMMAND unittests)
 enable_testing()
 
