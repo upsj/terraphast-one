@@ -19,6 +19,25 @@ supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, inde
 	return {constraints, num_leaves, root};
 }
 
+std::pair<bitmatrix, index> maximum_comprehensive_columnset(const bitmatrix& data) {
+	std::vector<index> row_counts(data.rows(), 0u);
+	for (index i = 0; i < data.rows(); ++i) {
+		for (index j = 0; j < data.cols(); ++j) {
+			row_counts[i] += data.get(i, j) ? 1u : 0u;
+		}
+	}
+	auto it = std::max_element(row_counts.begin(), row_counts.end());
+	index comp_row = static_cast<index>(std::distance(row_counts.begin(), it));
+	utils::ensure<bad_input_error>(*it > 0, "bitmatrix contains only zeros");
+	std::vector<index> columns;
+	for (index j = 0; j < data.cols(); ++j) {
+		if (data.get(comp_row, j)) {
+			columns.push_back(j);
+		}
+	}
+	return {data.get_cols(columns), comp_row};
+}
+
 bool check_terrace(const supertree_data& data) {
 	tree_enumerator<variants::check_callback> enumerator{
 	        {}, data.num_leaves, data.constraints.size()};

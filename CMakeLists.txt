@@ -147,6 +147,7 @@ add_executable(unittests
 		test/validation.cpp
 		test/c_api.cpp
 		test/c_api_gmp.cpp
+		test/advanced.cpp
 )
 target_link_libraries(unittests terraces terraces_c Catch)
 add_test(NAME unittests COMMAND unittests)

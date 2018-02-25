@@ -25,6 +25,15 @@ struct supertree_data {
 };
 
 /**
+ * Extracts a maximum size subset of the columns
+ * so the resulting matrix contains a comprehensive taxon.
+ * @param data The input occurrence matrix
+ * @return The output matrix containing a subset of the columns of the input matrix and its
+ * comprehensive taxon.
+ */
+std::pair<bitmatrix, index> maximum_comprehensive_columnset(const bitmatrix& data);
+
+/**
  * Computes the necessary data to enumerate the supertrees of the given tree and missing data
  * matrix.
  * \param tree The phylogenetic tree. It must be rooted at a comprehensive taxon!

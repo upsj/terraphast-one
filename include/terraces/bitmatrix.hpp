@@ -28,6 +28,11 @@ public:
 	/** Returns a bitmatrix containing only the given columns. */
 	bitmatrix get_cols(const std::vector<std::size_t>& cols) const;
 
+	/** Tests for equality with another bitmatrix. */
+	bool operator==(const bitmatrix& other) const;
+	/** Tests for inequality with another bitmatrix. */
+	bool operator!=(const bitmatrix& other) const;
+
 private:
 	index m_rows;
 	index m_cols;

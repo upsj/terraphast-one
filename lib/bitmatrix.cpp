@@ -37,4 +37,10 @@ bitmatrix bitmatrix::get_cols(const std::vector<std::size_t>& cols) const {
 	return ret;
 }
 
+bool bitmatrix::operator==(const bitmatrix& other) const {
+	return other.rows() == rows() && other.cols() == cols() && other.m_vec == m_vec;
+}
+
+bool bitmatrix::operator!=(const bitmatrix& other) const { return !(*this == other); }
+
 } // namespace terraces
