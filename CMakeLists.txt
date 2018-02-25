@@ -153,7 +153,7 @@ if(WIN32)
 	# Most of our files only compile with disabled language extensions for VC++
 	# Unfortunately, Catch uses some windows-specific features, so we have to
 	# enable these extensions for the Catch main method (more specific: not disable them)
-	file(GLOB ALL_SOURCES lib/*.cpp test/*.cpp tools/*.cpp app/*.cpp)
+	file(GLOB ALL_SOURCES lib/*.cpp c_lib/*.cpp test/*.cpp tools/*.cpp app/*.cpp)
 	list(REMOVE_ITEM ALL_SOURCES "test/main.cpp")
 	set_source_files_properties(${ALL_SOURCES} PROPERTIES COMPILE_FLAGS "-Za")
 else()
