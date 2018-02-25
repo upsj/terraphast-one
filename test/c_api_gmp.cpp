@@ -28,4 +28,4 @@ TEST_CASE("c_api_count_data", "[c-api]") {
 	        terraces_success);
 	CHECK(mpz_get_ui(result) == 35);
 }
-#endif
+#endif // USE_GMP
