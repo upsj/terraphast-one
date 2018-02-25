@@ -91,55 +91,57 @@ std::uint64_t get_terrace_size_from_file(const std::string& nwk_filename,
 	return get_terrace_size(nwk_string, matrix_stream);
 }
 
-mpz_class get_terrace_size_bigint(const std::string& nwk_string, std::istream& matrix_stream) {
+big_integer get_terrace_size_bigint(const std::string& nwk_string, std::istream& matrix_stream) {
 	return count_terrace_bigint(parse_data(nwk_string, matrix_stream).first);
 }
 
-mpz_class get_terrace_size_bigint(std::istream& nwk_stream, std::istream& matrix_stream) {
+big_integer get_terrace_size_bigint(std::istream& nwk_stream, std::istream& matrix_stream) {
 	return get_terrace_size_bigint(read_all(nwk_stream), matrix_stream);
 }
 
-mpz_class get_terrace_size_bigint(std::istream& nwk_stream, const std::string& matrix_string) {
+big_integer get_terrace_size_bigint(std::istream& nwk_stream, const std::string& matrix_string) {
 	auto matrix_stream = std::istringstream{matrix_string};
 	return get_terrace_size_bigint(read_all(nwk_stream), matrix_stream);
 }
 
-mpz_class get_terrace_size_bigint(const std::string& nwk_string, const std::string& matrix_string) {
+big_integer get_terrace_size_bigint(const std::string& nwk_string,
+                                    const std::string& matrix_string) {
 	auto matrix_stream = std::istringstream{matrix_string};
 	return get_terrace_size_bigint(nwk_string, matrix_stream);
 }
-mpz_class get_terrace_size_bigint_from_file(const std::string& nwk_filename,
-                                            const std::string& matrix_filename) {
+big_integer get_terrace_size_bigint_from_file(const std::string& nwk_filename,
+                                              const std::string& matrix_filename) {
 	auto nwk_string = read_file(nwk_filename);
 	auto matrix_stream = open_ifstream(matrix_filename);
 	return get_terrace_size_bigint(nwk_string, matrix_stream);
 }
 
-mpz_class print_terrace(const std::string& nwk_string, std::istream& matrix_stream,
-                        std::ostream& output) {
+big_integer print_terrace(const std::string& nwk_string, std::istream& matrix_stream,
+                          std::ostream& output) {
 
 	auto data = parse_data(nwk_string, matrix_stream);
 	return print_terrace(data.first, data.second, output);
 }
 
-mpz_class print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
-                        std::ostream& out) {
+big_integer print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
+                          std::ostream& out) {
 	auto matrix_stream = std::istringstream{matrix_string};
 	return print_terrace(read_all(nwk_stream), matrix_stream, out);
 }
 
-mpz_class print_terrace(std::istream& nwk_stream, std::istream& matrix_stream, std::ostream& out) {
+big_integer print_terrace(std::istream& nwk_stream, std::istream& matrix_stream,
+                          std::ostream& out) {
 	return print_terrace(read_all(nwk_stream), matrix_stream, out);
 }
 
-mpz_class print_terrace(const std::string& nwk_string, const std::string& matrix_string,
-                        std::ostream& output) {
+big_integer print_terrace(const std::string& nwk_string, const std::string& matrix_string,
+                          std::ostream& output) {
 	auto matrix_stream = std::istringstream{matrix_string};
 	return print_terrace(nwk_string, matrix_stream, output);
 }
 
-mpz_class print_terrace_from_file(const std::string& nwk_filename,
-                                  const std::string& matrix_filename, std::ostream& output) {
+big_integer print_terrace_from_file(const std::string& nwk_filename,
+                                    const std::string& matrix_filename, std::ostream& output) {
 	auto nwk_string = read_file(nwk_filename);
 	auto matrix_stream = open_ifstream(matrix_filename);
 	return print_terrace(nwk_string, matrix_stream, output);

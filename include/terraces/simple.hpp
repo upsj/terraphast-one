@@ -5,7 +5,7 @@
 #include <iosfwd>
 #include <string>
 
-#include <gmpxx.h>
+#include "bigint.hpp"
 
 namespace terraces {
 namespace simple {
@@ -40,12 +40,13 @@ std::uint64_t get_terrace_size_from_file(const std::string& nwk_filename,
  * this method returns the maximum value of uint64_t instead.
  * \throws tree_count_overflow_error if the method will not terminate in any usable timeframe.
  */
-mpz_class get_terrace_size_bigint(std::istream& nwk_stream, std::istream& matrix_stream);
-mpz_class get_terrace_size_bigint(std::istream& nwk_stream, const std::string& matrix_string);
-mpz_class get_terrace_size_bigint(const std::string& nwk_string, std::istream& matrix_stream);
-mpz_class get_terrace_size_bigint(const std::string& nwk_string, const std::string& matrix_string);
-mpz_class get_terrace_size_bigint_from_file(const std::string& nwk_filename,
-                                            const std::string& matrix_filename);
+big_integer get_terrace_size_bigint(std::istream& nwk_stream, std::istream& matrix_stream);
+big_integer get_terrace_size_bigint(std::istream& nwk_stream, const std::string& matrix_string);
+big_integer get_terrace_size_bigint(const std::string& nwk_string, std::istream& matrix_stream);
+big_integer get_terrace_size_bigint(const std::string& nwk_string,
+                                    const std::string& matrix_string);
+big_integer get_terrace_size_bigint_from_file(const std::string& nwk_filename,
+                                              const std::string& matrix_filename);
 
 /**
  * Print the multitree representation of all trees to the provided output.
@@ -53,15 +54,15 @@ mpz_class get_terrace_size_bigint_from_file(const std::string& nwk_filename,
  * Note that the output may be quite large!
  * \throws tree_count_overflow_error if the method will not terminate in any usable timeframe.
  */
-mpz_class print_terrace(std::istream& nwk_stream, std::istream& matrix_stream, std::ostream& out);
-mpz_class print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
-                        std::ostream& out);
-mpz_class print_terrace(const std::string& nwk_string, std::istream& matrix_stream,
-                        std::ostream& out);
-mpz_class print_terrace(const std::string& nwk_string, const std::string& matrix_string,
-                        std::ostream& out);
-mpz_class print_terrace_from_file(const std::string& nwk_filename,
-                                  const std::string& matrix_filename, std::ostream& output);
+big_integer print_terrace(std::istream& nwk_stream, std::istream& matrix_stream, std::ostream& out);
+big_integer print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
+                          std::ostream& out);
+big_integer print_terrace(const std::string& nwk_string, std::istream& matrix_stream,
+                          std::ostream& out);
+big_integer print_terrace(const std::string& nwk_string, const std::string& matrix_string,
+                          std::ostream& out);
+big_integer print_terrace_from_file(const std::string& nwk_filename,
+                                    const std::string& matrix_filename, std::ostream& output);
 
 } // namespace simple
 } // namespace terraces

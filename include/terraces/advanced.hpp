@@ -1,11 +1,12 @@
 #ifndef ADVANCED_HPP
 #define ADVANCED_HPP
 
-#include "constraints.hpp"
-#include "parser.hpp"
-#include "rooting.hpp"
+#include <iosfwd>
 
-#include <gmpxx.h>
+#include "bigint.hpp"
+#include "bitmatrix.hpp"
+#include "constraints.hpp"
+#include "trees.hpp"
 
 namespace terraces {
 
@@ -62,7 +63,7 @@ uint64_t count_terrace(const supertree_data& data);
  * possible supertrees.
  * \return The number of trees on the phylogenetic terrace containing the input tree.
  */
-mpz_class count_terrace_bigint(const supertree_data& data);
+big_integer count_terrace_bigint(const supertree_data& data);
 /**
  * Enumerates all trees on a terrace around a phylogenetic tree.
  * The trees will be printed in a compressed <b>multitree format</b>,
@@ -82,7 +83,7 @@ mpz_class count_terrace_bigint(const supertree_data& data);
  * \param output The output stream into which the multitree will be written.
  * \return The number of trees on the phylogenetic terrace containing the input tree.
  */
-mpz_class print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);
 
 } // namespace terraces
 

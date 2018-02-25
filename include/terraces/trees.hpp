@@ -1,4 +1,3 @@
-
 #ifndef TERRACES_TREES_HPP
 #define TERRACES_TREES_HPP
 
@@ -7,20 +6,15 @@
 #include <cstdint>
 #include <iosfwd>
 #include <iostream>
-#include <limits>
 #include <sstream>
 #include <stack>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "definitions.hpp"
+
 namespace terraces {
-
-/** Our index type. */
-using index = std::size_t;
-
-/** Index value used to represent a non-index. */
-constexpr static const auto none = std::numeric_limits<index>::max();
 
 /**
  * Represents a node of a rooted tree.

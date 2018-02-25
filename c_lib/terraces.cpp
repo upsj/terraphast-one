@@ -9,6 +9,8 @@
 #include <terraces/advanced.hpp>
 #include <terraces/bitmatrix.hpp>
 #include <terraces/errors.hpp>
+#include <terraces/parser.hpp>
+#include <terraces/rooting.hpp>
 #include <terraces/simple.hpp>
 
 namespace {
@@ -80,38 +82,10 @@ terraces_errors terraces_check_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, bool* out) noexcept {
 	return exec_and_catch([&] {
 		auto sites = to_bitmatrix(missing_data);
-		auto tree = terraces::parse_nwk(nwk_string);
+		auto tree = terraces::parse_new_nwk(nwk_string);
 		terraces::reroot_inplace(tree.tree, sites.second);
 		*out = terraces::check_terrace(
-		        prepare_constraints(tree.tree, sites.first, tree.names, sites.second));
-	});
-}
-
-terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
-                                    const char* nwk_string, mpz_t out) noexcept {
-	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(missing_data);
-		auto tree = terraces::parse_nwk(nwk_string);
-		terraces::reroot_inplace(tree.tree, sites.second);
-		mpz_set(out, terraces::count_terrace_bigint(
-		                     prepare_constraints(tree.tree, sites.first, tree.names,
-		                                         sites.second))
-		                     .get_mpz_t());
-	});
-}
-
-terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
-                                    const char* nwk_string, mpz_t out,
-                                    const char* output_filename) noexcept {
-	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(missing_data);
-		auto tree = terraces::parse_nwk(nwk_string);
-		auto output = open_output_file(output_filename);
-		terraces::reroot_inplace(tree.tree, sites.second);
-		mpz_set(out, terraces::print_terrace(prepare_constraints(tree.tree, sites.first,
-		                                                         tree.names, sites.second),
-		                                     tree.names, output)
-		                     .get_mpz_t());
+		        prepare_constraints(tree.tree, sites.first, sites.second));
 	});
 }
 
@@ -121,10 +95,41 @@ terraces_errors terraces_check_tree_str(const char* missing_data, const char* nw
 	        [&] { *out = terraces::simple::is_on_terrace(nwk_string, missing_data); });
 }
 
+#ifdef USE_GMP
+terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
+                                    const char* nwk_string, mpz_t out) noexcept {
+	return exec_and_catch([&] {
+		auto sites = to_bitmatrix(missing_data);
+		auto tree = terraces::parse_new_nwk(nwk_string);
+		terraces::reroot_inplace(tree.tree, sites.second);
+		mpz_set(out, terraces::count_terrace_bigint(
+		                     prepare_constraints(tree.tree, sites.first, sites.second))
+		                     .value()
+		                     .get_mpz_t());
+	});
+}
+
+terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
+                                    const char* nwk_string, mpz_t out,
+                                    const char* output_filename) noexcept {
+	return exec_and_catch([&] {
+		auto sites = to_bitmatrix(missing_data);
+		auto tree = terraces::parse_new_nwk(nwk_string);
+		auto output = open_output_file(output_filename);
+		terraces::reroot_inplace(tree.tree, sites.second);
+		mpz_set(out, terraces::print_terrace(
+		                     prepare_constraints(tree.tree, sites.first, sites.second),
+		                     tree.names, output)
+		                     .value()
+		                     .get_mpz_t());
+	});
+}
+
 terraces_errors terraces_count_tree_str(const char* missing_data, const char* nwk_string,
                                         mpz_t out) noexcept {
 	return exec_and_catch([&] {
 		mpz_set(out, terraces::simple::get_terrace_size_bigint(nwk_string, missing_data)
+		                     .value()
 		                     .get_mpz_t());
 	});
 }
@@ -134,8 +139,10 @@ terraces_errors terraces_print_tree_str(const char* missing_data, const char* nw
 	return exec_and_catch([&] {
 		auto output = open_output_file(output_filename);
 		mpz_set(out, terraces::simple::print_terrace(nwk_string, missing_data, output)
+		                     .value()
 		                     .get_mpz_t());
 	});
 }
+#endif
 
 } // extern "C"

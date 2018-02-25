@@ -8,7 +8,7 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("clamped_uint", "[clamped_uint]") {
-	auto max = std::numeric_limits<uint64_t>::max();
+	auto max = std::numeric_limits<index>::max();
 	CHECK((clamped_uint{10} + clamped_uint{417}).value() == 10 + 417);
 	CHECK((clamped_uint{10} * clamped_uint{417}).value() == 10 * 417);
 	CHECK((clamped_uint{max} + 1).is_clamped());

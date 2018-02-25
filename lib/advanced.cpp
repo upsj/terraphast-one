@@ -39,13 +39,13 @@ uint64_t count_terrace(const supertree_data& data) {
 	}
 }
 
-mpz_class count_terrace_bigint(const supertree_data& data) {
-	tree_enumerator<variants::count_callback<mpz_class>> enumerator{
+big_integer count_terrace_bigint(const supertree_data& data) {
+	tree_enumerator<variants::count_callback<big_integer>> enumerator{
 	        {}, data.num_leaves, data.constraints.size()};
 	return enumerator.run(data.num_leaves, data.constraints, data.root);
 }
 
-mpz_class print_terrace(const supertree_data& data, const name_map& names, std::ostream& output) {
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output) {
 	tree_enumerator<variants::multitree_callback> enumerator{
 	        {}, data.num_leaves, data.constraints.size()};
 	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);

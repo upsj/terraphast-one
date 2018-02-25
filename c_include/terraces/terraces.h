@@ -1,4 +1,3 @@
-
 #ifndef TERRACES_TERRACES_H
 #define TERRACES_TERRACES_H
 
@@ -6,7 +5,9 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#ifdef USE_GMP
 #include <gmp.h>
+#endif
 
 #ifdef __cplusplus
 #define TERRACES_NOEXCEPT noexcept
@@ -38,6 +39,10 @@ enum terraces_errors {
 terraces_errors terraces_check_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, bool* out) TERRACES_NOEXCEPT;
 
+terraces_errors terraces_check_tree_str(const char* missing_data, const char* nwk_string,
+                                        bool* out) TERRACES_NOEXCEPT;
+
+#ifdef USE_GMP
 terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, mpz_t out) TERRACES_NOEXCEPT;
 
@@ -45,14 +50,12 @@ terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, mpz_t out,
                                     const char* output_filename) TERRACES_NOEXCEPT;
 
-terraces_errors terraces_check_tree_str(const char* missing_data, const char* nwk_string,
-                                        bool* out) TERRACES_NOEXCEPT;
-
 terraces_errors terraces_count_tree_str(const char* missing_data, const char* nwk_string,
                                         mpz_t out) TERRACES_NOEXCEPT;
 
 terraces_errors terraces_print_tree_str(const char* missing_data, const char* nwk_string, mpz_t out,
                                         const char* output_filename) TERRACES_NOEXCEPT;
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

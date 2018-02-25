@@ -4,7 +4,7 @@
 #include <terraces/constraints.hpp>
 #include <terraces/io_utils.hpp>
 
-#include <gmpxx.h>
+#include <terraces/bigint.hpp>
 #include <terraces/clamped_uint.hpp>
 
 #include "bipartitions.hpp"

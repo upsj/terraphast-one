@@ -3,7 +3,7 @@
 
 #include "trees_impl.hpp"
 
-#include <gmpxx.h>
+#include <terraces/bigint.hpp>
 
 namespace terraces {
 
@@ -47,7 +47,7 @@ struct unexplored {
 struct multitree_node {
 	multitree_node_type type;
 	index num_leaves;
-	mpz_class num_trees;
+	big_integer num_trees;
 	union {
 		index single_leaf;
 		multitree_nodes::two_leaves two_leaves;
