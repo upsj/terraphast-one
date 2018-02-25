@@ -153,11 +153,16 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 } // namespace parsing
 
 tree parse_nwk(const std::string& input, const index_map& taxa) {
+	std::vector<bool> found_taxon(taxa.size(), false);
 	return parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {
 		if (is_leaf(n)) {
 			auto it = taxa.find(name);
 			utils::ensure<bad_input_error>(it != taxa.end(), "Unknown taxon " + name);
-			n.taxon() = (*it).second;
+			auto taxon_id = (*it).second;
+			utils::ensure<bad_input_error>(!found_taxon[taxon_id],
+			                               "Duplicate taxon" + name);
+			found_taxon[taxon_id] = true;
+			n.taxon() = taxon_id;
 		}
 	});
 }

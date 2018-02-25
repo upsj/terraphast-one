@@ -114,15 +114,15 @@ TEST_CASE("parsing an unrooted tree with three leaves", "[parser]") {
 
 TEST_CASE("parsing trees with mismatching parentheses", "[parser]") {
 	// too many closing parentheses
-	CHECK_THROWS_AS(parse_new_nwk("((,),))"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((a,b),c))"), bad_input_error);
 	// too many opening parentheses
-	CHECK_THROWS_AS(parse_new_nwk("((,)"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((a,b)"), bad_input_error);
 	// too many opening parentheses
-	CHECK_THROWS_AS(parse_new_nwk("((,),"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((a,b),c"), bad_input_error);
 	// ternary nodes (simple)
-	CHECK_THROWS_AS(parse_new_nwk("((,,),"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("((a,b,c),a)"), bad_input_error);
 	// ternary nodes (complex)
-	CHECK_THROWS_AS(parse_new_nwk("(,((,),((,),),))"), bad_input_error);
+	CHECK_THROWS_AS(parse_new_nwk("(a,((b,c),((d,e),f),g))"), bad_input_error);
 }
 
 TEST_CASE("parsing trees invalid format", "[parser]") {
@@ -132,6 +132,12 @@ TEST_CASE("parsing trees invalid format", "[parser]") {
 
 TEST_CASE("parsing trees with unclosed quotes", "[parser]") {
 	CHECK_THROWS_AS(parse_new_nwk("(('a',''),(('c,),),)"), bad_input_error);
+}
+
+TEST_CASE("parsing trees with duplicate taxa", "[parser]") {
+	CHECK_THROWS_AS(parse_new_nwk("(a,a)"), bad_input_error);
+	index_map inds{{"a", 0}};
+	CHECK_THROWS_AS(parse_nwk("(a,a)", inds), bad_input_error);
 }
 
 TEST_CASE("parsing a datafile with three species and two cols", "[parser],[data-parser]") {
