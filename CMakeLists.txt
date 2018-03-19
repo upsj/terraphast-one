@@ -146,7 +146,7 @@ set_target_properties(terraces terraces_c app isomorphic reroot subtree tree_gen
 # set platform-specific options, include platform-specific files
 #####################################################################
 if(WIN32)
-	target_include_directories(terraces PRIVATE lib/cl)
+	target_include_directories(terraces PUBLIC lib/cl)
 	target_include_directories(unittests PRIVATE lib/cl)
 	target_compile_options(terraces PRIVATE -Oi -W4)
 	target_compile_options(terraces_c PRIVATE -W4)
@@ -158,7 +158,7 @@ if(WIN32)
 	list(REMOVE_ITEM ALL_SOURCES "test/main.cpp")
 	set_source_files_properties(${ALL_SOURCES} PROPERTIES COMPILE_FLAGS "-Za")
 else()
-	target_include_directories(terraces PRIVATE lib/gcc_clang)
+	target_include_directories(terraces PUBLIC lib/gcc_clang)
 	target_include_directories(unittests PRIVATE lib/gcc_clang)
 	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
 	target_compile_options(terraces_c PRIVATE -Werror)
