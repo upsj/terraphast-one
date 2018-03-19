@@ -38,18 +38,18 @@ public:
 	template <typename... Args>
 	stack_state_decorator(Args&&... args) : Callback{std::forward<Args>(args)...} {}
 
-	result_type begin_iteration(const bipartition_iterator& bip_it, const bitvector& c_occ,
+	result_type begin_iteration(const bipartitions& bip_it, const bitvector& c_occ,
 	                            const constraints& constraints) {
 		auto result = Callback::begin_iteration(bip_it, c_occ, constraints);
 		m_stack.emplace_back(result);
-		m_stack.back().current_bip = bip_it.cur_bip();
+		m_stack.back().current_bip = bip_it.begin_bip();
 		m_stack.back().max_bip = bip_it.end_bip();
 		return result;
 	}
 
-	void step_iteration(const bipartition_iterator& bip_it) {
-		Callback::step_iteration(bip_it);
-		m_stack.back().current_bip = bip_it.cur_bip();
+	void step_iteration(const bipartitions& bip_it, index bip) {
+		Callback::step_iteration(bip_it, bip);
+		m_stack.back().current_bip = bip;
 	}
 
 	void finish_iteration() {
@@ -103,7 +103,7 @@ public:
 		         << "}\" />\n";
 	}
 
-	result_type begin_iteration(const bipartition_iterator& bip_it, const bitvector& c_occ,
+	result_type begin_iteration(const bipartitions& bip_it, const bitvector& c_occ,
 	                            const constraints& c) {
 		output() << "<constraints val=\"{"
 		         << utils::as_comma_separated_output(c_occ, c, m_names) << "}\" />\n";
@@ -132,13 +132,13 @@ public:
 		return Callback::begin_iteration(bip_it, c_occ, c);
 	}
 
-	void step_iteration(const bipartition_iterator& bip_it) {
-		Callback::step_iteration(bip_it);
+	void step_iteration(const bipartitions& bip_it, index bip) {
+		Callback::step_iteration(bip_it, bip);
 		if (not m_first_iteration) {
 			--m_depth;
 			output() << "</bipartition>\n";
 		}
-		auto subleaves = bip_it.get_current_set();
+		auto subleaf_sets = bip_it.get_both_sets_unsafe(bip);
 		output() << "<bipartition l=\"{"
 		         << utils::as_comma_separated_output(subleaves, m_names) << "}\" r=\"{";
 		subleaves.bitwise_xor(bip_it.leaves());

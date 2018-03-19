@@ -41,13 +41,13 @@ public:
 	return_type base_unconstrained(const ranked_bitvector& leaves) {
 		return multitree_impl::make_unconstrained(alloc_node(), alloc_leaves(leaves));
 	}
-	return_type null_result() { return nullptr; }
+	return_type null_result() const { return nullptr; }
 
-	return_type fast_return_value(const bipartition_iterator& bip_it) {
+	return_type fast_return_value(const bipartitions& bip_it) {
 		return multitree_impl::make_unexplored(alloc_node(), alloc_leaves(bip_it.leaves()));
 	}
 
-	return_type begin_iteration(const bipartition_iterator& bip_it, const bitvector&,
+	return_type begin_iteration(const bipartitions& bip_it, const bitvector&,
 	                            const constraints&) {
 		return multitree_impl::make_alternative_array(
 		        alloc_node(), alloc_nodes(bip_it.num_bip()), bip_it.leaves().count());

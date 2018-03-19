@@ -10,20 +10,19 @@
 
 namespace terraces {
 
-bipartition_iterator::bipartition_iterator(const ranked_bitvector& leaves, const union_find& sets,
-                                           utils::stack_allocator<index> a)
+bipartitions::bipartitions(const ranked_bitvector& leaves, const union_find& sets,
+                           utils::stack_allocator<index> a)
         : m_alloc{a}, m_leaves{leaves}, m_sets{sets}, m_set_rep{find_set_reps()},
-          m_subleaves{leaves.size(), a}, m_bip{0}, m_end{(1ull << (m_set_rep.count() - 1))} {
+          m_end{(1ull << (m_set_rep.count() - 1))} {
 	utils::ensure<tree_count_overflow_error>(m_set_rep.count() < bits::word_bits,
 	                                         "Huge terrace encountered");
-	increase();
 }
 
-bool bipartition_iterator::in_left_partition(index i) const {
-	return (m_bip & (1ull << ((i - 1) & (bits::word_bits - 1)))) != 0;
+bool bipartitions::in_left_partition(index bip, index i) const {
+	return (bip & (1ull << ((i - 1) % bits::word_bits))) != 0;
 }
 
-ranked_bitvector bipartition_iterator::find_set_reps() const {
+ranked_bitvector bipartitions::find_set_reps() const {
 	ranked_bitvector set_rep(m_leaves.count(), m_alloc);
 	for (index i = 0; i < m_leaves.count(); ++i) {
 		set_rep.set(m_sets.simple_find(i));
@@ -32,40 +31,34 @@ ranked_bitvector bipartition_iterator::find_set_reps() const {
 	return set_rep;
 }
 
-bool bipartition_iterator::is_valid() const { return m_bip < m_end; }
-
-void bipartition_iterator::increase() {
-	m_bip++;
-	if (is_valid()) {
-		m_subleaves.blank();
-		index ii = 0;
-		for (auto i = m_leaves.first_set(); i < m_leaves.last_set();
-		     i = m_leaves.next_set(i)) {
-			if (in_left_partition(m_set_rep.rank(m_sets.simple_find(ii)))) {
-				m_subleaves.set(i);
-			}
-			++ii;
+ranked_bitvector bipartitions::get_first_set(index bip, utils::stack_allocator<index> alloc) const {
+	ranked_bitvector subleaves(m_leaves.size(), alloc);
+	index ii = 0;
+	for (auto i = m_leaves.first_set(); i < m_leaves.last_set(); i = m_leaves.next_set(i)) {
+		if (in_left_partition(bip, m_set_rep.rank(m_sets.simple_find(ii)))) {
+			subleaves.set(i);
 		}
-		m_subleaves.update_ranks();
+		++ii;
 	}
+	subleaves.update_ranks();
+	return subleaves;
 }
 
-const ranked_bitvector& bipartition_iterator::get_current_set() const { return m_subleaves; }
-
-void bipartition_iterator::flip_sets() {
-	m_subleaves.bitwise_xor(m_leaves);
-	m_subleaves.update_ranks();
+void bipartitions::flip_set(ranked_bitvector& set) const {
+	set.bitwise_xor(m_leaves);
+	set.update_ranks();
 }
 
-std::ostream& operator<<(std::ostream& stream, const bipartition_iterator& it) {
-	for (index b = it.end_bip(), c = it.cur_bip(); b != 0u; b >>= 1, c >>= 1) {
-		stream << (index)(c & 1);
-	}
-	stream << '/';
-	for (index b = it.end_bip(); b != 0u; b >>= 1) {
-		stream << (index)(b & 1);
-	}
-	return stream;
+std::pair<ranked_bitvector, ranked_bitvector>
+bipartitions::get_both_sets(index bip, utils::stack_allocator<index> alloc) const {
+	auto first_set = get_first_set(bip, alloc);
+	auto second_set = first_set;
+	flip_set(second_set);
+	return {std::move(first_set), std::move(second_set)};
+}
+
+std::pair<ranked_bitvector, ranked_bitvector> bipartitions::get_both_sets_unsafe(index bip) const {
+	return get_both_sets(bip, m_alloc);
 }
 
 } // namespace terraces

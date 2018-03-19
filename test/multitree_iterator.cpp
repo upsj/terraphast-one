@@ -42,8 +42,7 @@ TEST_CASE("multitree_iterator init simple", "[multitree]") {
 	auto constraints = compute_constraints(subtrees);
 	deduplicate_constraints(constraints);
 	auto num_species = data.names.size();
-	tree_enumerator<variants::multitree_callback> enumerator{
-	        {}, num_species, constraints.size()};
+	tree_enumerator<variants::multitree_callback> enumerator{{}};
 	auto result = enumerator.run(num_species, constraints, data.comp_taxon);
 
 	check_unique_trees(result, 9);
@@ -53,8 +52,7 @@ TEST_CASE("multitree_iterator init unconstrained", "[multitree]") {
 	name_map names{"1", "2", "3", "4", "5", "6", "7", "8"};
 	constraints constraints{{0, 1, 2}};
 	index root_species = 0;
-	tree_enumerator<variants::multitree_callback> enumerator{
-	        {}, names.size(), constraints.size()};
+	tree_enumerator<variants::multitree_callback> enumerator{{}};
 	auto result = enumerator.run(names.size(), constraints, root_species);
 
 	check_unique_trees(result, count_unrooted_trees<index>(7));
