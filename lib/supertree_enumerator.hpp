@@ -119,7 +119,6 @@ auto tree_enumerator<Callback>::run(const ranked_bitvector& leaves, const bitvec
 
 template <typename Callback>
 void tree_enumerator<Callback>::init_freelists(index leaf_count, index constraint_count) {
-	index num_threads = static_cast<index>(std::max(1, omp_get_num_threads()));
 	m_fl1_allocsize = ranked_bitvector::alloc_size(leaf_count);
 	m_fl2_allocsize = ranked_bitvector::alloc_size(constraint_count);
 	m_fl3_allocsize = leaf_count;
