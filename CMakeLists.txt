@@ -163,3 +163,16 @@ else()
 	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
 	target_compile_options(terraces_c PRIVATE -Werror)
 endif()
+
+#####################################################################
+# setup clang-tidy
+#####################################################################
+find_program(CLANG_TIDY_PATH NAMES "clang-tidy")
+if(NOT CLANG_TIDY_PATH)
+	message(STATUS "clang-tidy not found.")
+else()
+	message(STATUS "clang-tidy found: ${CLANG_TIDY_PATH}")
+	set(CLANG_TIDY_COMMANDLINE "${CLANG_TIDY_PATH}" "-checks=llvm-namespace-comment -fix")
+endif()
+
+#set_target_properties(terraces terraces_c app isomorphic reroot subtree tree_gen site_gen unittests PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMANDLINE}")
