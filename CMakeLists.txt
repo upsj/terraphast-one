@@ -64,7 +64,8 @@ target_include_directories(terraces
 		PRIVATE lib
 )
 find_package(Threads REQUIRED)
-target_link_libraries(terraces Threads::Threads)
+find_package(OpenMP REQUIRED)
+target_link_libraries(terraces Threads::Threads OpenMP::OpenMP_CXX)
 
 find_package(GMP)
 if(GMP_FOUND)

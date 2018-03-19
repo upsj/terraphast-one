@@ -6,6 +6,7 @@
 #include <sstream>
 #include <thread>
 
+#include <omp.h>
 #include <terraces/simple.hpp>
 
 int main(int argc, char** argv) try {
@@ -19,12 +20,18 @@ int main(int argc, char** argv) try {
 		return 1;
 	}
 	auto trees = std::ostringstream{};
-	const auto terraces_count =
-	        terraces::simple::print_terrace_from_file(tree_file_name, data_file_name, trees);
+#pragma omp parallel
+#pragma omp master
+	{
+		omp_set_nested(1);
+		std::cout << omp_get_num_threads() << " threads" << std::endl;
+		const auto terraces_count = terraces::simple::get_terrace_size_bigint_from_file(
+		        tree_file_name, data_file_name /*, trees*/);
 
-	std::cout << "There are " << terraces_count
-	          << " trees on the terrace.\n\nThe trees in question are:\n"
-	          << trees.str() << '\n';
+		std::cout << "There are " << terraces_count
+		          << " trees on the terrace.\n\nThe trees in question are:\n"
+		          << trees.str() << '\n';
+	}
 } catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << "\n";
 }

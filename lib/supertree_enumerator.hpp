@@ -2,6 +2,7 @@
 #define SUPERTREE_ENUMERATOR_HPP
 
 #include <atomic>
+#include <omp.h>
 #include <thread>
 
 #include "bipartitions.hpp"
@@ -20,9 +21,9 @@ class tree_enumerator {
 private:
 	Callback m_cb;
 
-	utils::free_list m_fl1;
-	utils::free_list m_fl2;
-	utils::free_list m_fl3;
+	std::vector<utils::free_list> m_fl1;
+	std::vector<utils::free_list> m_fl2;
+	std::vector<utils::free_list> m_fl3;
 	index m_fl1_allocsize;
 	index m_fl2_allocsize;
 	index m_fl3_allocsize;
@@ -31,8 +32,11 @@ private:
 
 	result_type run(const ranked_bitvector& leaves, const bitvector& constraint_occ);
 	result_type iterate(bipartitions& bip_it, const bitvector& new_constraint_occ);
+	result_type iterate_parallel(bipartitions& bip_it, const bitvector& new_constraint_occ);
+	result_type iterate_sequential(bipartitions& bip_it, const bitvector& new_constraint_occ);
 
 	void init_freelists(index leaf_count, index constraint_count);
+	index threadnum() const;
 	utils::stack_allocator<index> leaf_allocator();
 	utils::stack_allocator<index> c_occ_allocator();
 	utils::stack_allocator<index> union_find_allocator();
@@ -89,25 +93,35 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 template <typename Callback>
 auto tree_enumerator<Callback>::run(const ranked_bitvector& leaves, const bitvector& constraint_occ)
         -> result_type {
+	//#pragma omp critical
 	m_cb.enter(leaves);
 
 	// base cases: only a few leaves
 	assert(leaves.count() > 0);
 	if (leaves.count() == 1) {
-		return m_cb.exit(m_cb.base_one_leaf(leaves.first_set()));
+		auto result = m_cb.null_result();
+		//#pragma omp critical
+		result = m_cb.exit(m_cb.base_one_leaf(leaves.first_set()));
+		return result;
 	}
 
 	if (leaves.count() == 2) {
 		auto fst = leaves.first_set();
 		auto snd = leaves.next_set(fst);
-		return m_cb.exit(m_cb.base_two_leaves(fst, snd));
+		auto result = m_cb.null_result();
+		//#pragma omp critical
+		result = m_cb.exit(m_cb.base_two_leaves(fst, snd));
+		return result;
 	}
 
 	bitvector new_constraint_occ =
 	        filter_constraints(leaves, constraint_occ, *m_constraints, c_occ_allocator());
 	// base case: no constraints left
 	if (new_constraint_occ.empty()) {
-		return m_cb.exit(m_cb.base_unconstrained(leaves));
+		auto result = m_cb.null_result();
+		//#pragma omp critical
+		result = m_cb.exit(m_cb.base_unconstrained(leaves));
+		return result;
 	}
 
 	union_find sets = apply_constraints(leaves, new_constraint_occ, *m_constraints,
@@ -120,31 +134,105 @@ auto tree_enumerator<Callback>::run(const ranked_bitvector& leaves, const bitvec
 template <typename Callback>
 void tree_enumerator<Callback>::init_freelists(index leaf_count, index constraint_count) {
 	index num_threads = static_cast<index>(std::max(1, omp_get_num_threads()));
+	m_fl1.clear();
+	m_fl2.clear();
+	m_fl3.clear();
+	m_fl1.resize(num_threads);
+	m_fl2.resize(num_threads);
+	m_fl3.resize(num_threads);
 	m_fl1_allocsize = ranked_bitvector::alloc_size(leaf_count);
 	m_fl2_allocsize = ranked_bitvector::alloc_size(constraint_count);
 	m_fl3_allocsize = leaf_count;
-	m_fl1 = {};
-	m_fl2 = {};
-	m_fl3 = {};
+}
+
+template <typename Callback>
+index tree_enumerator<Callback>::threadnum() const {
+	return static_cast<index>(omp_get_thread_num());
 }
 
 template <typename Callback>
 utils::stack_allocator<index> tree_enumerator<Callback>::leaf_allocator() {
-	return {m_fl1, m_fl1_allocsize};
+	return {m_fl1[threadnum()], m_fl1_allocsize};
 }
 
 template <typename Callback>
 utils::stack_allocator<index> tree_enumerator<Callback>::c_occ_allocator() {
-	return {m_fl2, m_fl2_allocsize};
+	return {m_fl2[threadnum()], m_fl2_allocsize};
 }
 
 template <typename Callback>
 utils::stack_allocator<index> tree_enumerator<Callback>::union_find_allocator() {
-	return {m_fl3, m_fl3_allocsize};
+	return {m_fl3[threadnum()], m_fl3_allocsize};
 }
 
 template <typename Callback>
 auto tree_enumerator<Callback>::iterate(bipartitions& bip_it, const bitvector& new_constraint_occ)
+        -> result_type {
+	if (bip_it.leaves().count() < 8) {
+		return iterate_sequential(bip_it, new_constraint_occ);
+	} else {
+		return iterate_parallel(bip_it, new_constraint_occ);
+	}
+}
+template <typename Callback>
+auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
+                                                 const bitvector& new_constraint_occ)
+        -> result_type {
+
+	std::cout << threadnum();
+	bool fast_return{};
+	//#pragma omp critical
+	fast_return = m_cb.fast_return(bip_it);
+	if (fast_return) {
+		auto result = m_cb.null_result();
+		//#pragma omp critical
+		result = m_cb.exit(m_cb.fast_return_value(bip_it));
+		return result;
+	}
+
+	auto result = m_cb.null_result();
+	//#pragma omp critical
+	result = m_cb.begin_iteration(bip_it, new_constraint_occ, *m_constraints);
+	// iterate over all possible bipartitions
+	for (auto bip = bip_it.begin_bip();
+	     bip < bip_it.end_bip() && m_cb.continue_iteration(result); ++bip) {
+#pragma omp task shared(result, bip_it, new_constraint_occ)
+		{
+			m_cb.step_iteration(bip_it, bip);
+			auto left_result = m_cb.null_result();
+			auto right_result = m_cb.null_result();
+			auto sets = bip_it.get_both_sets(bip, leaf_allocator());
+
+#pragma omp task shared(left_result, sets, new_constraint_occ)
+			{
+				m_cb.left_subcall();
+				left_result = run(sets.first, new_constraint_occ);
+			}
+
+#pragma omp task shared(right_result, sets, new_constraint_occ)
+			{
+				m_cb.right_subcall();
+				right_result = run(sets.second, new_constraint_occ);
+			}
+
+#pragma omp taskwait
+#pragma omp critical
+			// accumulate result
+			result = m_cb.accumulate(result, m_cb.combine(left_result, right_result));
+		}
+	}
+#pragma omp taskwait
+	//#pragma omp critical
+	m_cb.finish_iteration();
+
+	//#pragma omp critical
+	result = m_cb.exit(result);
+	return result;
+}
+
+template <typename Callback>
+auto tree_enumerator<Callback>::iterate_sequential(bipartitions& bip_it,
+                                                   const bitvector& new_constraint_occ)
         -> result_type {
 	if (m_cb.fast_return(bip_it)) {
 		return m_cb.exit(m_cb.fast_return_value(bip_it));
