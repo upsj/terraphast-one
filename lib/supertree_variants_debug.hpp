@@ -32,48 +32,51 @@ public:
 	using result_type = typename Callback::result_type;
 
 private:
-	std::vector<stack_state<result_type>> m_stack;
+	std::vector<std::vector<stack_state<result_type>>> m_stacks;
+
+	std::vector<stack_state<result_type>>& _stack() { return m_stacks[omp_get_thread_num()]; }
 
 public:
 	template <typename... Args>
-	stack_state_decorator(Args&&... args) : Callback{std::forward<Args>(args)...} {}
+	stack_state_decorator(Args&&... args) : Callback{std::forward<Args>(args)...},
+											m_stacks(6, {{Callback::null_result()}}) {}
 
 	result_type begin_iteration(const bipartitions& bip_it, const bitvector& c_occ,
 	                            const constraints& constraints) {
 		auto result = Callback::begin_iteration(bip_it, c_occ, constraints);
-		m_stack.emplace_back(result);
-		m_stack.back().current_bip = bip_it.begin_bip();
-		m_stack.back().max_bip = bip_it.end_bip();
+		_stack().emplace_back(result);
+		_stack().back().current_bip = bip_it.begin_bip();
+		_stack().back().max_bip = bip_it.end_bip();
 		return result;
 	}
 
 	void step_iteration(const bipartitions& bip_it, index bip) {
 		Callback::step_iteration(bip_it, bip);
-		m_stack.back().current_bip = bip;
+		_stack().back().current_bip = bip;
 	}
 
 	void finish_iteration() {
-		m_stack.pop_back();
+		_stack().pop_back();
 		Callback::finish_iteration();
 	}
 
 	void right_subcall() {
 		Callback::right_subcall();
-		m_stack.back().right = true;
+		_stack().back().right = true;
 	}
 
 	void left_subcall() {
 		Callback::left_subcall();
-		m_stack.back().right = false;
+		_stack().back().right = false;
 	}
 
 	result_type accumulate(result_type acc, result_type val) {
 		auto result = Callback::accumulate(acc, val);
-		m_stack.back().intermediate = result;
+		_stack().back().intermediate = result;
 		return result;
 	}
 
-	const std::vector<stack_state<result_type>>& stack() const { return m_stack; }
+	const std::vector<stack_state<result_type>>& stack(int thread) const { return m_stacks[thread]; }
 };
 
 template <typename Callback>
@@ -140,9 +143,8 @@ public:
 		}
 		auto subleaf_sets = bip_it.get_both_sets_unsafe(bip);
 		output() << "<bipartition l=\"{"
-		         << utils::as_comma_separated_output(subleaves, m_names) << "}\" r=\"{";
-		subleaves.bitwise_xor(bip_it.leaves());
-		m_output << utils::as_comma_separated_output(subleaves, m_names) << "}\" />\n";
+		         << utils::as_comma_separated_output(subleaf_sets.first, m_names) << "}\" r=\"{";
+		m_output << utils::as_comma_separated_output(subleaf_sets.second, m_names) << "}\" />\n";
 		++m_depth;
 		m_first_iteration = false;
 	}

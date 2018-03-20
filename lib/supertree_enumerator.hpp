@@ -168,7 +168,7 @@ utils::stack_allocator<index> tree_enumerator<Callback>::union_find_allocator() 
 template <typename Callback>
 auto tree_enumerator<Callback>::iterate(bipartitions& bip_it, const bitvector& new_constraint_occ)
         -> result_type {
-	if (bip_it.leaves().count() < 8) {
+	if (bip_it.leaves().count() < 16 || bip_it.num_bip() < 4) {
 		return iterate_sequential(bip_it, new_constraint_occ);
 	} else {
 		return iterate_parallel(bip_it, new_constraint_occ);
@@ -178,8 +178,6 @@ template <typename Callback>
 auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
                                                  const bitvector& new_constraint_occ)
         -> result_type {
-
-	std::cout << threadnum();
 	bool fast_return{};
 	//#pragma omp critical
 	fast_return = m_cb.fast_return(bip_it);
@@ -194,6 +192,7 @@ auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
 	//#pragma omp critical
 	result = m_cb.begin_iteration(bip_it, new_constraint_occ, *m_constraints);
 	// iterate over all possible bipartitions
+#pragma omp taskgroup
 	for (auto bip = bip_it.begin_bip();
 	     bip < bip_it.end_bip() && m_cb.continue_iteration(result); ++bip) {
 #pragma omp task shared(result, bip_it, new_constraint_occ)
@@ -203,13 +202,13 @@ auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
 			auto right_result = m_cb.null_result();
 			auto sets = bip_it.get_both_sets(bip, leaf_allocator());
 
-#pragma omp task shared(left_result, sets, new_constraint_occ)
+#pragma omp task untied shared(left_result, sets, new_constraint_occ)
 			{
 				m_cb.left_subcall();
 				left_result = run(sets.first, new_constraint_occ);
 			}
 
-#pragma omp task shared(right_result, sets, new_constraint_occ)
+#pragma omp task untied shared(right_result, sets, new_constraint_occ)
 			{
 				m_cb.right_subcall();
 				right_result = run(sets.second, new_constraint_occ);
@@ -221,7 +220,6 @@ auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
 			result = m_cb.accumulate(result, m_cb.combine(left_result, right_result));
 		}
 	}
-#pragma omp taskwait
 	//#pragma omp critical
 	m_cb.finish_iteration();
 
