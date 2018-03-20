@@ -23,7 +23,6 @@ int main(int argc, char** argv) try {
 #pragma omp parallel
 #pragma omp single
 	{
-		std::cout << omp_get_num_threads() << " threads" << std::endl;
 		const auto terraces_count = terraces::simple::get_terrace_size_bigint_from_file(
 		        tree_file_name, data_file_name /*, trees*/);
 

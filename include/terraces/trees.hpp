@@ -5,7 +5,6 @@
 #include <cassert>
 #include <cstdint>
 #include <iosfwd>
-#include <iostream>
 #include <sstream>
 #include <stack>
 #include <string>

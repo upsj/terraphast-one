@@ -191,8 +191,8 @@ auto tree_enumerator<Callback>::iterate_parallel(bipartitions& bip_it,
 	auto result = m_cb.null_result();
 	//#pragma omp critical
 	result = m_cb.begin_iteration(bip_it, new_constraint_occ, *m_constraints);
-	// iterate over all possible bipartitions
 #pragma omp taskgroup
+	// iterate over all possible bipartitions
 	for (auto bip = bip_it.begin_bip();
 	     bip < bip_it.end_bip() && m_cb.continue_iteration(result); ++bip) {
 #pragma omp task shared(result, bip_it, new_constraint_occ)
