@@ -168,7 +168,7 @@ utils::stack_allocator<index> tree_enumerator<Callback>::union_find_allocator() 
 template <typename Callback>
 auto tree_enumerator<Callback>::iterate(bipartitions& bip_it, const bitvector& new_constraint_occ)
         -> result_type {
-	if (bip_it.leaves().count() < 16 || bip_it.num_bip() < 4) {
+	if (bip_it.leaves().count() < 8 || bip_it.num_bip() < 4) {
 		return iterate_sequential(bip_it, new_constraint_occ);
 	} else {
 		return iterate_parallel(bip_it, new_constraint_occ);
