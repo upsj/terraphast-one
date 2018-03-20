@@ -38,8 +38,8 @@ private:
 
 public:
 	template <typename... Args>
-	stack_state_decorator(Args&&... args) : Callback{std::forward<Args>(args)...},
-											m_stacks(6, {{Callback::null_result()}}) {}
+	stack_state_decorator(Args&&... args)
+	        : Callback{std::forward<Args>(args)...}, m_stacks(6, {{Callback::null_result()}}) {}
 
 	result_type begin_iteration(const bipartitions& bip_it, const bitvector& c_occ,
 	                            const constraints& constraints) {
@@ -76,7 +76,9 @@ public:
 		return result;
 	}
 
-	const std::vector<stack_state<result_type>>& stack(int thread) const { return m_stacks[thread]; }
+	const std::vector<stack_state<result_type>>& stack(int thread) const {
+		return m_stacks[thread];
+	}
 };
 
 template <typename Callback>
@@ -143,8 +145,10 @@ public:
 		}
 		auto subleaf_sets = bip_it.get_both_sets_unsafe(bip);
 		output() << "<bipartition l=\"{"
-		         << utils::as_comma_separated_output(subleaf_sets.first, m_names) << "}\" r=\"{";
-		m_output << utils::as_comma_separated_output(subleaf_sets.second, m_names) << "}\" />\n";
+		         << utils::as_comma_separated_output(subleaf_sets.first, m_names)
+		         << "}\" r=\"{";
+		m_output << utils::as_comma_separated_output(subleaf_sets.second, m_names)
+		         << "}\" />\n";
 		++m_depth;
 		m_first_iteration = false;
 	}

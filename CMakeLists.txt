@@ -92,6 +92,7 @@ endif()
 # build tools
 #####################################################################
 add_executable(app "app/app.cpp")
+add_executable(progress_app "tools/progress_app.cpp")
 add_executable(isomorphic "tools/isomorphic.cpp")
 add_executable(reroot "tools/reroot.cpp")
 add_executable(subtree "tools/subtree.cpp")
@@ -103,6 +104,7 @@ target_link_libraries(subtree terraces)
 target_link_libraries(tree_gen terraces)
 target_link_libraries(site_gen terraces)
 target_link_libraries(app terraces)
+target_link_libraries(progress_app terraces Threads::Threads OpenMP::OpenMP_CXX)
 
 #####################################################################
 # build tests
@@ -140,7 +142,7 @@ target_link_libraries(unittests terraces terraces_c Catch)
 add_test(NAME unittests COMMAND unittests)
 enable_testing()
 
-set_target_properties(terraces terraces_c app isomorphic reroot subtree tree_gen site_gen unittests PROPERTIES CXX_STANDARD 14)
+set_target_properties(terraces terraces_c app isomorphic reroot subtree tree_gen site_gen progress_app unittests PROPERTIES CXX_STANDARD 14)
 
 #####################################################################
 # set platform-specific options, include platform-specific files
