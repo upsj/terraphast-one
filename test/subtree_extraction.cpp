@@ -67,5 +67,30 @@ TEST_CASE("subtree extraction: example", "[subtree_extraction]") {
 	CHECK(exp_post2 == postorder(trees[1]));
 }
 
+TEST_CASE("subtree extraction: moved root", "[subtree_extraction]") {
+	std::stringstream mss{"5 1\n1 1\n1 2\n1 3\n0 4\n0 5"};
+	auto matrix = parse_bitmatrix(mss);
+	auto to_str = [&](const tree& t) {
+		std::stringstream ss;
+		ss << as_newick(t, matrix.names);
+		return ss.str();
+	};
+	auto t1 = parse_nwk("((4,5),(1,(2,3)));", matrix.indices);
+	auto t2 = parse_nwk("((((1,2),3),4),5);", matrix.indices);
+	auto t3 = parse_nwk("(4,((1,5),(2,3)));", matrix.indices);
+	auto t4 = parse_nwk("(4,((2,3),(1,5)));", matrix.indices);
+	auto t5 = parse_nwk("(5,((3,(1,4)),2));", matrix.indices);
+	auto st1 = subtrees(t1, matrix.matrix)[0];
+	auto st2 = subtrees(t2, matrix.matrix)[0];
+	auto st3 = subtrees(t3, matrix.matrix)[0];
+	auto st4 = subtrees(t4, matrix.matrix)[0];
+	auto st5 = subtrees(t5, matrix.matrix)[0];
+	CHECK(to_str(st1) == "(1,(2,3));");
+	CHECK(to_str(st2) == "((1,2),3);");
+	CHECK(to_str(st3) == "(1,(2,3));");
+	CHECK(to_str(st4) == "((2,3),1);");
+	CHECK(to_str(st5) == "((3,1),2);");
+}
+
 } // namespace tests
 } // namespace terraces
