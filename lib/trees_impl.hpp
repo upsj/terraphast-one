@@ -41,10 +41,8 @@ inline index num_leaves_from_nodes(index num_nodes) {
 inline index num_nodes_from_leaves(index num_nodes) { return 2 * num_nodes - 1; }
 
 template <typename F1, typename F2, typename F3, typename F4>
-void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf_cb) {
-	index root_idx = 0;
-	assert(is_root(t[root_idx]));
-
+void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf_cb,
+                    index root_idx) {
 	enum class visited { none, left, both };
 
 	std::stack<std::pair<index, visited>> stack;
@@ -83,15 +81,15 @@ void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf
  * Traverses a tree in post-order while calling a given callback on every node.
  */
 template <typename F>
-void foreach_postorder(const tree& t, F cb) {
+void foreach_postorder(const tree& t, F cb, index root = 0) {
 	auto nop = [](index) {};
-	tree_traversal(t, nop, cb, nop, cb);
+	tree_traversal(t, nop, cb, nop, cb, root);
 }
 
 template <typename F>
-void foreach_preorder(const tree& t, F cb) {
+void foreach_preorder(const tree& t, F cb, index root = 0) {
 	auto nop = [](index) {};
-	tree_traversal(t, cb, nop, nop, cb);
+	tree_traversal(t, cb, nop, nop, cb, root);
 }
 
 // For testing purposes

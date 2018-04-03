@@ -46,7 +46,8 @@ std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {
 			s << names[t[i].taxon()];
 	};
 	auto sibling_cb = [&](index) { s << ','; };
-	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb);
+	index root = 0;
+	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb, root);
 	s << ';';
 	return s;
 }
