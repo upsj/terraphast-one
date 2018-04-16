@@ -5,7 +5,6 @@
 #include <tuple>
 #include <vector>
 
-#include "io_utils.hpp"
 #include "trees.hpp"
 
 namespace terraces {
@@ -34,7 +33,6 @@ struct constraint {
 using constraints = std::vector<constraint>;
 
 std::ostream& operator<<(std::ostream& s, const constraint& c);
-std::ostream& operator<<(std::ostream& stream, utils::named_output<constraints, name_map>);
 
 /**
  * Extracts all LCA constraints from the input trees.

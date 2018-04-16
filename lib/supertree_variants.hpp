@@ -2,7 +2,6 @@
 #define SUPERTREE_VARIANTS_HPP
 
 #include <terraces/constraints.hpp>
-#include <terraces/io_utils.hpp>
 
 #include <terraces/bigint.hpp>
 #include <terraces/clamped_uint.hpp>

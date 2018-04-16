@@ -1,7 +1,6 @@
 #include <terraces/constraints.hpp>
 
-#include <ostream>
-
+#include "io_utils.hpp"
 #include "trees_impl.hpp"
 #include "union_find.hpp"
 

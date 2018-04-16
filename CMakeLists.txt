@@ -18,6 +18,8 @@ add_library(terraces
 		lib/bitvector.hpp
 		lib/clamped_uint.cpp
 		lib/constraints.cpp
+		lib/constraints_impl.hpp
+		lib/io_utils.hpp
 		lib/multitree.cpp
 		lib/multitree.hpp
 		lib/multitree_impl.hpp
@@ -52,7 +54,6 @@ add_library(terraces
 		include/terraces/constraints.hpp
 		include/terraces/definitions.hpp
 		include/terraces/errors.hpp
-		include/terraces/io_utils.hpp
 		include/terraces/parser.hpp
 		include/terraces/rooting.hpp
 		include/terraces/simple.hpp
@@ -112,12 +113,14 @@ target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/Catch/single_incl
 
 add_executable(unittests
 		test/main.cpp
+		test/advanced.cpp
 		test/bipartitions.cpp
 		test/bitmatrix.cpp
 		test/bits.cpp
 		test/bitvector.cpp
 		test/clamped_uint.cpp
 		test/constraints.cpp
+		test/compile_test.cpp
 		test/fast_set.cpp
 		test/integration.cpp
 		test/multitree_iterator.cpp
@@ -133,7 +136,6 @@ add_executable(unittests
 		test/validation.cpp
 		test/c_api.cpp
 		test/c_api_gmp.cpp
-		test/advanced.cpp
 )
 target_link_libraries(unittests terraces terraces_c Catch)
 add_test(NAME unittests COMMAND unittests)

@@ -1,7 +1,10 @@
 #ifndef IO_UTILS_HPP
 #define IO_UTILS_HPP
 
+#include "utils.hpp"
+#include <fstream>
 #include <ostream>
+#include <terraces/errors.hpp>
 
 namespace terraces {
 namespace utils {
@@ -85,6 +88,22 @@ template <typename T1, typename T2, typename T3>
 comma_separated_mapped_subset_output<T1, T2, T3>
 as_comma_separated_output(const T1& subset, const T2& data, const T3& names) {
 	return {&subset, &data, &names};
+}
+
+inline std::ifstream open_ifstream(const std::string& filename) {
+	auto stream = std::ifstream{filename};
+	utils::ensure<file_open_error>(stream.is_open(), "failed to open " + filename);
+	return stream;
+}
+
+inline std::string read_ifstream_full(std::istream& stream) {
+	using it = std::istreambuf_iterator<char>;
+	return {it{stream}, it{}};
+}
+
+inline std::string read_file_full(const std::string& filename) {
+	auto file = open_ifstream(filename);
+	return read_ifstream_full(file);
 }
 
 } // namespace utils

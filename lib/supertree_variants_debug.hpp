@@ -5,11 +5,10 @@
 #include <ostream>
 #include <vector>
 
+#include "constraints_impl.hpp"
+#include "io_utils.hpp"
 #include "supertree_variants.hpp"
 #include "union_find_debug.hpp"
-
-#include <terraces/constraints.hpp>
-#include <terraces/io_utils.hpp>
 
 namespace terraces {
 namespace debug {
@@ -140,9 +139,10 @@ public:
 		}
 		auto subleaf_sets = bip_it.get_both_sets_unsafe(bip);
 		output() << "<bipartition l=\"{"
-		         << utils::as_comma_separated_output(subleaves, m_names) << "}\" r=\"{";
-		subleaves.bitwise_xor(bip_it.leaves());
-		m_output << utils::as_comma_separated_output(subleaves, m_names) << "}\" />\n";
+		         << utils::as_comma_separated_output(subleaf_sets.first, m_names)
+		         << "}\" r=\"{";
+		m_output << utils::as_comma_separated_output(subleaf_sets.second, m_names)
+		         << "}\" />\n";
 		++m_depth;
 		m_first_iteration = false;
 	}
