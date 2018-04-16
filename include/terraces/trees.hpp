@@ -5,7 +5,6 @@
 #include <cassert>
 #include <cstdint>
 #include <iosfwd>
-#include <iostream>
 #include <sstream>
 #include <stack>
 #include <string>
@@ -40,6 +39,9 @@ struct node {
 
 	index rchild() const { return data[2]; }
 	index& rchild() { return data[2]; }
+
+	index child(bool right) const { return data[1u + bool(right)]; }
+	index& child(bool right) { return data[1u + bool(right)]; }
 
 	index taxon() const { return data[3]; }
 	index& taxon() { return data[3]; }

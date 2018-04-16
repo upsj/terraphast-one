@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 
 #include <terraces/parser.hpp>
 #include <terraces/rooting.hpp>

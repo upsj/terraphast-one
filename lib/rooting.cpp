@@ -1,6 +1,5 @@
 #include "trees_impl.hpp"
 #include "utils.hpp"
-#include <iostream>
 #include <sstream>
 #include <stack>
 #include <terraces/rooting.hpp>
