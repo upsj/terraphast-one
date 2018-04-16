@@ -22,6 +22,8 @@ public:
 	bool is_clamped() const;
 	const mpz_class& value() const;
 };
+bool operator==(const big_integer& a, const big_integer& b);
+bool operator!=(const big_integer& a, const big_integer& b);
 big_integer operator+(const big_integer& a, const big_integer& b);
 big_integer operator*(const big_integer& a, const big_integer& b);
 std::ostream& operator<<(std::ostream& stream, const big_integer& val);

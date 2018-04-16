@@ -30,6 +30,10 @@ bool clamped_uint::is_clamped() const { return m_value == max_index; }
 
 index clamped_uint::value() const { return m_value; }
 
+bool operator==(clamped_uint a, clamped_uint b) { return a.value() == b.value(); }
+
+bool operator!=(clamped_uint a, clamped_uint b) { return !(a == b); }
+
 clamped_uint operator+(clamped_uint a, clamped_uint b) { return a += b; }
 
 clamped_uint operator*(clamped_uint a, clamped_uint b) { return a *= b; }

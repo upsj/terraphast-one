@@ -28,6 +28,10 @@ big_integer operator*(const big_integer& a, const big_integer& b) {
 	return result;
 }
 
+bool operator==(const big_integer& a, const big_integer& b) { return a.value() == b.value(); }
+
+bool operator!=(const big_integer& a, const big_integer& b) { return !(a == b); }
+
 std::ostream& operator<<(std::ostream& stream, const big_integer& val) {
 	return stream << val.value();
 }

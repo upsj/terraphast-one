@@ -19,6 +19,10 @@ public:
 	index value() const;
 };
 
+bool operator==(clamped_uint a, clamped_uint b);
+
+bool operator!=(clamped_uint a, clamped_uint b);
+
 clamped_uint operator+(clamped_uint a, clamped_uint b);
 
 clamped_uint operator*(clamped_uint a, clamped_uint b);
