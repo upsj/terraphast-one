@@ -39,6 +39,8 @@ private:
 
 public:
 	explicit tree_enumerator(Callback cb);
+	result_type run(index num_leaves, const constraints& constraints,
+	                const std::vector<bool>& root_split);
 	result_type run(index num_leaves, const constraints& constraints, index root_leaf);
 	result_type run(index num_leaves, const constraints& constraints);
 	const Callback& callback() const { return m_cb; }
@@ -61,29 +63,30 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 
 template <typename Callback>
 auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constraints,
-                                    index root_leaf) -> result_type {
+                                    const std::vector<bool>& root_split) -> result_type {
 	init_freelists(num_leaves, constraints.size());
 	auto leaves = full_ranked_set(num_leaves, leaf_allocator());
 	auto c_occ = full_set(constraints.size(), c_occ_allocator());
 	assert(filter_constraints(leaves, c_occ, constraints, c_occ_allocator()) == c_occ);
+	assert(root_split.size() == num_leaves);
 	// enter the call
 	m_cb.enter(leaves);
 	// no base cases
 	assert(num_leaves > 2);
 	assert(!constraints.empty());
 	// build bipartition iterator:
-	auto sets = union_find{num_leaves, union_find_allocator()};
-	index rep = root_leaf == 0 ? 1 : 0;
-	// merge all non-root leaves into one set
-	for (index i = rep + 1; i < num_leaves; ++i) {
-		if (i != root_leaf) {
-			sets.merge(rep, i);
-		}
-	}
-	sets.compress();
+	auto sets = union_find::make_bipartition(root_split, union_find_allocator());
 	m_constraints = &constraints;
 	auto bip_it = bipartitions{leaves, sets, leaf_allocator()};
 	return m_cb.exit(iterate(bip_it, c_occ));
+}
+
+template <typename Callback>
+auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constraints,
+                                    index root_leaf) -> result_type {
+	std::vector<bool> root_split(num_leaves);
+	root_split[root_leaf] = true;
+	return run(num_leaves, constraints, root_split);
 }
 
 template <typename Callback>

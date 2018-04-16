@@ -30,6 +30,9 @@ public:
 	void compress();
 	void merge(index, index);
 	bool is_representative(index x) const { return m_parent[x] >= m_parent.size(); }
+
+	static union_find make_bipartition(const std::vector<bool>& split,
+	                                   utils::stack_allocator<index> alloc);
 };
 
 } // namespace terraces

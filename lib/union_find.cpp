@@ -55,4 +55,17 @@ void union_find::merge(index x, index y) {
 	}
 }
 
+union_find union_find::make_bipartition(const std::vector<bool>& split,
+                                        utils::stack_allocator<index> alloc) {
+	union_find result(split.size(), alloc);
+	std::array<index, 2> fst{{none, none}};
+	for (index i = 0; i < split.size(); ++i) {
+		auto& repr = fst[split[i]];
+		repr = repr == none ? i : repr;
+		result.merge(repr, i);
+	}
+	result.compress();
+	return result;
+}
+
 } // namespace terraces
