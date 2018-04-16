@@ -23,7 +23,7 @@ int main(int argc, char** argv) try {
 		return 1;
 	}
 
-	terraces::reroot_inplace(tree, data.comp_taxon);
+	terraces::reroot_at_taxon_inplace(tree, data.comp_taxon);
 
 	std::cout << as_newick(tree, data.names);
 } catch (std::exception& e) {

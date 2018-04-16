@@ -29,7 +29,7 @@ int main(int argc, char** argv) try {
 			occ.set(species_pair.second, 0, true);
 		}
 	}
-	terraces::reroot_inplace(data.tree, data.indices[*names.begin()]);
+	terraces::reroot_at_taxon_inplace(data.tree, data.indices[*names.begin()]);
 	auto subtree = terraces::subtrees(data.tree, occ)[0];
 	std::cout << as_newick(subtree, data.names);
 } catch (std::exception& e) {

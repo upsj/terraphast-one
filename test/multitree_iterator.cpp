@@ -36,7 +36,7 @@ TEST_CASE("multitree_iterator init simple", "[multitree]") {
 	auto data = terraces::parse_bitmatrix(data_stream);
 	auto tree = terraces::parse_nwk("((((s2,s4),((s13,s1),s7)),s3),s5);", data.indices);
 
-	reroot_inplace(tree, data.comp_taxon);
+	reroot_at_taxon_inplace(tree, data.comp_taxon);
 
 	const auto subtrees = terraces::subtrees(tree, data.matrix);
 	auto constraints = compute_constraints(subtrees);

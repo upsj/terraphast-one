@@ -11,7 +11,7 @@ If one file path Y/X is provided, it is assumed that the files X.nwk and X.data 
 This is done by calling terraces::parse_nwk and terraces::parse_bitmatrix. Both throw exceptions, if the input files are not in the right format. If the .data file does not contain a species that possesses all gene sites, this is denoted by a terraces::none value in the std::pair returned by terraces::parse_bitmatrix. In this case, the current course of action is to exit with error code 1.
 
 ### 2) Re-Rooting the Input Tree
-A call to terraces::reroot_inplace re-roots the given tree at the given species. This is done in-place by traversing the input tree from the given species to the original root, and adjusting all edges so that the parent reference of every node points to the node that was traversed before. This procedure has O(tree-height) time complexity.
+A call to terraces::reroot_at_taxon_inplace re-roots the given tree at the given species. This is done in-place by traversing the input tree from the given species to the original root, and adjusting all edges so that the parent reference of every node points to the node that was traversed before. This procedure has O(tree-height) time complexity.
 
 ### 3) Extracting Subtrees
 Using an occurence bitmatrix (is gene i present in species j?) and the re-rooted tree, all subtrees of this tree are extracted.
