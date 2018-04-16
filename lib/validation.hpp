@@ -8,7 +8,9 @@
 
 namespace terraces {
 
-bool is_isomorphic(const tree& fst, const tree& snd);
+bool is_isomorphic_unrooted(const tree& fst, const tree& snd);
+
+bool is_isomorphic_rooted(const tree& fst, const tree& snd);
 
 std::vector<simple_bitvector> tree_bipartitions(const tree& t);
 

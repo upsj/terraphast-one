@@ -46,21 +46,21 @@ int main(int argc, char* argv[]) {
 	std::cout << std::noboolalpha;
 	for (auto& t_fst : fst) {
 		for (auto& t_snd : snd) {
-			std::cout << is_isomorphic(t_fst, t_snd) << " ";
+			std::cout << is_isomorphic_unrooted(t_fst, t_snd) << " ";
 		}
 		std::cout << "\n";
 	}
 	std::cout << "comparison inside first group\n";
 	for (auto& t_fst : fst) {
 		for (auto& t_snd : fst) {
-			std::cout << is_isomorphic(t_fst, t_snd) << " ";
+			std::cout << is_isomorphic_unrooted(t_fst, t_snd) << " ";
 		}
 		std::cout << "\n";
 	}
 	std::cout << "comparison inside second group\n";
 	for (auto& t_fst : snd) {
 		for (auto& t_snd : snd) {
-			std::cout << is_isomorphic(t_fst, t_snd) << " ";
+			std::cout << is_isomorphic_unrooted(t_fst, t_snd) << " ";
 		}
 		std::cout << "\n";
 	}

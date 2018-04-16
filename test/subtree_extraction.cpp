@@ -30,7 +30,7 @@ TEST_CASE("subtree extraction: full data", "[subtree_extraction]") {
 	CHECK(t2[4].taxon() == 0);
 	CHECK(t2[5].taxon() == 1);
 	CHECK(t2[6].taxon() == 2);
-	CHECK(is_isomorphic(t, t2));
+	CHECK(is_isomorphic_unrooted(t, t2));
 	CHECK(exp_pre == res_pre);
 	CHECK(exp_post == res_post);
 }

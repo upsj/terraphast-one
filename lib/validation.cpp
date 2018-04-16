@@ -41,13 +41,33 @@ std::vector<simple_bitvector> tree_bipartitions(const tree& t) {
 	return bips;
 }
 
-bool is_isomorphic(const tree& fst, const tree& snd) {
+bool is_isomorphic_unrooted(const tree& fst, const tree& snd) {
 	assert(fst.size() == snd.size());
 
 	auto fst_bip = tree_bipartitions(fst);
 	auto snd_bip = tree_bipartitions(snd);
 
 	return fst_bip == snd_bip;
+}
+
+bool is_isomorphic_rooted_impl(const tree& fst, const tree& snd, index fst_idx, index snd_idx) {
+	auto fst_node = fst[fst_idx];
+	auto snd_node = snd[snd_idx];
+	if (is_leaf(fst_node) != is_leaf(snd_node)) {
+		return false;
+	} else if (is_leaf(fst_node)) {
+		return fst_node.taxon() == snd_node.taxon();
+	}
+
+	return (is_isomorphic_rooted_impl(fst, snd, fst_node.lchild(), snd_node.lchild()) &&
+	        is_isomorphic_rooted_impl(fst, snd, fst_node.rchild(), snd_node.rchild())) ||
+	       (is_isomorphic_rooted_impl(fst, snd, fst_node.lchild(), snd_node.rchild()) &&
+	        is_isomorphic_rooted_impl(fst, snd, fst_node.rchild(), snd_node.lchild()));
+}
+
+bool is_isomorphic_rooted(const tree& fst, const tree& snd) {
+	assert(fst.size() == snd.size());
+	return is_isomorphic_rooted_impl(fst, snd, 0, 0);
 }
 
 } // namespace terraces
