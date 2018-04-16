@@ -62,7 +62,8 @@ void insert_root(tree& t, index lchild, index rchild, bool reverse) {
 	t[lchild].parent() = 0;
 	t[rchild].parent() = 0;
 }
-}
+
+} // anonymous namespace
 
 std::vector<bool> root_split(const tree& t) {
 	std::vector<bool> split(num_leaves_from_nodes(t.size()));
