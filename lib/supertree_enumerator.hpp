@@ -78,7 +78,7 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 	auto sets = union_find::make_bipartition(root_split, union_find_allocator());
 	m_constraints = &constraints;
 	auto bip_it = bipartitions{leaves, sets, leaf_allocator()};
-	return iterate(bip_it, c_occ);
+	return m_cb.exit(iterate(bip_it, c_occ));
 }
 
 template <typename Callback>
@@ -117,7 +117,7 @@ auto tree_enumerator<Callback>::run(const ranked_bitvector& leaves, const bitvec
 	                                    union_find_allocator());
 	bipartitions bip_it(leaves, sets, leaf_allocator());
 
-	return iterate(bip_it, new_constraint_occ);
+	return m_cb.exit(iterate(bip_it, new_constraint_occ));
 }
 
 template <typename Callback>
@@ -149,7 +149,7 @@ template <typename Callback>
 auto tree_enumerator<Callback>::iterate(bipartitions& bip_it, const bitvector& new_constraint_occ)
         -> result_type {
 	if (m_cb.fast_return(bip_it)) {
-		return m_cb.exit(m_cb.fast_return_value(bip_it));
+		return m_cb.fast_return_value(bip_it);
 	}
 
 	auto result = m_cb.begin_iteration(bip_it, new_constraint_occ, *m_constraints);
@@ -168,7 +168,6 @@ auto tree_enumerator<Callback>::iterate(bipartitions& bip_it, const bitvector& n
 	}
 	m_cb.finish_iteration();
 
-	result = m_cb.exit(result);
 	return result;
 }
 
