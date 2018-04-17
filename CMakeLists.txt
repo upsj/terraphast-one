@@ -100,6 +100,7 @@ add_executable(reroot "tools/reroot.cpp")
 add_executable(subtree "tools/subtree.cpp")
 add_executable(tree_gen "tools/tree_gen.cpp")
 add_executable(site_gen "tools/site_gen.cpp")
+add_executable(nwk_to_dot "tools/nwk_to_dot.cpp")
 target_link_libraries(validated_run terraces)
 target_link_libraries(verbose_run terraces)
 target_link_libraries(isomorphic terraces)
@@ -107,6 +108,7 @@ target_link_libraries(reroot terraces)
 target_link_libraries(subtree terraces)
 target_link_libraries(tree_gen terraces)
 target_link_libraries(site_gen terraces)
+target_link_libraries(nwk_to_dot terraces)
 target_link_libraries(app terraces)
 
 #####################################################################
@@ -146,7 +148,7 @@ target_link_libraries(unittests terraces terraces_c Catch)
 add_test(NAME unittests COMMAND unittests)
 enable_testing()
 
-set_target_properties(terraces terraces_c app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen unittests PROPERTIES CXX_STANDARD 14)
+set_target_properties(terraces terraces_c app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen nwk_to_dot unittests PROPERTIES CXX_STANDARD 14)
 
 #####################################################################
 # set platform-specific options, include platform-specific files
@@ -181,4 +183,4 @@ else()
 	set(CLANG_TIDY_COMMANDLINE "${CLANG_TIDY_PATH}" "-checks=llvm-namespace-comment -fix")
 endif()
 
-#set_target_properties(terraces terraces_c app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen unittests PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMANDLINE}")
+#set_target_properties(terraces terraces_c app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen nwk_to_dot unittests PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMANDLINE}")

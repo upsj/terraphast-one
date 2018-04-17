@@ -97,8 +97,7 @@ std::vector<index> preorder(const tree& t);
 std::vector<index> postorder(const tree& t);
 
 // output trees
-void print_tree_dot_unrooted(const tree& t, const name_map& names, std::ostream& output,
-                             std::string name_prefix = "");
+void print_tree_dot(const tree& t, const name_map& names, std::ostream& output, bool rooted);
 
 } // namespace terraces
 

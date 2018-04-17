@@ -64,4 +64,30 @@ std::vector<index> postorder(const tree& t) {
 	return result;
 }
 
+void print_tree_dot(const tree& t, const name_map& n, std::ostream& stream, bool rooted) {
+	auto nop = [](auto) {};
+	std::string edge = rooted ? " -> " : " -- ";
+	auto node_cb = [&](index node) {
+		stream << node << " [shape=point];\n";
+		stream << t[node].lchild() << edge << node << ";\n";
+		stream << t[node].rchild() << edge << node << ";\n";
+	};
+	auto leaf_cb = [&](index node) {
+		stream << node << " [label=\"" << n[t[node].taxon()] << "\"];\n";
+	};
+	stream << (rooted ? "digraph {\n" : "graph {\n");
+	if (rooted) {
+		tree_traversal(t, node_cb, nop, nop, leaf_cb, 0);
+	} else {
+		if (is_leaf(t[0])) {
+			leaf_cb(0);
+		} else {
+			tree_traversal(t, node_cb, nop, nop, leaf_cb, t[0].lchild());
+			tree_traversal(t, node_cb, nop, nop, leaf_cb, t[0].rchild());
+			stream << t[0].lchild() << edge << t[0].rchild() << ";\n";
+		}
+	}
+	stream << "}\n";
+}
+
 } // namespace terraces
