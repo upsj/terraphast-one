@@ -1,5 +1,6 @@
 #include "trees_impl.hpp"
 #include "utils.hpp"
+#include "validation.hpp"
 #include <sstream>
 #include <stack>
 #include <terraces/rooting.hpp>
@@ -111,6 +112,8 @@ tree reroot_at_node(const tree& t, index node_idx) {
 	copy_reversed_final(t, out, prev, cur, opposite_idx);
 
 	check_rooted_tree(out);
+
+	assert(is_isomorphic_unrooted(t, out));
 
 	return out;
 }

@@ -78,7 +78,7 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 	auto sets = union_find::make_bipartition(root_split, union_find_allocator());
 	m_constraints = &constraints;
 	auto bip_it = bipartitions{leaves, sets, leaf_allocator()};
-	return m_cb.exit(iterate(bip_it, c_occ));
+	return iterate(bip_it, c_occ);
 }
 
 template <typename Callback>
