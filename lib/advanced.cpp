@@ -2,6 +2,7 @@
 
 #include <terraces/clamped_uint.hpp>
 #include <terraces/errors.hpp>
+#include <terraces/rooting.hpp>
 #include <terraces/subtree_extraction.hpp>
 
 #include "supertree_enumerator.hpp"
@@ -10,8 +11,12 @@
 
 namespace terraces {
 
-supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, index root) {
-	auto trees = subtrees(tree, data);
+supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
+	auto root = find_comprehensive_taxon(data);
+	utils::ensure<no_usable_root_error>(root != none, "No comprehensive taxon found");
+	auto rerooted_tree = tree;
+	reroot_at_taxon_inplace(rerooted_tree, root);
+	auto trees = subtrees(rerooted_tree, data);
 	auto constraints = compute_constraints(trees);
 	deduplicate_constraints(constraints);
 
@@ -19,7 +24,20 @@ supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, inde
 	return {constraints, num_leaves, root};
 }
 
-std::pair<bitmatrix, index> maximum_comprehensive_columnset(const bitmatrix& data) {
+index find_comprehensive_taxon(const bitmatrix& data) {
+	for (index i = 0; i < data.rows(); ++i) {
+		bool comp = true;
+		for (index j = 0; j < data.cols(); ++j) {
+			comp &= data.get(i, j);
+		}
+		if (comp) {
+			return i;
+		}
+	}
+	return none;
+}
+
+bitmatrix maximum_comprehensive_columnset(const bitmatrix& data) {
 	std::vector<index> row_counts(data.rows(), 0u);
 	for (index i = 0; i < data.rows(); ++i) {
 		for (index j = 0; j < data.cols(); ++j) {
@@ -35,7 +53,7 @@ std::pair<bitmatrix, index> maximum_comprehensive_columnset(const bitmatrix& dat
 			columns.push_back(j);
 		}
 	}
-	return {data.get_cols(columns), comp_row};
+	return data.get_cols(columns);
 }
 
 bool check_terrace(const supertree_data& data) {

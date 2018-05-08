@@ -15,7 +15,6 @@ struct occurrence_data {
 	bitmatrix matrix;
 	name_map names;
 	index_map indices;
-	index comp_taxon;
 };
 
 struct named_tree {

@@ -19,8 +19,8 @@ TEST_CASE("maximum_comprehensive_columnset", "[advanced-api]") {
 	matrix_reduced.set(1, 1, 1);
 	matrix_reduced.set(2, 0, 1);
 	auto matrix_result = maximum_comprehensive_columnset(matrix_full);
-	CHECK(matrix_result.second == 1);
-	CHECK(matrix_result.first == matrix_reduced);
+	CHECK(find_comprehensive_taxon(matrix_result) == 1);
+	CHECK(matrix_result == matrix_reduced);
 
 	CHECK_THROWS_AS(maximum_comprehensive_columnset(bitmatrix{10, 10}), bad_input_error);
 }

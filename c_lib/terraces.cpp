@@ -84,8 +84,7 @@ terraces_errors terraces_check_tree(const terraces_missing_data* missing_data,
 		auto sites = to_bitmatrix(missing_data);
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
-		*out = terraces::check_terrace(
-		        prepare_constraints(tree.tree, sites.first, sites.second));
+		*out = terraces::check_terrace(create_supertree_data(tree.tree, sites.first));
 	});
 }
 
@@ -103,7 +102,7 @@ terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
 		mpz_set(out, terraces::count_terrace_bigint(
-		                     prepare_constraints(tree.tree, sites.first, sites.second))
+		                     create_supertree_data(tree.tree, sites.first))
 		                     .value()
 		                     .get_mpz_t());
 	});
@@ -117,9 +116,8 @@ terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		auto output = open_output_file(output_filename);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
-		mpz_set(out, terraces::print_terrace(
-		                     prepare_constraints(tree.tree, sites.first, sites.second),
-		                     tree.names, output)
+		mpz_set(out, terraces::print_terrace(create_supertree_data(tree.tree, sites.first),
+		                                     tree.names, output)
 		                     .value()
 		                     .get_mpz_t());
 	});

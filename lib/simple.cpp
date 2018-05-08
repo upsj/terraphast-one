@@ -23,10 +23,7 @@ std::pair<supertree_data, name_map> parse_data(const std::string& nwk_string,
                                                std::istream& matrix_stream) {
 	auto occ_data = parse_bitmatrix(matrix_stream);
 	auto tree = parse_nwk(nwk_string, occ_data.indices);
-	utils::ensure<no_usable_root_error>(occ_data.comp_taxon != none,
-	                                    "No comprehensive taxon found");
-	reroot_at_taxon_inplace(tree, occ_data.comp_taxon);
-	auto data = prepare_constraints(tree, occ_data.matrix, occ_data.comp_taxon);
+	auto data = create_supertree_data(tree, occ_data.matrix);
 	return {data, occ_data.names};
 }
 

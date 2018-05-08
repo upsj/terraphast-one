@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <terraces/advanced.hpp>
 #include <terraces/errors.hpp>
 #include <terraces/parser.hpp>
 
@@ -142,7 +143,7 @@ TEST_CASE("parsing trees with duplicate taxa", "[parser]") {
 
 TEST_CASE("parsing a datafile with three species and two cols", "[parser],[data-parser]") {
 	auto stream = std::istringstream{"3 2\n0 1 foo\n1 1 bar\n1 1 baz\n"};
-	const auto res = terraces::parse_bitmatrix(stream);
+	const auto res = parse_bitmatrix(stream);
 	const auto& mat = res.matrix;
 
 	REQUIRE(mat.cols() == 2);
@@ -155,7 +156,7 @@ TEST_CASE("parsing a datafile with three species and two cols", "[parser],[data-
 	CHECK(mat.get(2, 0));
 	CHECK(mat.get(2, 1));
 
-	CHECK(res.comp_taxon == 1);
+	CHECK(find_comprehensive_taxon(mat) == 1);
 }
 
 TEST_CASE("parsing a datafile with duplicate species", "[parser],[data-parser]") {
@@ -192,7 +193,7 @@ TEST_CASE("parsing a complex datafile", "[parser],[data-parser]") {
 	CHECK(mat.get(4, 1));
 	CHECK(!mat.get(4, 2));
 
-	CHECK(res.comp_taxon == 1);
+	CHECK(find_comprehensive_taxon(mat) == 1);
 }
 
 } // namespace tests

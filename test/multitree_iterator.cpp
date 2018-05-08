@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include <terraces/advanced.hpp>
 #include <terraces/parser.hpp>
 #include <terraces/rooting.hpp>
 #include <terraces/subtree_extraction.hpp>
@@ -36,14 +37,10 @@ TEST_CASE("multitree_iterator init simple", "[multitree]") {
 	auto data = terraces::parse_bitmatrix(data_stream);
 	auto tree = terraces::parse_nwk("((((s2,s4),((s13,s1),s7)),s3),s5);", data.indices);
 
-	reroot_at_taxon_inplace(tree, data.comp_taxon);
-
-	const auto subtrees = terraces::subtrees(tree, data.matrix);
-	auto constraints = compute_constraints(subtrees);
-	deduplicate_constraints(constraints);
-	auto num_species = data.names.size();
+	auto supertree_data = terraces::create_supertree_data(tree, data.matrix);
 	tree_enumerator<variants::multitree_callback> enumerator{{}};
-	auto result = enumerator.run(num_species, constraints, data.comp_taxon);
+	auto result = enumerator.run(supertree_data.num_leaves, supertree_data.constraints,
+	                             supertree_data.root);
 
 	check_unique_trees(result, 9);
 }

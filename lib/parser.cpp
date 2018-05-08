@@ -186,7 +186,6 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 	index rows{};
 	input >> rows >> cols >> std::ws;
 
-	auto comp_taxon = none;
 	bitmatrix mat{rows, cols};
 	name_map names;
 	index_map indices;
@@ -201,7 +200,6 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 		auto taxon_id = names.size();
 
 		// fill matrix
-		bool all_data_available = true;
 		for (index i = 0; i < cols; ++i) {
 			it = utils::skip_ws(it, end);
 			utils::ensure<bad_input_error>(it != end,
@@ -212,8 +210,6 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 			                                       std::string{c});
 			if (c == '1') {
 				mat.set(taxon_id, i, true);
-			} else {
-				all_data_available = false;
 			}
 		}
 
@@ -225,15 +221,10 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 		utils::ensure<bad_input_error>(was_inserted,
 		                               "Duplicate taxon in data matrix: " + taxon_name);
 		names.emplace_back(std::move(taxon_name));
-
-		// store comprehensive taxon
-		if (all_data_available and comp_taxon == none) {
-			comp_taxon = taxon_id;
-		}
 	}
 	utils::ensure<bad_input_error>(rows == names.size(), "Invalid number of rows");
 
-	return {mat, names, indices, comp_taxon};
+	return {mat, names, indices};
 }
 
 } // namespace terraces

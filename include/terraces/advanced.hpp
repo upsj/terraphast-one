@@ -25,26 +25,30 @@ struct supertree_data {
 };
 
 /**
+ * Returns the index of the first comprehensive taxon in a occurrence bitmatrix.
+ * @param data The occurrence bitmatrix.
+ * @return The (row) index of the first comprehensive taxon in the input matrix
+ *         or @ref none if none exists.
+ */
+index find_comprehensive_taxon(const bitmatrix& data);
+
+/**
  * Extracts a maximum size subset of the columns
  * so the resulting matrix contains a comprehensive taxon.
- * @param data The input occurrence matrix
- * @return The output matrix containing a subset of the columns of the input matrix and its
- * comprehensive taxon.
+ * @param data The occurrence matrix
+ * @return The output matrix containing a subset of the columns of the input matrix.
  */
-std::pair<bitmatrix, index> maximum_comprehensive_columnset(const bitmatrix& data);
+bitmatrix maximum_comprehensive_columnset(const bitmatrix& data);
 
 /**
  * Computes the necessary data to enumerate the supertrees of the given tree and missing data
  * matrix.
- * \param tree The phylogenetic tree. It must be rooted at a comprehensive taxon!
- * \param data The missing data matrix. It must only contain data for the leaves.
- * \param root The node index of the 'root leaf' in the input tree.
- *             It must refer to the comprehensive taxon, the tree is rooted at,
- *             otherwise the constraints will be inconsistent.
+ * \param tree The phylogenetic tree.
+ * \param data The missing data matrix. It must contain only data for the leaves!
  * \returns \ref supertree_data object describing all possible supertrees equivalent to the input
  * tree.
  */
-supertree_data prepare_constraints(const tree& tree, const bitmatrix& data, index root);
+supertree_data create_supertree_data(const tree& tree, const bitmatrix& data);
 
 /**
  * Checks if a phylogenetic tree lies on a phylogenetic terrace.
