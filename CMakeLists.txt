@@ -3,24 +3,16 @@ project(terraphast C CXX)
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-Option(DEV_ENVIRONMENT "DEV_ENVIRONMENT" OFF)
+Option(DEV_ENVIRONMENT "Development environment (extended debugging)" OFF)
 
 #####################################################################
 # decide which components need to be built: by default, build everything,
 # unless some components were explicitely disabled from the parent project
 #####################################################################
-if(NOT DEFINED TERRAPHAST_USE_GMP)
-	set(TERRAPHAST_USE_GMP ON)
-endif()
-if(NOT DEFINED TERRAPHAST_BUILD_CLIB)
-	set(TERRAPHAST_BUILD_CLIB ON)
-endif()
-if(NOT DEFINED TERRAPHAST_BUILD_APPS)
-	set(TERRAPHAST_BUILD_APPS ON)
-endif()
-if(NOT DEFINED TERRAPHAST_BUILD_TESTS)
-	set(TERRAPHAST_BUILD_TESTS ON)
-endif()
+Option(TERRAPHAST_USE_GMP "Use GMP" ON)
+Option(TERRAPHAST_BUILD_CLIB "Build the C library" ON)
+Option(TERRAPHAST_BUILD_APPS "Build the tools" ON)
+Option(TERRAPHAST_BUILD_TESTS "Build the tests" ON)
 
 #####################################################################
 # build library
@@ -65,6 +57,7 @@ add_library(terraces
 		lib/utils.hpp
 		lib/validation.cpp
 		lib/validation.hpp
+		# For QtCreator/CLion/... to show the files
 		include/terraces/advanced.hpp
 		include/terraces/bigint.hpp
 		include/terraces/bitmatrix.hpp
@@ -92,7 +85,7 @@ if(TERRAPHAST_USE_GMP)
 		target_link_libraries(terraces gmpxx gmp)
 		target_compile_definitions(terraces PUBLIC USE_GMP)
 	else()
-		message(STATUS "GMP libraries not found, falling back to clamped integers")
+		message(FATAL_ERROR "GMP libraries not found! Disable them using -DTERRACES_USE_GMP=OFF")
 	endif()
 endif()
 
@@ -102,6 +95,9 @@ if(TERRAPHAST_BUILD_CLIB)
 	add_library(terraces_c c_lib/terraces.cpp c_include/terraces/terraces.h)
 	target_include_directories(terraces_c PUBLIC c_include)
 	target_link_libraries(terraces_c terraces)
+	if (NOT TERRAPHAST_USE_GMP)
+		message(FATAL_ERROR "The C library requires the GMP libraries to build! Enable them using -DTERRACES_USE_GMP=ON")
+	endif()
 
 	set(terraces_targets ${terraces_targets} terraces_c)
 endif()
@@ -172,12 +168,14 @@ if(TERRAPHAST_BUILD_TESTS)
 		test/union_find.cpp
 		test/util.cpp
 		test/validation.cpp
-		test/c_api.cpp
-		test/c_api_gmp.cpp
 	)
-	target_link_libraries(unittests terraces terraces_c Catch)
+	target_link_libraries(unittests terraces Catch)
 	if(TERRAPHAST_BUILD_CLIB)
-	    target_link_libraries(unittests terraces_c)
+		target_sources(unittests PRIVATE
+			test/c_api.cpp
+			test/c_api_gmp.cpp
+		)
+		target_link_libraries(unittests terraces_c)
 	endif()
 	add_test(NAME unittests COMMAND unittests)
 	enable_testing()
