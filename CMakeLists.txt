@@ -6,6 +6,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 Option(DEV_ENVIRONMENT "DEV_ENVIRONMENT" OFF)
 
 #####################################################################
+# decide which components need to be built: by default, build everything,
+# unless some components were explicitely disabled from the parent project
+#####################################################################
+if(NOT DEFINED TERRAPHAST_USE_GMP)
+	set(TERRAPHAST_USE_GMP ON)
+endif()
+if(NOT DEFINED TERRAPHAST_BUILD_CLIB)
+	set(TERRAPHAST_BUILD_CLIB ON)
+endif()
+if(NOT DEFINED TERRAPHAST_BUILD_APPS)
+	set(TERRAPHAST_BUILD_APPS ON)
+endif()
+if(NOT DEFINED TERRAPHAST_BUILD_TESTS)
+	set(TERRAPHAST_BUILD_TESTS ON)
+endif()
+
+#####################################################################
 # build library
 #####################################################################
 add_library(terraces
@@ -68,57 +85,71 @@ target_include_directories(terraces
 find_package(Threads REQUIRED)
 target_link_libraries(terraces Threads::Threads)
 
-find_package(GMP)
-if(GMP_FOUND)
-	message(STATUS "GMP libraries found")
-	target_link_libraries(terraces gmpxx gmp)
-	target_compile_definitions(terraces PUBLIC USE_GMP)
-else()
-	message(STATUS "GMP libraries not found, falling back to clamped integers")
+if(TERRAPHAST_USE_GMP)
+	find_package(GMP)
+	if(GMP_FOUND)
+		message(STATUS "GMP libraries found")
+		target_link_libraries(terraces gmpxx gmp)
+		target_compile_definitions(terraces PUBLIC USE_GMP)
+	else()
+		message(STATUS "GMP libraries not found, falling back to clamped integers")
+	endif()
 endif()
 
-add_library(terraces_c c_lib/terraces.cpp c_include/terraces/terraces.h)
-target_include_directories(terraces_c PUBLIC c_include)
-target_link_libraries(terraces_c terraces)
+set(terraces_targets terraces)
+
+if(TERRAPHAST_BUILD_CLIB)
+	add_library(terraces_c c_lib/terraces.cpp c_include/terraces/terraces.h)
+	target_include_directories(terraces_c PUBLIC c_include)
+	target_link_libraries(terraces_c terraces)
+
+	set(terraces_targets ${terraces_targets} terraces_c)
+endif()
 
 #####################################################################
 # internal compiler flags
 #####################################################################
 if(DEV_ENVIRONMENT AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(terraces PUBLIC _GLIBCXX_DEBUG) # PUBLIC to maintain ABI compatibility
-	target_compile_definitions(terraces_c PRIVATE _GLIBCXX_DEBUG) # PRIVATE since no stdlib objects are used
+	if(TERRAPHAST_BUILD_CLIB)
+		target_compile_definitions(terraces_c PRIVATE _GLIBCXX_DEBUG) # PRIVATE since no stdlib objects are used
+	endif()
 endif()
 
 #####################################################################
 # build tools
 #####################################################################
-add_executable(app "app/app.cpp")
-add_executable(validated_run "tools/validated_run.cpp")
-add_executable(verbose_run "tools/verbose_run.cpp")
-add_executable(isomorphic "tools/isomorphic.cpp")
-add_executable(reroot "tools/reroot.cpp")
-add_executable(subtree "tools/subtree.cpp")
-add_executable(tree_gen "tools/tree_gen.cpp")
-add_executable(site_gen "tools/site_gen.cpp")
-add_executable(nwk_to_dot "tools/nwk_to_dot.cpp")
-target_link_libraries(validated_run terraces)
-target_link_libraries(verbose_run terraces)
-target_link_libraries(isomorphic terraces)
-target_link_libraries(reroot terraces)
-target_link_libraries(subtree terraces)
-target_link_libraries(tree_gen terraces)
-target_link_libraries(site_gen terraces)
-target_link_libraries(nwk_to_dot terraces)
-target_link_libraries(app terraces)
+if(TERRAPHAST_BUILD_APPS)
+	add_executable(app "app/app.cpp")
+	add_executable(validated_run "tools/validated_run.cpp")
+	add_executable(verbose_run "tools/verbose_run.cpp")
+	add_executable(isomorphic "tools/isomorphic.cpp")
+	add_executable(reroot "tools/reroot.cpp")
+	add_executable(subtree "tools/subtree.cpp")
+	add_executable(tree_gen "tools/tree_gen.cpp")
+	add_executable(site_gen "tools/site_gen.cpp")
+	add_executable(nwk_to_dot "tools/nwk_to_dot.cpp")
+	target_link_libraries(validated_run terraces)
+	target_link_libraries(verbose_run terraces)
+	target_link_libraries(isomorphic terraces)
+	target_link_libraries(reroot terraces)
+	target_link_libraries(subtree terraces)
+	target_link_libraries(tree_gen terraces)
+	target_link_libraries(site_gen terraces)
+	target_link_libraries(nwk_to_dot terraces)
+	target_link_libraries(app terraces)
+
+	set(terraces_targets ${terraces_targets} app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen nwk_to_dot)
+endif()
 
 #####################################################################
 # build tests
 #####################################################################
+if(TERRAPHAST_BUILD_TESTS)
+	add_library(Catch INTERFACE)
+	target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/Catch/single_include)
 
-add_library(Catch INTERFACE)
-target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/Catch/single_include)
-
-add_executable(unittests
+	add_executable(unittests
 		test/main.cpp
 		test/advanced.cpp
 		test/bipartitions.cpp
@@ -143,19 +174,27 @@ add_executable(unittests
 		test/validation.cpp
 		test/c_api.cpp
 		test/c_api_gmp.cpp
-)
-target_link_libraries(unittests terraces terraces_c Catch)
-add_test(NAME unittests COMMAND unittests)
-enable_testing()
+	)
+	target_link_libraries(unittests terraces terraces_c Catch)
+	if(TERRAPHAST_BUILD_CLIB)
+	    target_link_libraries(unittests terraces_c)
+	endif()
+	add_test(NAME unittests COMMAND unittests)
+	enable_testing()
 
-set_target_properties(terraces terraces_c app validated_run verbose_run isomorphic reroot subtree tree_gen site_gen nwk_to_dot unittests PROPERTIES CXX_STANDARD 14)
+	set(terraces_targets ${terraces_targets} unittests)
+endif()
+
+set_target_properties(${terraces_targets} PROPERTIES CXX_STANDARD 14)
 
 #####################################################################
 # set platform-specific options, include platform-specific files
 #####################################################################
 if(WIN32)
 	target_include_directories(terraces PUBLIC lib/cl)
-	target_include_directories(unittests PRIVATE lib/cl)
+	if(TERRAPHAST_BUILD_TESTS)
+		target_include_directories(unittests PRIVATE lib/cl)
+	endif()
 	target_compile_options(terraces PRIVATE -Oi -W4)
 	target_compile_options(terraces_c PRIVATE -W4)
 
@@ -167,9 +206,13 @@ if(WIN32)
 	set_source_files_properties(${ALL_SOURCES} PROPERTIES COMPILE_FLAGS "-Za")
 else()
 	target_include_directories(terraces PUBLIC lib/gcc_clang)
-	target_include_directories(unittests PRIVATE lib/gcc_clang)
+	if(TERRAPHAST_BUILD_TESTS)
+		target_include_directories(unittests PRIVATE lib/gcc_clang)
+	endif()
 	target_compile_options(terraces PRIVATE -march=native -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Werror)
-	target_compile_options(terraces_c PRIVATE -Werror)
+	if(TERRAPHAST_BUILD_CLIB)
+		target_compile_options(terraces_c PRIVATE -Werror)
+	endif()
 endif()
 
 #####################################################################

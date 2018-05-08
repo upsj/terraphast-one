@@ -47,7 +47,7 @@ struct node {
 	index& taxon() { return data[3]; }
 
 	bool operator==(const node& o) const {
-		return std::equal(data.begin(), data.end(), o.data.begin(), o.data.end());
+                return data == o.data;
 	}
 
 	bool operator!=(const node& o) const { return !(o == *this); }

@@ -39,6 +39,7 @@ terraces_errors exec_and_catch(Function f) {
 	}
 }
 
+#ifdef USE_GMP
 std::ofstream open_output_file(const char* filename) {
 	auto ret = std::ofstream{filename};
 	if (not ret.is_open()) {
@@ -46,6 +47,7 @@ std::ofstream open_output_file(const char* filename) {
 	}
 	return ret;
 }
+#endif
 
 std::pair<terraces::bitmatrix, terraces::index>
 to_bitmatrix(const terraces_missing_data* missing_data_ptr) {
