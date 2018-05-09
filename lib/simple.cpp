@@ -106,7 +106,7 @@ big_integer print_terrace(const std::string& nwk_string, std::istream& matrix_st
                           std::ostream& output) {
 
 	auto data = parse_data(nwk_string, matrix_stream);
-	return print_terrace(data.first, data.second, output);
+	return print_terrace_compressed(data.first, data.second, output);
 }
 
 big_integer print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
