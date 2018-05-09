@@ -21,8 +21,6 @@ TEST_CASE("maximum_comprehensive_columnset", "[advanced-api]") {
 	auto matrix_result = maximum_comprehensive_columnset(matrix_full);
 	CHECK(find_comprehensive_taxon(matrix_result) == 1);
 	CHECK(matrix_result == matrix_reduced);
-
-	CHECK_THROWS_AS(maximum_comprehensive_columnset(bitmatrix{10, 10}), bad_input_error);
 }
 
 } // namespace tests

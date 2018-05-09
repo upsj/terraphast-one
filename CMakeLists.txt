@@ -19,6 +19,7 @@ add_library(terraces
 		lib/clamped_uint.cpp
 		lib/constraints.cpp
 		lib/constraints_impl.hpp
+		lib/errors.cpp
 		lib/io_utils.hpp
 		lib/multitree.cpp
 		lib/multitree.hpp

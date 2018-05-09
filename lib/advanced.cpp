@@ -46,7 +46,6 @@ bitmatrix maximum_comprehensive_columnset(const bitmatrix& data) {
 	}
 	auto it = std::max_element(row_counts.begin(), row_counts.end());
 	index comp_row = static_cast<index>(std::distance(row_counts.begin(), it));
-	utils::ensure<bad_input_error>(*it > 0, "bitmatrix contains only zeros");
 	std::vector<index> columns;
 	for (index j = 0; j < data.cols(); ++j) {
 		if (data.get(comp_row, j)) {

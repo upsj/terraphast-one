@@ -48,11 +48,7 @@ std::ofstream open_output_file(const char* filename) {
 }
 
 std::pair<terraces::bitmatrix, terraces::index>
-to_bitmatrix(const terraces_missing_data* missing_data_ptr) {
-	if (not missing_data_ptr) {
-		throw terraces::bad_input_error{"nullpointer"};
-	}
-	const auto& missing_data = *missing_data_ptr;
+to_bitmatrix(const terraces_missing_data& missing_data) {
 	auto bm = terraces::bitmatrix{missing_data.num_species, missing_data.num_partitions};
 	auto root = terraces::none;
 	for (auto row = terraces::index{}; row < missing_data.num_species; ++row) {
@@ -67,8 +63,6 @@ to_bitmatrix(const terraces_missing_data* missing_data_ptr) {
 		}
 		if (all_known and root == terraces::none) {
 			root = row;
-		} else if (not any_known) {
-			throw terraces::bad_input_error{""};
 		}
 	}
 	return {bm, root};
@@ -81,7 +75,7 @@ extern "C" {
 terraces_errors terraces_check_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, bool* out) noexcept {
 	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(missing_data);
+		auto sites = to_bitmatrix(*missing_data);
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
 		*out = terraces::check_terrace(create_supertree_data(tree.tree, sites.first));
@@ -98,7 +92,7 @@ terraces_errors terraces_check_tree_str(const char* missing_data, const char* nw
 terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, mpz_t out) noexcept {
 	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(missing_data);
+		auto sites = to_bitmatrix(*missing_data);
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
 		mpz_set(out, terraces::count_terrace_bigint(
@@ -112,7 +106,7 @@ terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
                                     const char* nwk_string, mpz_t out,
                                     const char* output_filename) noexcept {
 	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(missing_data);
+		auto sites = to_bitmatrix(*missing_data);
 		auto tree = terraces::parse_new_nwk(nwk_string);
 		auto output = open_output_file(output_filename);
 		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);

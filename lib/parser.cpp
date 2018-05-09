@@ -60,8 +60,8 @@ token next_token(Iterator& it, Iterator end) {
 		it = std::find(it, end, '\'');
 		const auto name_end = it;
 		utils::ensure<bad_input_error>(name_end != end,
-		                               std::string{"quotes left unclosed at "} +
-		                                       std::string{name_begin, name_end});
+		                               bad_input_error_type::nwk_mismatched_quotes,
+		                               std::string{name_begin, name_end});
 		++it;
 		return {token_type::name, {name_begin, name_end}};
 	}
@@ -91,9 +91,9 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 		case parsing::token_type::lparen: {
 			const auto parent = state.self;
 			const auto self = ret.size();
-			utils::ensure<bad_input_error>(
-			        ret[state.self].taxon() == none,
-			        "Inner node names must come after the closing parentheses");
+			// Inner node names must come AFTER the closing parentheses!
+			utils::ensure<bad_input_error>(ret[state.self].taxon() == none,
+			                               bad_input_error_type::nwk_malformed);
 			stack.push(state);
 			state = parsing::parser_state{parent, self};
 			ret.emplace_back(parent, none, none, none);
@@ -105,8 +105,8 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 			if (ret[parent].rchild() != none) {
 				// (*,old,new)root, state = {root,old}
 				// -> (*,(old,new)aux)root
-				utils::ensure<bad_input_error>(parent == 0,
-				                               "input tree is not bifurcating");
+				utils::ensure<bad_input_error>(
+				        parent == 0, bad_input_error_type::nwk_multifurcating);
 				unrooted = true;
 				auto old_node = state.self;
 				auto aux_node = ret.size();
@@ -129,7 +129,9 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 			break;
 		}
 		case parsing::token_type::rparen: {
-			utils::ensure<bad_input_error>(not stack.empty(), "mismatched parentheses");
+			utils::ensure<bad_input_error>(
+			        not stack.empty(),
+			        bad_input_error_type::nwk_mismatched_parentheses);
 			state = stack.top();
 			stack.pop();
 			break;
@@ -143,10 +145,12 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 		}
 	}
 	if (unrooted) {
-		utils::ensure<bad_input_error>(!stack.empty(), "mismatched parentheses");
+		utils::ensure<bad_input_error>(!stack.empty(),
+		                               bad_input_error_type::nwk_mismatched_parentheses);
 		stack.pop();
 	}
-	utils::ensure<bad_input_error>(stack.empty(), "parentheses left unclosed");
+	utils::ensure<bad_input_error>(stack.empty(),
+	                               bad_input_error_type::nwk_mismatched_parentheses);
 	return ret;
 }
 
@@ -157,10 +161,12 @@ tree parse_nwk(const std::string& input, const index_map& taxa) {
 	return parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {
 		if (is_leaf(n)) {
 			auto it = taxa.find(name);
-			utils::ensure<bad_input_error>(it != taxa.end(), "Unknown taxon " + name);
+			utils::ensure<bad_input_error>(
+			        it != taxa.end(), bad_input_error_type::nwk_taxon_unknown, name);
 			auto taxon_id = (*it).second;
 			utils::ensure<bad_input_error>(!found_taxon[taxon_id],
-			                               "Duplicate taxon" + name);
+			                               bad_input_error_type::nwk_taxon_duplicate,
+			                               name);
 			found_taxon[taxon_id] = true;
 			n.taxon() = taxon_id;
 		}
@@ -173,7 +179,8 @@ named_tree parse_new_nwk(const std::string& input) {
 	auto t = parsing::parse_nwk_impl(input, [&](node& n, const std::string& name) {
 		if (is_leaf(n)) {
 			auto ret = indices.insert({name, names.size()});
-			utils::ensure<bad_input_error>(ret.second, "Duplicate taxon " + name);
+			utils::ensure<bad_input_error>(
+			        ret.second, bad_input_error_type::nwk_taxon_duplicate, name);
 			n.taxon() = names.size();
 			names.emplace_back(name);
 		}
@@ -202,12 +209,11 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 		// fill matrix
 		for (index i = 0; i < cols; ++i) {
 			it = utils::skip_ws(it, end);
-			utils::ensure<bad_input_error>(it != end,
-			                               "Incomplete row in data matrix: " + line);
+			utils::ensure<bad_input_error>(
+			        it != end, bad_input_error_type::bitmatrix_size_invalid, line);
 			auto c = *it++;
 			utils::ensure<bad_input_error>(c == '1' || c == '0',
-			                               "Invalid character in data matrix: " +
-			                                       std::string{c});
+			                               bad_input_error_type::bitmatrix_malformed);
 			if (c == '1') {
 				mat.set(taxon_id, i, true);
 			}
@@ -215,14 +221,16 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 
 		// read taxon name
 		it = utils::skip_ws(it, end);
-		utils::ensure<bad_input_error>(it != end, "Empty name in data matrix: " + line);
+		utils::ensure<bad_input_error>(it != end,
+		                               bad_input_error_type::bitmatrix_name_empty, line);
 		auto taxon_name = std::string{it, end};
 		auto was_inserted = indices.insert({taxon_name, names.size()}).second;
-		utils::ensure<bad_input_error>(was_inserted,
-		                               "Duplicate taxon in data matrix: " + taxon_name);
+		utils::ensure<bad_input_error>(
+		        was_inserted, bad_input_error_type::bitmatrix_name_duplicate, taxon_name);
 		names.emplace_back(std::move(taxon_name));
 	}
-	utils::ensure<bad_input_error>(rows == names.size(), "Invalid number of rows");
+	utils::ensure<bad_input_error>(rows == names.size(),
+	                               bad_input_error_type::bitmatrix_size_invalid);
 
 	return {mat, names, indices};
 }

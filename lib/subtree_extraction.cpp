@@ -14,7 +14,7 @@ std::pair<bitmatrix, std::vector<index>> compute_node_occ(const tree& t, const b
 	auto num_nodes = num_nodes_from_leaves(occ.rows());
 	auto num_sites = occ.cols();
 	utils::ensure<bad_input_error>(t.size() == num_nodes,
-	                               "bitmatrix and tree have incompatible sizes");
+	                               bad_input_error_type::tree_mismatching_size);
 	check_rooted_tree(t);
 	auto node_occ = bitmatrix{t.size(), occ.cols()};
 	std::vector<index> num_leaves_per_site(occ.cols(), 0);
@@ -25,7 +25,7 @@ std::pair<bitmatrix, std::vector<index>> compute_node_occ(const tree& t, const b
 		if (is_leaf(node)) {
 			// copy data from taxon occurrence matrix
 			utils::ensure<bad_input_error>(node.taxon() != none,
-			                               "leaf without taxon ID");
+			                               bad_input_error_type::tree_unnamed_leaf);
 			for (index site = 0; site < num_sites; ++site) {
 				auto has_leaf = occ.get(node.taxon(), site);
 				node_occ.set(i, site, has_leaf);
