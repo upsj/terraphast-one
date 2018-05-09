@@ -55,12 +55,18 @@ index induced_lca(const tree& t, const bitmatrix& node_occ, index column) {
 
 tree subtree(const tree& t, const bitmatrix& node_occ,
              const std::vector<index>& num_leaves_per_site, index site) {
+	auto root = induced_lca(t, node_occ, site);
+	if (is_leaf(t[root])) {
+		// tree containing only a single leaf
+		return {{none, none, none, t[root].taxon()}};
+	}
+
+	auto present = [&](index node) { return node_occ.get(node, site); };
+	assert(present(t[root].lchild()) && present(t[root].rchild()));
+
 	tree out_tree;
 	out_tree.reserve(num_nodes_from_leaves(num_leaves_per_site[site]));
 	out_tree.emplace_back(); // root node
-	auto present = [&](index node) { return node_occ.get(node, site); };
-	auto root = induced_lca(t, node_occ, site);
-	assert(is_leaf(t[root]) || (present(t[root].lchild()) && present(t[root].rchild())));
 
 	stack<index> boundary;
 	auto callback = [&](index i) {
@@ -71,8 +77,7 @@ tree subtree(const tree& t, const bitmatrix& node_occ,
 		if (leaf_occ || (inner_occ && i != root)) {
 			// fires if the tree is trivial (i.e. only one edge!)
 			// this can only happen with sites for which only one
-			// species has
-			// data.
+			// species has data, which we should have caught earlier.
 			assert(!boundary.empty());
 			auto parent = boundary.top();
 			out_tree.emplace_back(parent, none, none, node.taxon());
