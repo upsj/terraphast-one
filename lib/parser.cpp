@@ -132,6 +132,8 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 			utils::ensure<bad_input_error>(
 			        not stack.empty(),
 			        bad_input_error_type::nwk_mismatched_parentheses);
+			utils::ensure<bad_input_error>(ret[state.parent].rchild() != none,
+			                               bad_input_error_type::nwk_malformed);
 			state = stack.top();
 			stack.pop();
 			break;

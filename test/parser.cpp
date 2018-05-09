@@ -24,23 +24,6 @@ TEST_CASE("parsing a tree with just a root-node", "[parser]") {
 	CHECK(indices.at("foo") == 0);
 }
 
-TEST_CASE("parsing a tree with one real node", "[parser]") {
-	const auto results = parse_new_nwk("(foo)bar");
-	const auto& tree = results.tree;
-	const auto& names = results.names;
-	const auto& indices = results.indices;
-	REQUIRE(tree.size() == 2);
-	CHECK(tree[0].parent() == none);
-	CHECK(tree[0].lchild() == 1);
-	CHECK(tree[0].rchild() == none);
-	CHECK(tree[1].parent() == 0);
-	CHECK(tree[1].lchild() == none);
-	CHECK(tree[1].rchild() == none);
-	CHECK(names[0] == "foo");
-	CHECK(indices.at("foo") == 0);
-	CHECK(indices.size() == 1);
-}
-
 TEST_CASE("parsing a tree with three leaves and two inner nodes", "[parser]") {
 	const auto results = parse_new_nwk("((foo,bar)inner, baz)outer");
 	const auto& tree = results.tree;
@@ -111,6 +94,10 @@ TEST_CASE("parsing an unrooted tree with three leaves", "[parser]") {
 	                     {3, none, none, 2}};
 	CHECK(results.names == exp_names);
 	CHECK(results.tree == exp_tree);
+}
+
+TEST_CASE("parsing tree with unnecessary parentheses", "[parser]") {
+	CHECK_THROWS_AS(parse_new_nwk("()"), bad_input_error);
 }
 
 TEST_CASE("parsing trees with mismatching parentheses", "[parser]") {
