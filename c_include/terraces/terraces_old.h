@@ -44,6 +44,7 @@ extern "C" {
 #define TERRACE_NO_ROOT_SPECIES_ERROR -9
 #define TERRACE_SPECIES_WITHOUT_PARTITION_ERROR -10
 #define TERRACE_FLAG_CONFLICT_ERROR -11
+#define TERRACE_INTERNAL_ERROR -99
 /* to be extended */
 
 /* check for unused return values */
@@ -193,7 +194,7 @@ void copyDataMatrix(const unsigned char* matrix, missingData* m);
  * @return TERRACE_SUCCESS on success, or an error code (see TERRACE_*) on failure
  */
 CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, const int ta_outspec,
-                                 const char* allTreesOnTerrace, mpz_t terraceSize);
+                                 const char* allTreesOnTerraceFile, mpz_t terraceSize);
 
 #ifdef __cplusplus
 } // extern "C"

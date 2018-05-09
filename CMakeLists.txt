@@ -179,7 +179,6 @@ if(TERRAPHAST_BUILD_TESTS)
 	if(TERRAPHAST_BUILD_CLIB)
 		target_sources(unittests PRIVATE
 			test/c_api.cpp
-			test/c_api_gmp.cpp
 		)
 		target_link_libraries(unittests terraces_c)
 	endif()
