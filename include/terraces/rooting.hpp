@@ -10,7 +10,7 @@ namespace terraces {
  * The root split is a bitvector of size #leaves that is 1
  * for all leaves in the right subtree of the root node.
  */
-std::vector<bool> root_split(const tree& t);
+std::vector<bool> root_split(const tree& t, index num_leaves);
 
 /**
  * Re-roots the given tree in-place.

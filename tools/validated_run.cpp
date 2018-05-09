@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 			std::cerr << "Extracted subtrees and constraints\n";
 			std::cerr << "Removed " << deduplicate_constraints(constraints)
 			          << " duplicate constraints" << std::endl;
-			auto root_split = terraces::root_split(rerooted_tree);
+			auto root_split = terraces::root_split(rerooted_tree, num_leaves);
 			if (m == mode::count) {
 				tree_enumerator<variants::count_callback<big_integer>> e{{}};
 				auto c1 = e.run(num_leaves, constraints, root_split);

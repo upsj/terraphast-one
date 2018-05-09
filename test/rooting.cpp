@@ -115,9 +115,9 @@ TEST_CASE("root split", "[rerooting]") {
 	auto s1 = std::vector<bool>{0, 0, 1, 1, 1};
 	auto s2 = std::vector<bool>{1, 1, 0, 1, 1};
 	auto s3 = std::vector<bool>{1, 1, 1, 0, 1};
-	CHECK(root_split(t1) == s1);
-	CHECK(root_split(t2) == s2);
-	CHECK(root_split(t3) == s3);
+	CHECK(root_split(t1, 5) == s1);
+	CHECK(root_split(t2, 5) == s2);
+	CHECK(root_split(t3, 5) == s3);
 }
 
 } // namespace tests

@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 		}
 		std::cout << "Removed " << deduplicate_constraints(constraints)
 		          << " duplicate constraints\n";
-		auto root_split = terraces::root_split(rerooted_tree);
+		auto root_split = terraces::root_split(rerooted_tree, num_leaves);
 		std::cout << "Root split\n";
 		for (auto b : root_split) {
 			std::cout << b;

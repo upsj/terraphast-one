@@ -66,8 +66,8 @@ void insert_root(tree& t, index lchild, index rchild, bool reverse) {
 
 } // anonymous namespace
 
-std::vector<bool> root_split(const tree& t) {
-	std::vector<bool> split(num_leaves_from_nodes(t.size()));
+std::vector<bool> root_split(const tree& t, index num_leaves) {
+	std::vector<bool> split(num_leaves);
 	auto root = t[0];
 	foreach_preorder(t,
 	                 [&](auto i) {
