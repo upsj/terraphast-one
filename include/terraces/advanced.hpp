@@ -59,6 +59,16 @@ supertree_data create_supertree_data(const tree& tree, const bitmatrix& data);
  *         that are equivalent with respect to the missing data matrix.
  */
 bool check_terrace(const supertree_data& data);
+
+/**
+ * Checks if a phylogenetic tree lies on a phylogenetic terrace by computing a lower bound to the
+ * terrace size.
+ * \param data The constraints extracted from the tree and missing data matrix describing all
+ * possible supertrees.
+ * \return A lower bound to the number of trees on the phylogenetic terrace.
+ */
+index fast_count_terrace(const supertree_data& data);
+
 /**
  * Counts all trees on a terrace around a phylogenetic tree.
  * Note that this number might not be representable as a 64 bit integer, and might thus be clamped.
@@ -70,6 +80,7 @@ bool check_terrace(const supertree_data& data);
  *         i.e. the result is only a lower bound on the number of trees on this terrace.
  */
 uint64_t count_terrace(const supertree_data& data);
+
 /**
  * Counts all trees on a terrace around a phylogenetic tree.
  * \param data The constraints extracted from the tree and missing data matrix describing all
@@ -77,6 +88,7 @@ uint64_t count_terrace(const supertree_data& data);
  * \return The number of trees on the phylogenetic terrace containing the input tree.
  */
 big_integer count_terrace_bigint(const supertree_data& data);
+
 /**
  * Enumerates all trees on a terrace around a phylogenetic tree.
  * The trees will be printed in a compressed <b>multitree format</b>,
@@ -94,6 +106,18 @@ big_integer count_terrace_bigint(const supertree_data& data);
  * possible supertrees.
  * \param names The name map containing only leaf names. It will be used to output the multitree.
  * \param output The output stream into which the multitree will be written.
+ * \return The number of trees on the phylogenetic terrace containing the input tree.
+ */
+big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
+                                     std::ostream& output);
+
+/**
+ * Enumerates all trees on a terrace around a phylogenetic tree.
+ * The trees will be printed in Newick format, one tree per line
+ * \param data The constraints extracted from the tree and missing data matrix describing all
+ * possible supertrees.
+ * \param names The name map containing only leaf names. It will be used to output the multitree.
+ * \param output The output stream into which the trees will be written.
  * \return The number of trees on the phylogenetic terrace containing the input tree.
  */
 big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);

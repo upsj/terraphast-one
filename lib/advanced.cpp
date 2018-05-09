@@ -5,6 +5,7 @@
 #include <terraces/rooting.hpp>
 #include <terraces/subtree_extraction.hpp>
 
+#include "multitree_iterator.hpp"
 #include "supertree_enumerator.hpp"
 #include "supertree_variants.hpp"
 #include "supertree_variants_multitree.hpp"
@@ -55,14 +56,16 @@ bitmatrix maximum_comprehensive_columnset(const bitmatrix& data) {
 	return data.get_cols(columns);
 }
 
-bool check_terrace(const supertree_data& data) {
+index fast_count_terrace(const supertree_data& data) {
 	tree_enumerator<variants::check_callback> enumerator{{}};
 	try {
-		return enumerator.run(data.num_leaves, data.constraints, data.root) > 1;
+		return enumerator.run(data.num_leaves, data.constraints, data.root);
 	} catch (terraces::tree_count_overflow_error&) {
-		return true;
+		return std::numeric_limits<index>::max();
 	}
 }
+
+bool check_terrace(const supertree_data& data) { return fast_count_terrace(data) > 1; }
 
 uint64_t count_terrace(const supertree_data& data) {
 	tree_enumerator<variants::clamped_count_callback> enumerator{{}};
@@ -78,10 +81,22 @@ big_integer count_terrace_bigint(const supertree_data& data) {
 	return enumerator.run(data.num_leaves, data.constraints, data.root);
 }
 
-big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output) {
+big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
+                                     std::ostream& output) {
 	tree_enumerator<variants::multitree_callback> enumerator{{}};
 	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
 	output << as_newick(result, names);
+
+	return result->num_trees;
+}
+
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output) {
+	tree_enumerator<variants::multitree_callback> enumerator{{}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	multitree_iterator mit{result};
+	do {
+		output << as_newick(mit.tree(), names) << '\n';
+	} while (mit.next());
 
 	return result->num_trees;
 }

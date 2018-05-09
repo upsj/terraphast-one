@@ -93,7 +93,12 @@ endif()
 set(terraces_targets terraces)
 
 if(TERRAPHAST_BUILD_CLIB)
-	add_library(terraces_c c_lib/terraces.cpp c_include/terraces/terraces.h)
+	add_library(terraces_c
+			c_lib/terraces.cpp
+			c_lib/terraces_old.cpp
+			c_include/terraces/terraces.h
+			c_include/terraces/terraces_old.h
+	)
 	target_include_directories(terraces_c PUBLIC c_include)
 	target_link_libraries(terraces_c terraces)
 	if (NOT TERRAPHAST_USE_GMP)
