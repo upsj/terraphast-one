@@ -149,7 +149,7 @@ endif()
 #####################################################################
 if(TERRAPHAST_BUILD_TESTS)
 	add_library(Catch INTERFACE)
-	target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/Catch/single_include)
+	target_include_directories(Catch INTERFACE ${CMAKE_SOURCE_DIR}/catch)
 
 	add_executable(unittests
 		test/main.cpp
