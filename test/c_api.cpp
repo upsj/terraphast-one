@@ -1,6 +1,6 @@
 #include <catch.hpp>
 #include <sstream>
-#include <terraces/terraces_old.h>
+#include <terraces/terraces.h>
 
 TEST_CASE("c_api_error_nwk", "[c-api]") {
 	mpz_t result;
