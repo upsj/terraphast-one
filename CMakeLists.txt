@@ -1,6 +1,6 @@
 project(terraphast C CXX)
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 Option(DEV_ENVIRONMENT "Development environment (extended debugging)" OFF)
@@ -10,6 +10,7 @@ Option(DEV_ENVIRONMENT "Development environment (extended debugging)" OFF)
 # unless some components were explicitely disabled from the parent project
 #####################################################################
 Option(TERRAPHAST_USE_GMP "Use GMP" ON)
+Option(TERRAPHAST_USE_THREADS "Use multi-threadin" ON)
 Option(TERRAPHAST_BUILD_CLIB "Build the C library" ON)
 Option(TERRAPHAST_BUILD_APPS "Build the tools" ON)
 Option(TERRAPHAST_BUILD_TESTS "Build the tests" ON)
@@ -77,8 +78,11 @@ target_include_directories(terraces
 		PUBLIC include
 		PRIVATE lib
 )
-find_package(Threads REQUIRED)
-target_link_libraries(terraces Threads::Threads)
+
+if (TERRAPHAST_USE_THREADS)
+	find_package(Threads REQUIRED)
+	target_link_libraries(terraces ${CMAKE_THREAD_LIBS_INIT})
+endif()
 
 if(TERRAPHAST_USE_GMP)
 	find_package(GMP)
@@ -87,7 +91,7 @@ if(TERRAPHAST_USE_GMP)
 		target_link_libraries(terraces gmpxx gmp)
 		target_compile_definitions(terraces PUBLIC USE_GMP)
 	else()
-		message(FATAL_ERROR "GMP libraries not found! Disable them using -DTERRACES_USE_GMP=OFF")
+		message(FATAL_ERROR "GMP libraries not found! Disable them using -DTERRAPHAST_USE_GMP=OFF")
 	endif()
 endif()
 
@@ -103,7 +107,7 @@ if(TERRAPHAST_BUILD_CLIB)
 	target_include_directories(terraces_c PUBLIC c_include)
 	target_link_libraries(terraces_c terraces)
 	if (NOT TERRAPHAST_USE_GMP)
-		message(FATAL_ERROR "The C library requires the GMP libraries to build! Enable them using -DTERRACES_USE_GMP=ON")
+		message(FATAL_ERROR "The C library requires the GMP libraries to build! Enable them using -DTERRAPHAST_USE_GMP=ON")
 	endif()
 
 	set(terraces_targets ${terraces_targets} terraces_c)
