@@ -3,6 +3,7 @@
 #define TERRACES_ERRORS_HPP
 
 #include <stdexcept>
+#include <string>
 
 namespace terraces {
 
