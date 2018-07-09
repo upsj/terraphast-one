@@ -7,27 +7,36 @@
 
 namespace terraces {
 
-class clamped_uint {
+template <bool except>
+class checked_uint {
 	index m_value;
 
 public:
-	clamped_uint(index value = 0);
+	checked_uint(index value = 0);
 
-	clamped_uint& operator+=(clamped_uint other);
-	clamped_uint& operator*=(clamped_uint other);
+	checked_uint<except>& operator+=(checked_uint<except> other);
+	checked_uint<except>& operator*=(checked_uint<except> other);
 	bool is_clamped() const;
 	index value() const;
 };
 
-bool operator==(clamped_uint a, clamped_uint b);
+template <bool except>
+bool operator==(checked_uint<except> a, checked_uint<except> b);
 
-bool operator!=(clamped_uint a, clamped_uint b);
+template <bool except>
+bool operator!=(checked_uint<except> a, checked_uint<except> b);
 
-clamped_uint operator+(clamped_uint a, clamped_uint b);
+template <bool except>
+checked_uint<except> operator+(checked_uint<except> a, checked_uint<except> b);
 
-clamped_uint operator*(clamped_uint a, clamped_uint b);
+template <bool except>
+checked_uint<except> operator*(checked_uint<except> a, checked_uint<except> b);
 
-std::ostream& operator<<(std::ostream& stream, clamped_uint val);
+template <bool except>
+std::ostream& operator<<(std::ostream& stream, checked_uint<except> val);
+
+using clamped_uint = checked_uint<false>;
+using overflow_except_uint = checked_uint<true>;
 
 } // namespace terraces
 
