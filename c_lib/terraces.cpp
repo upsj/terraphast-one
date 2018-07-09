@@ -1,142 +1,153 @@
-
-#include <terraces/terraces.h>
-
-// The implementation will of the C-wrapper will of course be done in C++:
-
-#include <cstdlib>
+#include "../lib/trees_impl.hpp"
+#include <algorithm>
 #include <fstream>
-
 #include <terraces/advanced.hpp>
 #include <terraces/bitmatrix.hpp>
 #include <terraces/errors.hpp>
 #include <terraces/parser.hpp>
-#include <terraces/rooting.hpp>
-#include <terraces/simple.hpp>
+#include <terraces/terraces.h>
 
-namespace {
+missingData* initializeMissingData(size_t numberOfSpecies, size_t numberOfPartitions,
+                                   const char** speciesNames) {
+	auto data = new missingData;
+	data->numberOfSpecies = numberOfSpecies;
+	data->numberOfPartitions = numberOfPartitions;
+	data->allocatedNameArray = false; // TODO What is this entry?
+	data->speciesNames = speciesNames;
+	data->missingDataMatrix = new unsigned char[numberOfSpecies * numberOfPartitions]();
+	return data;
+}
 
-template <typename Function>
-terraces_errors exec_and_catch(Function f) {
-	// TODO: deal with all exceptions:
+void freeMissingData(missingData* m) {
+	delete[] m->missingDataMatrix;
+	delete m;
+}
+
+void setDataMatrix(missingData* m, size_t speciesNumber, size_t partitionNumber,
+                   unsigned char value) {
+	m->missingDataMatrix[speciesNumber * m->numberOfPartitions + partitionNumber] = value;
+}
+
+unsigned char getDataMatrix(const missingData* m, size_t speciesNumber, size_t partitionNumber) {
+	return m->missingDataMatrix[speciesNumber * m->numberOfPartitions + partitionNumber];
+}
+
+void copyDataMatrix(const unsigned char* matrix, missingData* m) {
+	std::copy_n(matrix, m->numberOfSpecies * m->numberOfPartitions, m->missingDataMatrix);
+}
+
+CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, const int ta_outspec,
+                                 const char* allTreesOnTerraceFile, mpz_t terraceSize) {
+	// check ta_outspec
+	auto detect = bool(ta_outspec & TA_DETECT);
+	auto count = bool(ta_outspec & TA_COUNT);
+	auto enumerate = bool(ta_outspec & TA_ENUMERATE);
+	auto compress = bool(ta_outspec & TA_ENUMERATE_COMPRESS);
+	auto force_comprehensive = bool(ta_outspec & TA_UPPER_BOUND);
+	bool invalid1 = detect && (count || enumerate); // cannot detect and count at the same time
+	bool invalid2 = compress && !enumerate;         // cannot compress if we don't enumerate
+	if (invalid1 || invalid2) {
+		return TERRACE_FLAG_CONFLICT_ERROR;
+	}
+
+	// check input sizes
+	if (m->numberOfPartitions < 2) {
+		return TERRACE_NUM_PARTITIONS_ERROR;
+	}
+	if (m->numberOfSpecies < 4) {
+		return TERRACE_NUM_SPECIES_ERROR;
+	}
+
+	// copy missing data matrix
+	terraces::bitmatrix matrix{m->numberOfSpecies, m->numberOfPartitions};
+	for (size_t row = 0; row < m->numberOfSpecies; ++row) {
+		size_t rowcount = 0;
+		for (size_t col = 0; col < m->numberOfPartitions; ++col) {
+			auto val = m->missingDataMatrix[row * m->numberOfPartitions + col];
+			if (val != 0 && val != 1) {
+				return TERRACE_MATRIX_ERROR;
+			}
+			matrix.set(row, col, val);
+			rowcount += val;
+		}
+		if (rowcount == 0) {
+			return TERRACE_SPECIES_WITHOUT_PARTITION_ERROR;
+		}
+	}
+
+	// copy names
+	terraces::name_map names;
+	terraces::index_map name_index;
+	for (size_t spec_i = 0; spec_i < m->numberOfSpecies; ++spec_i) {
+		names.emplace_back(m->speciesNames[spec_i]);
+		if (!name_index.insert({names.back(), spec_i}).second) {
+			return TERRACE_SPECIES_ERROR;
+		}
+	}
+
+	// parse newick tree
+	terraces::tree tree;
 	try {
-		f();
-		return terraces_success;
-	} catch (std::bad_alloc& e) {
-		return terraces_out_of_memory_error;
-	} catch (terraces::bad_input_error& e) {
-		return terraces_invalid_input_error;
-	} catch (terraces::no_usable_root_error& e) {
-		return terraces_no_usable_root_error;
-	} catch (terraces::file_open_error& e) {
-		return terraces_file_open_error;
-	} catch (terraces::tree_count_overflow_error& e) {
-		return terraces_tree_count_overflow_error;
-	} catch (std::exception& e) {
-		return terraces_unknown_error;
-	} catch (...) {
-		// Something would have to go terribly wrong to end here, so let's just abort.
-		std::abort();
-	}
-}
-
-#ifdef USE_GMP
-std::ofstream open_output_file(const char* filename) {
-	auto ret = std::ofstream{filename};
-	if (not ret.is_open()) {
-		throw terraces::file_open_error{""};
-	}
-	return ret;
-}
-#endif
-
-std::pair<terraces::bitmatrix, terraces::index>
-to_bitmatrix(const terraces_missing_data& missing_data) {
-	auto bm = terraces::bitmatrix{missing_data.num_species, missing_data.num_partitions};
-	auto root = terraces::none;
-	for (auto row = terraces::index{}; row < missing_data.num_species; ++row) {
-		auto all_known = true;
-		auto any_known = false;
-		for (auto col = terraces::index{}; col < missing_data.num_partitions; ++col) {
-			const auto known =
-			        missing_data.matrix[row * missing_data.num_partitions + col];
-			all_known &= known;
-			any_known |= known;
-			bm.set(row, col, known);
-		}
-		if (all_known and root == terraces::none) {
-			root = row;
+		tree = terraces::parse_nwk(newickTreeString, name_index);
+	} catch (const terraces::bad_input_error& err) {
+		switch (err.type()) {
+		case terraces::bad_input_error_type::nwk_multifurcating:
+			return TERRACE_TREE_NOT_BINARY_ERROR;
+		case terraces::bad_input_error_type::nwk_taxon_duplicate:
+			return TERRACE_SPECIES_ERROR;
+		default:
+			return TERRACE_NEWICK_ERROR;
 		}
 	}
-	return {bm, root};
+	if (terraces::num_leaves_from_nodes(tree.size()) != m->numberOfSpecies) {
+		return TERRACE_SPECIES_ERROR;
+	}
+
+	// prepare data
+	if (force_comprehensive) {
+		matrix = terraces::maximum_comprehensive_columnset(matrix);
+	}
+
+	terraces::supertree_data data;
+	try {
+		data = terraces::create_supertree_data(tree, matrix);
+	} catch (const terraces::bad_input_error&) {
+		return TERRACE_INTERNAL_ERROR;
+	} catch (const terraces::no_usable_root_error&) {
+		return TERRACE_NO_ROOT_SPECIES_ERROR;
+	}
+
+	// enumerate terrace
+	if (detect) {
+		auto lb = terraces::fast_count_terrace(data);
+		mpz_set_ui(terraceSize, lb);
+	} else if (count && !enumerate) {
+		try {
+			auto size = terraces::count_terrace_bigint(data);
+			mpz_set(terraceSize, size.value().get_mpz_t());
+		} catch (const terraces::tree_count_overflow_error&) {
+			return TERRACE_SPLIT_COUNT_OVERFLOW_ERROR;
+		}
+	} else {
+		auto ofs = std::ofstream{allTreesOnTerraceFile};
+		if (not ofs.is_open()) {
+			return TERRACE_OUTPUT_FILE_ERROR;
+		}
+		mpz_class size;
+		try {
+			if (compress) {
+				size = terraces::print_terrace_compressed(data, names, ofs).value();
+			} else {
+				size = terraces::print_terrace(data, names, ofs).value();
+			}
+			if (count) {
+				mpz_set(terraceSize, size.get_mpz_t());
+			}
+		} catch (std::ifstream::failure&) {
+			return TERRACE_OUTPUT_FILE_ERROR;
+		} catch (const terraces::tree_count_overflow_error&) {
+			return TERRACE_SPLIT_COUNT_OVERFLOW_ERROR;
+		}
+	}
+	return TERRACE_SUCCESS;
 }
-
-} // anonymous namespace
-
-extern "C" {
-
-terraces_errors terraces_check_tree(const terraces_missing_data* missing_data,
-                                    const char* nwk_string, bool* out) noexcept {
-	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(*missing_data);
-		auto tree = terraces::parse_new_nwk(nwk_string);
-		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
-		*out = terraces::check_terrace(create_supertree_data(tree.tree, sites.first));
-	});
-}
-
-terraces_errors terraces_check_tree_str(const char* missing_data, const char* nwk_string,
-                                        bool* out) noexcept {
-	return exec_and_catch(
-	        [&] { *out = terraces::simple::is_on_terrace(nwk_string, missing_data); });
-}
-
-#ifdef USE_GMP
-terraces_errors terraces_count_tree(const terraces_missing_data* missing_data,
-                                    const char* nwk_string, mpz_t out) noexcept {
-	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(*missing_data);
-		auto tree = terraces::parse_new_nwk(nwk_string);
-		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
-		mpz_set(out, terraces::count_terrace_bigint(
-		                     create_supertree_data(tree.tree, sites.first))
-		                     .value()
-		                     .get_mpz_t());
-	});
-}
-
-terraces_errors terraces_print_tree(const terraces_missing_data* missing_data,
-                                    const char* nwk_string, mpz_t out,
-                                    const char* output_filename) noexcept {
-	return exec_and_catch([&] {
-		auto sites = to_bitmatrix(*missing_data);
-		auto tree = terraces::parse_new_nwk(nwk_string);
-		auto output = open_output_file(output_filename);
-		terraces::reroot_at_taxon_inplace(tree.tree, sites.second);
-		mpz_set(out, terraces::print_terrace(create_supertree_data(tree.tree, sites.first),
-		                                     tree.names, output)
-		                     .value()
-		                     .get_mpz_t());
-	});
-}
-
-terraces_errors terraces_count_tree_str(const char* missing_data, const char* nwk_string,
-                                        mpz_t out) noexcept {
-	return exec_and_catch([&] {
-		mpz_set(out, terraces::simple::get_terrace_size_bigint(nwk_string, missing_data)
-		                     .value()
-		                     .get_mpz_t());
-	});
-}
-
-terraces_errors terraces_print_tree_str(const char* missing_data, const char* nwk_string, mpz_t out,
-                                        const char* output_filename) noexcept {
-	return exec_and_catch([&] {
-		auto output = open_output_file(output_filename);
-		mpz_set(out, terraces::simple::print_terrace(nwk_string, missing_data, output)
-		                     .value()
-		                     .get_mpz_t());
-	});
-}
-#endif
-
-} // extern "C"

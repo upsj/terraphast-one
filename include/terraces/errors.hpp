@@ -21,6 +21,8 @@ enum class bad_input_error_type {
 	nwk_multifurcating,
 	/** Otherwise malformed nwk tree. */
 	nwk_malformed,
+	/** Less than 4 taxa in the tree. */
+	nwk_tree_trivial,
 	/** Duplicate taxon in a bitmatrix. */
 	bitmatrix_name_duplicate,
 	/** Empty taxon name in a bitmatrix. */
@@ -61,6 +63,8 @@ class file_open_error : public std::runtime_error {
  * More specifically, this means that on a recursive subcalls,
  * more than 2^64 possible bipartitions would have to be enumerated.
  * This would take quite a lot of time.
+ * It will also be thrown during a computation overflow
+ * when GMP integration is disabled.
  */
 class tree_count_overflow_error : public std::overflow_error {
 	using std::overflow_error::overflow_error;

@@ -10,7 +10,6 @@ Option(DEV_ENVIRONMENT "Development environment (extended debugging)" OFF)
 # unless some components were explicitely disabled from the parent project
 #####################################################################
 Option(TERRAPHAST_USE_GMP "Use GMP" ON)
-Option(TERRAPHAST_USE_THREADS "Use multi-threadin" ON)
 Option(TERRAPHAST_BUILD_CLIB "Build the C library" ON)
 Option(TERRAPHAST_BUILD_APPS "Build the tools" ON)
 Option(TERRAPHAST_BUILD_TESTS "Build the tests" ON)
@@ -79,11 +78,6 @@ target_include_directories(terraces
 		PRIVATE lib
 )
 
-if (TERRAPHAST_USE_THREADS)
-	find_package(Threads REQUIRED)
-	target_link_libraries(terraces ${CMAKE_THREAD_LIBS_INIT})
-endif()
-
 if(TERRAPHAST_USE_GMP)
 	find_package(GMP)
 	if(GMP_FOUND)
@@ -100,9 +94,7 @@ set(terraces_targets terraces)
 if(TERRAPHAST_BUILD_CLIB)
 	add_library(terraces_c
 			c_lib/terraces.cpp
-			c_lib/terraces_old.cpp
 			c_include/terraces/terraces.h
-			c_include/terraces/terraces_old.h
 	)
 	target_include_directories(terraces_c PUBLIC c_include)
 	target_link_libraries(terraces_c terraces)
@@ -179,6 +171,7 @@ if(TERRAPHAST_BUILD_TESTS)
 		test/union_find.cpp
 		test/util.cpp
 		test/validation.cpp
+		test/simple.cpp
 	)
 	target_link_libraries(unittests terraces Catch)
 	if(TERRAPHAST_BUILD_CLIB)

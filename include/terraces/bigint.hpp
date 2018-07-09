@@ -6,7 +6,7 @@
 #ifndef USE_GMP
 #include "clamped_uint.hpp"
 namespace terraces {
-using big_integer = terraces::clamped_uint;
+using big_integer = terraces::overflow_except_uint;
 }
 #else
 #include <gmpxx.h>

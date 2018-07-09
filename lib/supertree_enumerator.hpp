@@ -1,9 +1,6 @@
 #ifndef SUPERTREE_ENUMERATOR_HPP
 #define SUPERTREE_ENUMERATOR_HPP
 
-#include <atomic>
-#include <thread>
-
 #include "bipartitions.hpp"
 #include "stack_allocator.hpp"
 #include "union_find.hpp"
@@ -73,7 +70,7 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 	m_cb.enter(leaves);
 	// no base cases
 	assert(num_leaves > 2);
-	assert(!constraints.empty());
+	// assert(!constraints.empty()); is not necessary, since is returns correct values anyway
 	// build bipartition iterator:
 	auto sets = union_find::make_bipartition(root_split, union_find_allocator());
 	m_constraints = &constraints;

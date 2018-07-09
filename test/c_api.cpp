@@ -1,6 +1,8 @@
 #include <catch.hpp>
+#include <cstdio>
+#include <fstream>
 #include <sstream>
-#include <terraces/terraces_old.h>
+#include <terraces/terraces.h>
 
 TEST_CASE("c_api_error_nwk", "[c-api]") {
 	mpz_t result;
@@ -13,6 +15,21 @@ TEST_CASE("c_api_error_nwk", "[c-api]") {
 	setDataMatrix(data, 3, 0, 1);
 	setDataMatrix(data, 3, 1, 1);
 	REQUIRE(terraceAnalysis(data, "(s1,", TA_DETECT, nullptr, result) == TERRACE_NEWICK_ERROR);
+	freeMissingData(data);
+}
+
+TEST_CASE("c_api_error_nwk_unknown", "[c-api]") {
+	mpz_t result;
+	mpz_init(result);
+	const char* names[] = {"s1", "s2", "s3", "s4"};
+	auto data = initializeMissingData(4, 2, names);
+	setDataMatrix(data, 0, 0, 1);
+	setDataMatrix(data, 1, 0, 1);
+	setDataMatrix(data, 2, 0, 1);
+	setDataMatrix(data, 3, 0, 1);
+	setDataMatrix(data, 3, 1, 1);
+	REQUIRE(terraceAnalysis(data, "((s1,s2),s5,s4)", TA_DETECT, nullptr, result) ==
+	        TERRACE_NEWICK_ERROR);
 	freeMissingData(data);
 }
 
@@ -224,5 +241,101 @@ TEST_CASE("c_api_count_data", "[c-api]") {
 	REQUIRE(terraceAnalysis(data, "((s4, (s3, (s2, (s1, s6)))), s5)", TA_COUNT, nullptr,
 	                        result) == TERRACE_SUCCESS);
 	CHECK(mpz_cmp_ui(result, 35) == 0);
+	freeMissingData(data);
+}
+
+TEST_CASE("c_api_enumerate_compressed_data", "[c-api]") {
+	mpz_t result;
+	mpz_init(result);
+	const char* names[] = {"s1", "s2", "s3", "s4", "s5", "s6"};
+	auto data = initializeMissingData(6, 3, names);
+	setDataMatrix(data, 0, 0, 1);
+	setDataMatrix(data, 1, 0, 1);
+	setDataMatrix(data, 2, 2, 1);
+	setDataMatrix(data, 3, 2, 1);
+	setDataMatrix(data, 3, 1, 1);
+	setDataMatrix(data, 4, 0, 1);
+	setDataMatrix(data, 4, 1, 1);
+	setDataMatrix(data, 4, 2, 1);
+	setDataMatrix(data, 5, 1, 1);
+	setDataMatrix(data, 5, 2, 1);
+	auto filename = "terraphast_capi_compressed_testfile.nwk";
+	REQUIRE(terraceAnalysis(data, "((s4, (s3, (s2, (s1, s6)))), s5)",
+	                        TA_COUNT | TA_ENUMERATE | TA_ENUMERATE_COMPRESS, filename,
+	                        result) == TERRACE_SUCCESS);
+	CHECK(mpz_cmp_ui(result, 35) == 0);
+	std::stringstream buffer;
+	{
+		std::ifstream s(filename);
+		buffer << s.rdbuf();
+	}
+	std::remove(filename);
+	CHECK(buffer.str() == "(s5,(s2,((s3,s6),(s1,s4))|(s4,{s1,s3,s6})|((s4,(s3,s6)),s1))|((s3,"
+	                      "s6),{s1,s2,s4})|({s2,s3,s6},(s1,s4))|(s4,{s1,s2,s3,s6})|((s2,s4),{"
+	                      "s1,s3,s6})|((s4,(s3,s6)),(s1,s2))|(((s3,s6),(s2,s4))|(s4,{s2,s3,s6})"
+	                      "|((s4,(s3,s6)),s2),s1))");
+	freeMissingData(data);
+}
+
+TEST_CASE("c_api_enumerate_data", "[c-api]") {
+	mpz_t result;
+	mpz_init(result);
+	const char* names[] = {"s1", "s2", "s3", "s4", "s5", "s6"};
+	auto data = initializeMissingData(6, 3, names);
+	setDataMatrix(data, 0, 0, 1);
+	setDataMatrix(data, 1, 0, 1);
+	setDataMatrix(data, 2, 2, 1);
+	setDataMatrix(data, 3, 2, 1);
+	setDataMatrix(data, 3, 1, 1);
+	setDataMatrix(data, 4, 0, 1);
+	setDataMatrix(data, 4, 1, 1);
+	setDataMatrix(data, 4, 2, 1);
+	setDataMatrix(data, 5, 1, 1);
+	setDataMatrix(data, 5, 2, 1);
+	auto filename = "terraphast_capi_testfile.nwk";
+	REQUIRE(terraceAnalysis(data, "((s4, (s3, (s2, (s1, s6)))), s5)", TA_COUNT | TA_ENUMERATE,
+	                        filename, result) == TERRACE_SUCCESS);
+	CHECK(mpz_cmp_ui(result, 35) == 0);
+	std::stringstream buffer;
+	{
+		std::ifstream s(filename);
+		buffer << s.rdbuf();
+	}
+	std::remove(filename);
+	CHECK(buffer.str() == "(s5,(s2,((s3,s6),(s1,s4))));\n"
+	                      "(s5,(s2,(s4,(s1,(s3,s6)))));\n"
+	                      "(s5,(s2,(s4,(s3,(s1,s6)))));\n"
+	                      "(s5,(s2,(s4,((s1,s3),s6))));\n"
+	                      "(s5,(s2,((s4,(s3,s6)),s1)));\n"
+	                      "(s5,((s3,s6),(s1,(s2,s4))));\n"
+	                      "(s5,((s3,s6),(s2,(s1,s4))));\n"
+	                      "(s5,((s3,s6),((s1,s2),s4)));\n"
+	                      "(s5,((s2,(s3,s6)),(s1,s4)));\n"
+	                      "(s5,((s3,(s2,s6)),(s1,s4)));\n"
+	                      "(s5,(((s2,s3),s6),(s1,s4)));\n"
+	                      "(s5,(s4,(s1,(s2,(s3,s6)))));\n"
+	                      "(s5,(s4,(s1,(s3,(s2,s6)))));\n"
+	                      "(s5,(s4,(s1,((s2,s3),s6))));\n"
+	                      "(s5,(s4,(s2,(s1,(s3,s6)))));\n"
+	                      "(s5,(s4,(s2,(s3,(s1,s6)))));\n"
+	                      "(s5,(s4,(s2,((s1,s3),s6))));\n"
+	                      "(s5,(s4,((s1,s2),(s3,s6))));\n"
+	                      "(s5,(s4,(s3,(s1,(s2,s6)))));\n"
+	                      "(s5,(s4,(s3,(s2,(s1,s6)))));\n"
+	                      "(s5,(s4,(s3,((s1,s2),s6))));\n"
+	                      "(s5,(s4,((s1,s3),(s2,s6))));\n"
+	                      "(s5,(s4,((s2,s3),(s1,s6))));\n"
+	                      "(s5,(s4,((s1,(s2,s3)),s6)));\n"
+	                      "(s5,(s4,((s2,(s1,s3)),s6)));\n"
+	                      "(s5,(s4,(((s1,s2),s3),s6)));\n"
+	                      "(s5,((s2,s4),(s1,(s3,s6))));\n"
+	                      "(s5,((s2,s4),(s3,(s1,s6))));\n"
+	                      "(s5,((s2,s4),((s1,s3),s6)));\n"
+	                      "(s5,((s4,(s3,s6)),(s1,s2)));\n"
+	                      "(s5,(((s3,s6),(s2,s4)),s1));\n"
+	                      "(s5,((s4,(s2,(s3,s6))),s1));\n"
+	                      "(s5,((s4,(s3,(s2,s6))),s1));\n"
+	                      "(s5,((s4,((s2,s3),s6)),s1));\n"
+	                      "(s5,(((s4,(s3,s6)),s2),s1));\n");
 	freeMissingData(data);
 }

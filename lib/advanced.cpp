@@ -14,6 +14,8 @@ namespace terraces {
 
 supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
 	auto root = find_comprehensive_taxon(data);
+	utils::ensure<bad_input_error>(data.rows() == num_leaves_from_nodes(tree.size()),
+	                               bad_input_error_type::tree_mismatching_size);
 	utils::ensure<no_usable_root_error>(root != none, "No comprehensive taxon found");
 	auto rerooted_tree = tree;
 	reroot_at_taxon_inplace(rerooted_tree, root);
@@ -22,6 +24,7 @@ supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
 	deduplicate_constraints(constraints);
 
 	auto num_leaves = data.rows();
+	utils::ensure<bad_input_error>(num_leaves >= 4, bad_input_error_type::nwk_tree_trivial);
 	return {constraints, num_leaves, root};
 }
 
@@ -99,6 +102,15 @@ big_integer print_terrace(const supertree_data& data, const name_map& names, std
 	} while (mit.next());
 
 	return result->num_trees;
+}
+
+void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback) {
+	tree_enumerator<variants::multitree_callback> enumerator{{}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	multitree_iterator mit{result};
+	do {
+		callback(mit.tree());
+	} while (mit.next());
 }
 
 } // namespace terraces
