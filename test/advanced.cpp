@@ -115,6 +115,52 @@ TEST_CASE("advanced_results", "[advanced-api]") {
 	CHECK(fast_count_terrace(d3) > 1);
 	CHECK(count_terrace(d3) == 35);
 	CHECK(count_terrace_bigint(d3).value() == 35);
+	std::stringstream ss;
+	print_terrace_compressed(d3, m3.names, ss);
+	CHECK(ss.str() == "(s5,(s2,((s3,s6),(s1,s4))|(s4,{s1,s3,s6})|((s4,(s3,s6)),s1))|((s3,"
+	                  "s6),{s1,s2,s4})|({s2,s3,s6},(s1,s4))|(s4,{s1,s2,s3,s6})|((s2,s4),{"
+	                  "s1,s3,s6})|((s4,(s3,s6)),(s1,s2))|(((s3,s6),(s2,s4))|(s4,{s2,s3,s6})"
+	                  "|((s4,(s3,s6)),s2),s1))");
+	ss.str("");
+	print_terrace(d3, m3.names, ss);
+	REQUIRE(ss.str() == "(s5,(s2,((s3,s6),(s1,s4))));\n"
+	                    "(s5,(s2,(s4,(s1,(s3,s6)))));\n"
+	                    "(s5,(s2,(s4,(s3,(s1,s6)))));\n"
+	                    "(s5,(s2,(s4,((s1,s3),s6))));\n"
+	                    "(s5,(s2,((s4,(s3,s6)),s1)));\n"
+	                    "(s5,((s3,s6),(s1,(s2,s4))));\n"
+	                    "(s5,((s3,s6),(s2,(s1,s4))));\n"
+	                    "(s5,((s3,s6),((s1,s2),s4)));\n"
+	                    "(s5,((s2,(s3,s6)),(s1,s4)));\n"
+	                    "(s5,((s3,(s2,s6)),(s1,s4)));\n"
+	                    "(s5,(((s2,s3),s6),(s1,s4)));\n"
+	                    "(s5,(s4,(s1,(s2,(s3,s6)))));\n"
+	                    "(s5,(s4,(s1,(s3,(s2,s6)))));\n"
+	                    "(s5,(s4,(s1,((s2,s3),s6))));\n"
+	                    "(s5,(s4,(s2,(s1,(s3,s6)))));\n"
+	                    "(s5,(s4,(s2,(s3,(s1,s6)))));\n"
+	                    "(s5,(s4,(s2,((s1,s3),s6))));\n"
+	                    "(s5,(s4,((s1,s2),(s3,s6))));\n"
+	                    "(s5,(s4,(s3,(s1,(s2,s6)))));\n"
+	                    "(s5,(s4,(s3,(s2,(s1,s6)))));\n"
+	                    "(s5,(s4,(s3,((s1,s2),s6))));\n"
+	                    "(s5,(s4,((s1,s3),(s2,s6))));\n"
+	                    "(s5,(s4,((s2,s3),(s1,s6))));\n"
+	                    "(s5,(s4,((s1,(s2,s3)),s6)));\n"
+	                    "(s5,(s4,((s2,(s1,s3)),s6)));\n"
+	                    "(s5,(s4,(((s1,s2),s3),s6)));\n"
+	                    "(s5,((s2,s4),(s1,(s3,s6))));\n"
+	                    "(s5,((s2,s4),(s3,(s1,s6))));\n"
+	                    "(s5,((s2,s4),((s1,s3),s6)));\n"
+	                    "(s5,((s4,(s3,s6)),(s1,s2)));\n"
+	                    "(s5,(((s3,s6),(s2,s4)),s1));\n"
+	                    "(s5,((s4,(s2,(s3,s6))),s1));\n"
+	                    "(s5,((s4,(s3,(s2,s6))),s1));\n"
+	                    "(s5,((s4,((s2,s3),s6)),s1));\n"
+	                    "(s5,(((s4,(s3,s6)),s2),s1));\n");
+	std::stringstream ss2;
+	enumerate_terrace(d3, [&](auto& tree) { ss2 << as_newick(tree, m3.names) << '\n'; });
+	CHECK(ss.str() == ss2.str());
 }
 
 } // namespace tests
