@@ -14,6 +14,8 @@ namespace terraces {
 
 supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
 	auto root = find_comprehensive_taxon(data);
+	utils::ensure<bad_input_error>(data.rows() == num_leaves_from_nodes(tree.size()),
+	                               bad_input_error_type::tree_mismatching_size);
 	utils::ensure<no_usable_root_error>(root != none, "No comprehensive taxon found");
 	auto rerooted_tree = tree;
 	reroot_at_taxon_inplace(rerooted_tree, root);
