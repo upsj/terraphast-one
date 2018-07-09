@@ -9,7 +9,7 @@
 
 missingData* initializeMissingData(size_t numberOfSpecies, size_t numberOfPartitions,
                                    const char** speciesNames) {
-	missingData* data = new missingData;
+	auto data = new missingData;
 	data->numberOfSpecies = numberOfSpecies;
 	data->numberOfPartitions = numberOfPartitions;
 	data->allocatedNameArray = false; // TODO What is this entry?
@@ -121,7 +121,7 @@ CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, c
 	if (detect) {
 		auto lb = terraces::fast_count_terrace(data);
 		mpz_set_ui(terraceSize, lb);
-	} else if (count) {
+	} else if (count && !enumerate) {
 		try {
 			auto size = terraces::count_terrace_bigint(data);
 			mpz_set(terraceSize, size.value().get_mpz_t());
@@ -139,6 +139,9 @@ CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, c
 				size = terraces::print_terrace_compressed(data, names, ofs).value();
 			} else {
 				size = terraces::print_terrace(data, names, ofs).value();
+			}
+			if (count) {
+				mpz_set(terraceSize, size.get_mpz_t());
 			}
 		} catch (std::ifstream::failure&) {
 			return TERRACE_OUTPUT_FILE_ERROR;

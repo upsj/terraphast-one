@@ -193,7 +193,7 @@ void copyDataMatrix(const unsigned char* matrix, missingData* m);
  *
  * @return TERRACE_SUCCESS on success, or an error code (see TERRACE_*) on failure
  */
-CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, const int ta_outspec,
+CHECK_RESULT int terraceAnalysis(missingData* m, const char* newickTreeString, int ta_outspec,
                                  const char* allTreesOnTerraceFile, mpz_t terraceSize);
 
 #ifdef __cplusplus
