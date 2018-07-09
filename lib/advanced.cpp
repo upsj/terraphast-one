@@ -22,6 +22,7 @@ supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
 	deduplicate_constraints(constraints);
 
 	auto num_leaves = data.rows();
+	utils::ensure<bad_input_error>(num_leaves >= 4, bad_input_error_type::nwk_tree_trivial);
 	return {constraints, num_leaves, root};
 }
 

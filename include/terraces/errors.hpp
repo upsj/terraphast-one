@@ -20,6 +20,8 @@ enum class bad_input_error_type {
 	nwk_multifurcating,
 	/** Otherwise malformed nwk tree. */
 	nwk_malformed,
+	/** Less than 4 taxa in the tree. */
+	nwk_tree_trivial,
 	/** Duplicate taxon in a bitmatrix. */
 	bitmatrix_name_duplicate,
 	/** Empty taxon name in a bitmatrix. */

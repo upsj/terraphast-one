@@ -18,6 +18,8 @@ std::string build_error_message(bad_input_error_type type) {
 		return "Only bifurcating trees are supported";
 	case bad_input_error_type::nwk_malformed:
 		return "Malformed nwk tree";
+	case bad_input_error_type::nwk_tree_trivial:
+		return "Less than 4 taxa in nwk tree";
 	case bad_input_error_type::bitmatrix_name_duplicate:
 		return "Duplicate taxon in bitmatrix ";
 	case bad_input_error_type::bitmatrix_name_empty:
