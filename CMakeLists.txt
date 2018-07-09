@@ -76,8 +76,6 @@ target_include_directories(terraces
 		PUBLIC include
 		PRIVATE lib
 )
-find_package(Threads REQUIRED)
-target_link_libraries(terraces Threads::Threads)
 
 if(TERRAPHAST_USE_GMP)
 	find_package(GMP)

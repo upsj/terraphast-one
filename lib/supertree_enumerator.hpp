@@ -1,9 +1,6 @@
 #ifndef SUPERTREE_ENUMERATOR_HPP
 #define SUPERTREE_ENUMERATOR_HPP
 
-#include <atomic>
-#include <thread>
-
 #include "bipartitions.hpp"
 #include "stack_allocator.hpp"
 #include "union_find.hpp"
