@@ -106,7 +106,7 @@ big_integer print_terrace(const std::string& nwk_string, std::istream& matrix_st
                           std::ostream& output) {
 
 	auto data = parse_data(nwk_string, matrix_stream);
-	return print_terrace_compressed(data.first, data.second, output);
+	return print_terrace(data.first, data.second, output);
 }
 
 big_integer print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
@@ -131,6 +131,38 @@ big_integer print_terrace_from_file(const std::string& nwk_filename,
 	auto nwk_string = read_file_full(nwk_filename);
 	auto matrix_stream = open_ifstream(matrix_filename);
 	return print_terrace(nwk_string, matrix_stream, output);
+}
+
+big_integer print_terrace_compressed(const std::string& nwk_string, std::istream& matrix_stream,
+                                     std::ostream& output) {
+
+	auto data = parse_data(nwk_string, matrix_stream);
+	return print_terrace_compressed(data.first, data.second, output);
+}
+
+big_integer print_terrace_compressed(std::istream& nwk_stream, const std::string& matrix_string,
+                                     std::ostream& out) {
+	auto matrix_stream = std::istringstream{matrix_string};
+	return print_terrace_compressed(read_ifstream_full(nwk_stream), matrix_stream, out);
+}
+
+big_integer print_terrace_compressed(std::istream& nwk_stream, std::istream& matrix_stream,
+                                     std::ostream& out) {
+	return print_terrace_compressed(read_ifstream_full(nwk_stream), matrix_stream, out);
+}
+
+big_integer print_terrace_compressed(const std::string& nwk_string,
+                                     const std::string& matrix_string, std::ostream& output) {
+	auto matrix_stream = std::istringstream{matrix_string};
+	return print_terrace_compressed(nwk_string, matrix_stream, output);
+}
+
+big_integer print_terrace_compressed_from_file(const std::string& nwk_filename,
+                                               const std::string& matrix_filename,
+                                               std::ostream& output) {
+	auto nwk_string = read_file_full(nwk_filename);
+	auto matrix_stream = open_ifstream(matrix_filename);
+	return print_terrace_compressed(nwk_string, matrix_stream, output);
 }
 
 } // namespace simple

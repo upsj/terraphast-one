@@ -54,6 +54,24 @@ big_integer get_terrace_size_bigint_from_file(const std::string& nwk_filename,
  * Note that the output may be quite large!
  * \throws tree_count_overflow_error if the method will not terminate in any usable timeframe.
  */
+big_integer print_terrace_compressed(std::istream& nwk_stream, std::istream& matrix_stream,
+                                     std::ostream& out);
+big_integer print_terrace_compressed(std::istream& nwk_stream, const std::string& matrix_string,
+                                     std::ostream& out);
+big_integer print_terrace_compressed(const std::string& nwk_string, std::istream& matrix_stream,
+                                     std::ostream& out);
+big_integer print_terrace_compressed(const std::string& nwk_string,
+                                     const std::string& matrix_string, std::ostream& out);
+big_integer print_terrace_compressed_from_file(const std::string& nwk_filename,
+                                               const std::string& matrix_filename,
+                                               std::ostream& output);
+
+/**
+ * Print all trees on the terrace to the provided output.
+ *
+ * Note that the output may be extremely large!
+ * \throws tree_count_overflow_error if the method will not terminate in any usable timeframe.
+ */
 big_integer print_terrace(std::istream& nwk_stream, std::istream& matrix_stream, std::ostream& out);
 big_integer print_terrace(std::istream& nwk_stream, const std::string& matrix_string,
                           std::ostream& out);
