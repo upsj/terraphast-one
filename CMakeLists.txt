@@ -170,6 +170,7 @@ if(TERRAPHAST_BUILD_TESTS)
 		test/union_find.cpp
 		test/util.cpp
 		test/validation.cpp
+		test/simple.cpp
 	)
 	target_link_libraries(unittests terraces Catch)
 	if(TERRAPHAST_BUILD_CLIB)
