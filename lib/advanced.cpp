@@ -102,4 +102,13 @@ big_integer print_terrace(const supertree_data& data, const name_map& names, std
 	return result->num_trees;
 }
 
+void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback) {
+	tree_enumerator<variants::multitree_callback> enumerator{{}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	multitree_iterator mit{result};
+	do {
+		callback(mit.tree());
+	} while (mit.next());
+}
+
 } // namespace terraces

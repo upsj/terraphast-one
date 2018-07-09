@@ -1,6 +1,7 @@
 #ifndef ADVANCED_HPP
 #define ADVANCED_HPP
 
+#include <functional>
 #include <iosfwd>
 
 #include "bigint.hpp"
@@ -121,6 +122,15 @@ big_integer print_terrace_compressed(const supertree_data& data, const name_map&
  * \return The number of trees on the phylogenetic terrace containing the input tree.
  */
 big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);
+
+/**
+ * Enumerates all trees on a terrace around a phylogenetic tree.
+ * The given callback function will be called with every tree on the terrace as a parameter.
+ * \param data The constraints extracted from the tree and missing data matrix describing all
+ * possible supertrees.
+ * \param callback The callback function taking a tree as a parameter.
+ */
+void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback);
 
 } // namespace terraces
 
