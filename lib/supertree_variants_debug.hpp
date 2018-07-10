@@ -89,10 +89,9 @@ private:
 	std::ostream& output() { return m_output << std::string(m_depth, '\t'); }
 
 public:
-	template <typename... Args>
-	logging_decorator(Args&&... args, std::ostream& output, const name_map& names)
-	        : Callback{std::forward<Args>(args)...}, m_output{output}, m_depth{0},
-	          m_first_iteration{}, m_names{names} {}
+	logging_decorator(Callback&& cb, std::ostream& output, const name_map& names)
+	        : Callback{std::move(cb)}, m_output{output}, m_depth{0}, m_first_iteration{},
+	          m_names{names} {}
 
 	void enter(const ranked_bitvector& leaves) {
 		Callback::enter(leaves);

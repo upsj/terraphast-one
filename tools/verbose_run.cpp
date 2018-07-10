@@ -117,8 +117,8 @@ int main(int argc, char** argv) {
 			std::cout << b;
 		}
 		std::cout << "\n";
-		tree_enumerator<debug::variants::logging_decorator<variants::multitree_callback>> e{
-		        {std::cout, number_names}};
+		using callback = debug::variants::logging_decorator<variants::multitree_callback>;
+		tree_enumerator<callback> e{callback{{}, std::cout, number_names}};
 		multitree_node* result;
 		if (use_root_split) {
 			result = e.run(num_leaves, constraints, root_split);
