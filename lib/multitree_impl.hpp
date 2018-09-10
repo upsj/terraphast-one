@@ -2,7 +2,7 @@
 #define MULTITREE_IMPL_HPP
 
 #include "multitree.hpp"
-#include <memory>
+#include "memory.hpp"
 
 namespace terraces {
 namespace multitree_impl {
@@ -10,13 +10,13 @@ namespace multitree_impl {
 template <typename T>
 class storage_block {
 private:
-	std::unique_ptr<T[]> begin;
+	std::unique_ptr<T[], utils::array_deleter<T>> begin;
 	index size;
 	index max_size;
 
 public:
 	storage_block(index max_size)
-	        : begin{std::make_unique<T[]>(max_size)}, size{0}, max_size{max_size} {}
+	        : begin{utils::make_unique_array<T>(max_size)}, size{0}, max_size{max_size} {}
 
 	bool has_space(index required = 1) { return size + required <= max_size; }
 

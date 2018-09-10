@@ -4,20 +4,16 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <memory>
 #include <new>
 #include <utility>
 #include <vector>
 
+#include "memory.hpp"
+
 namespace terraces {
 namespace utils {
 
-class array_deleter {
-public:
-	void operator()(char* ptr) { ::operator delete[](static_cast<void*>(ptr)); }
-};
-
-using char_buffer = std::unique_ptr<char[], array_deleter>;
+using char_buffer = std::unique_ptr<char[], array_deleter<char>>;
 
 class free_list {
 public:
