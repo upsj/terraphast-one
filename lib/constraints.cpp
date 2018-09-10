@@ -21,9 +21,10 @@ std::ostream& operator<<(std::ostream& stream, utils::named_output<constraints, 
 
 constraints compute_constraints(const std::vector<tree>& trees) {
 	constraints result;
-	auto num_nodes = (*std::max_element(trees.begin(), trees.end(), [](const tree& a, const tree& b) {
-		                 return a.size() < b.size();
-		         })).size();
+	auto num_nodes =
+	        (*std::max_element(trees.begin(), trees.end(), [](const tree& a, const tree& b) {
+		        return a.size() < b.size();
+		})).size();
 	std::vector<std::pair<index, index>> outermost_nodes(num_nodes, {none, none});
 
 	for (auto& t : trees) {
