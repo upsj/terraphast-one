@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 
 #include <terraces/bitmatrix.hpp>
@@ -22,3 +21,4 @@ TEST_CASE("bitmatrix set/get", "[bitmatrix]") {
 
 } // namespace tests
 } // namespace terraces
+

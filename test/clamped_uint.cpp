@@ -30,3 +30,4 @@ TEST_CASE("overflow_except_uint", "[checked_uint]") {
 
 } // namespace tests
 } // namespace terraces
+

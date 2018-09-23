@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 
 #include <algorithm>
@@ -57,3 +56,4 @@ TEST_CASE("multitree_iterator init unconstrained", "[multitree]") {
 
 } // namespace tests
 } // namespace terraces
+

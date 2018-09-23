@@ -238,3 +238,4 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 }
 
 } // namespace terraces
+

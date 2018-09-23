@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 
 #include "../lib/ranked_bitvector.hpp"
@@ -171,3 +170,4 @@ TEST_CASE("efficient bitvector xor", "[bitvector]") {
 
 } // namespace tests
 } // namespace terraces
+

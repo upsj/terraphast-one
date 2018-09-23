@@ -177,3 +177,4 @@ bool multitree_iterator::reset_unconstrained(index root, multitree_nodes::uncons
 bool multitree_iterator::next() { return next(0); }
 
 } // namespace terraces
+

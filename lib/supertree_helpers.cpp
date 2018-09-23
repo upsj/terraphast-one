@@ -48,3 +48,4 @@ ranked_bitvector leaf_occ(const tree& tree, utils::stack_allocator<index> a) {
 }
 
 } // namespace terraces
+

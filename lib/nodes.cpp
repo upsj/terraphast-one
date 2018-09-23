@@ -1,4 +1,3 @@
-
 #include <terraces/trees.hpp>
 
 #include <ostream>
@@ -24,3 +23,4 @@ std::ostream& operator<<(std::ostream& s, const node& n) {
 }
 
 } // namespace terraces
+

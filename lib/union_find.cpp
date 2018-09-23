@@ -70,3 +70,4 @@ union_find union_find::make_bipartition(const std::vector<bool>& split,
 }
 
 } // namespace terraces
+

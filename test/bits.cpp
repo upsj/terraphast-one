@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 
 #include "../lib/bits.hpp"
@@ -28,3 +27,4 @@ TEST_CASE("bitscan", "[bits]") {
 
 } // namespace tests
 } // namespace terraces
+

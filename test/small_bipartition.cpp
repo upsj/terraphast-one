@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 
 #include "../lib/small_bipartition.hpp"
@@ -54,3 +53,4 @@ TEST_CASE("small_bipartition", "[unconstrained]") {
 
 } // namespace tests
 } // namespace terraces
+

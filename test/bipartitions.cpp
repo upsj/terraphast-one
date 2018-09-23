@@ -46,3 +46,4 @@ TEST_CASE("bipartition1", "[bipartition]") {
 
 } // namespace tests
 } // namespace terraces
+

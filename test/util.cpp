@@ -46,3 +46,4 @@ TEST_CASE("ensure(true)", "[utils][utils::ensure]") {
 
 } // namespace tests
 } // namespace terraces
+

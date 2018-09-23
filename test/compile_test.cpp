@@ -59,3 +59,4 @@ template class tree_enumerator<stack_state_decorator<clamped_count_callback>>;
 
 template class tree_enumerator<stack_state_decorator<multitree_callback>>;
 } // namespace terraces
+

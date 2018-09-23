@@ -62,3 +62,4 @@ std::pair<ranked_bitvector, ranked_bitvector> bipartitions::get_both_sets_unsafe
 }
 
 } // namespace terraces
+

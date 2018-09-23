@@ -1,4 +1,3 @@
-
 #include <catch.hpp>
 #include <iostream>
 
@@ -122,3 +121,4 @@ TEST_CASE("root split", "[rerooting]") {
 
 } // namespace tests
 } // namespace terraces
+
