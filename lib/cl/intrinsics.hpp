@@ -24,18 +24,18 @@ inline index rbitscan(index word) {
 	return (index)idx;
 }
 #else
-inline index popcount(index word) { return (index)__popcnt(word); }
+inline index popcount(index word) { return index(__popcnt(word)); }
 
 inline index bitscan(index word) {
-	unsigned int idx;
+	unsigned long idx;
 	_BitScanForward(&idx, word);
-	return (index)idx;
+	return index(idx);
 }
 
 inline index rbitscan(index word) {
-	unsigned int idx;
+	unsigned long idx;
 	_BitScanReverse(&idx, word);
-	return (index)idx;
+	return index(idx);
 }
 #endif
 

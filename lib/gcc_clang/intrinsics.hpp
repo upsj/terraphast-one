@@ -3,12 +3,12 @@
 namespace terraces {
 namespace bits {
 
-inline index popcount(index word) { return (index)__builtin_popcountll(word); }
+inline index popcount(index word) { return index(__builtin_popcountll(word)); }
 
-inline index bitscan(index word) { return (index)__builtin_ctzll(word); }
+inline index bitscan(index word) { return index(__builtin_ctzll(word)); }
 
 inline index rbitscan(index word) {
-	return (index)((std::numeric_limits<index>::digits - 1) - __builtin_clzll(word));
+	return index((std::numeric_limits<index>::digits - 1) - __builtin_clzll(word));
 }
 
 inline bool add_overflow(index a, index b, index& result) {
