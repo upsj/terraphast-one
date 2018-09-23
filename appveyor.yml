@@ -4,10 +4,6 @@ platform: x64
 clone_depth: 1
 before_build:
 - cmd: >-
-    git submodule init
-
-    git submodule update
-
     cmake -G "Visual Studio 14 2015 Win64" -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_BUILD_CLIB=OFF .
 build:
   project: terraphast.sln
