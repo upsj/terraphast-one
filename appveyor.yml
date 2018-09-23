@@ -8,7 +8,7 @@ before_build:
 
     git submodule update
 
-    cmake -G "Visual Studio 14 2015 Win64" .
+    cmake -G "Visual Studio 14 2015 Win64" -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_BUILD_CLIB=OFF .
 build:
   project: terraphast.sln
   verbosity: minimal
