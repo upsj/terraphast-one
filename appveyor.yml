@@ -8,5 +8,7 @@ before_build:
 build:
   project: terraphast.sln
   verbosity: minimal
-test_script:
-- cmd: C:\projects\terraces\Release\unittests.exe
+test:
+  assemblies:
+    only:
+    - '**/unittest.exe'
