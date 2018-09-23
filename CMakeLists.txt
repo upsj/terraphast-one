@@ -150,7 +150,7 @@ if(TERRAPHAST_BUILD_TESTS)
 	target_include_directories(Catch INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/catch)
 
 	add_executable(unittests
-		test/main.cpp
+		test/main.cc
 		test/advanced.cpp
 		test/bipartitions.cpp
 		test/bitmatrix.cpp
@@ -200,7 +200,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# Unfortunately, Catch uses some windows-specific features, so we have to
 	# enable these extensions for the Catch main method (more specific: not disable them)
 	file(GLOB ALL_SOURCES lib/*.cpp c_lib/*.cpp test/*.cpp tools/*.cpp app/*.cpp)
-	list(REMOVE_ITEM ALL_SOURCES "test/main.cpp")
 	set_source_files_properties(${ALL_SOURCES} PROPERTIES COMPILE_FLAGS "-Za")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	set(TERRAPHAST_PLATFORM_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/lib/intel")
