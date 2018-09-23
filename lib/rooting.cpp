@@ -155,4 +155,3 @@ void reroot_at_taxon_inplace(tree& t, index comp_taxon) {
 }
 
 } // namespace terraces
-

@@ -49,4 +49,3 @@ TEST_CASE("union_find::make_bipartition", "[union_find]") {
 
 } // namespace tests
 } // namespace terraces
-

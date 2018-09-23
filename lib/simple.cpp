@@ -179,4 +179,3 @@ big_integer print_terrace_compressed_from_file(const std::string& nwk_filename,
 
 } // namespace simple
 } // namespace terraces
-

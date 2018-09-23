@@ -68,4 +68,3 @@ TEST_CASE("count_supertree_none", "[supertree]") {
 
 } // namespace tests
 } // namespace terraces
-

@@ -71,4 +71,3 @@ bool is_isomorphic_rooted(const tree& fst, const tree& snd) {
 }
 
 } // namespace terraces
-

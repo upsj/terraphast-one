@@ -94,4 +94,3 @@ TEST_CASE("subtree extraction: moved root", "[subtree_extraction]") {
 
 } // namespace tests
 } // namespace terraces
-

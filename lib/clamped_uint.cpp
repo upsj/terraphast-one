@@ -103,4 +103,3 @@ template checked_uint<true> operator*(checked_uint<true>, checked_uint<true>);
 template std::ostream& operator<<(std::ostream&, checked_uint<true>);
 
 } // namespace terraces
-

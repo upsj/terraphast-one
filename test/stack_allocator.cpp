@@ -14,4 +14,3 @@ TEST_CASE("stack_allocator basic", "[utils][utils::stack_allocator]") {
 
 } // namespace tests
 } // namespace terraces
-

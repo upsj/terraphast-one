@@ -36,4 +36,3 @@ TEST_CASE("fast_set1", "[fast_set]") {
 
 } // namespace tests
 } // namespace terraces
-

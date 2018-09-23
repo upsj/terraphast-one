@@ -46,4 +46,3 @@ bad_input_error::bad_input_error(bad_input_error_type type, std::string msg)
         : std::runtime_error{build_error_message(type) + "\n" + msg}, m_type{type} {}
 
 } // namespace terraces
-

@@ -53,4 +53,3 @@ TEST_CASE("small_bipartition", "[unconstrained]") {
 
 } // namespace tests
 } // namespace terraces
-

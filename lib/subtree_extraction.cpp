@@ -116,4 +116,3 @@ std::vector<tree> subtrees(const tree& t, const bitmatrix& occ) {
 }
 
 } // namespace terraces
-

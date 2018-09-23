@@ -27,4 +27,3 @@ TEST_CASE("bitscan", "[bits]") {
 
 } // namespace tests
 } // namespace terraces
-

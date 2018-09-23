@@ -63,4 +63,3 @@ std::ostream& operator<<(std::ostream& stream, newick_multitree_t tree) {
 }
 
 } // namespace terraces
-

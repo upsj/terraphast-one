@@ -21,4 +21,3 @@ TEST_CASE("bitmatrix set/get", "[bitmatrix]") {
 
 } // namespace tests
 } // namespace terraces
-

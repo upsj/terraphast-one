@@ -43,4 +43,3 @@ bool bitmatrix::operator==(const bitmatrix& other) const {
 bool bitmatrix::operator!=(const bitmatrix& other) const { return !(*this == other); }
 
 } // namespace terraces
-

@@ -170,4 +170,3 @@ TEST_CASE("efficient bitvector xor", "[bitvector]") {
 
 } // namespace tests
 } // namespace terraces
-

@@ -56,4 +56,3 @@ TEST_CASE("multitree_iterator init unconstrained", "[multitree]") {
 
 } // namespace tests
 } // namespace terraces
-

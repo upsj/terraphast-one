@@ -42,16 +42,18 @@ class stack_allocator {
 
 public:
 	/* This warrants some explanation:
-	 * The debug stdlib of cl uses a _Container_proxy with the allocator that contains two pointers.
-	 * So we use a sufficient upper bound instead of the exact vector storage size.
+	 * The debug stdlib of cl uses a _Container_proxy with the allocator that contains two
+	 * pointers. So we use a sufficient upper bound instead of the exact vector storage size.
 	 */
-	stack_allocator(free_list& fl, std::size_t n) : m_fl{ &fl }, m_expected_size{ n *
+	stack_allocator(free_list& fl, std::size_t n) : m_fl{&fl}, m_expected_size {
+		n*
 #if defined(_MSC_VER) && defined(_DEBUG)
-	(sizeof(T) + 2 * sizeof(void*))
+		        (sizeof(T) + 2 * sizeof(void*))
 #else
-	sizeof(T)
+		        sizeof(T)
 #endif
-	} {}
+	}
+	{}
 
 	template <typename U>
 	stack_allocator(const stack_allocator<U>& other)

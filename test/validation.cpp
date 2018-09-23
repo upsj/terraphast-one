@@ -56,4 +56,3 @@ TEST_CASE("is_isomorphic_rooted (complex)", "[validation]") {
 
 } // namespace tests
 } // namespace terraces
-

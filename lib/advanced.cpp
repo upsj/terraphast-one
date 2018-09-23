@@ -114,4 +114,3 @@ void enumerate_terrace(const supertree_data& data, std::function<void(const tree
 }
 
 } // namespace terraces
-

@@ -86,4 +86,3 @@ index deduplicate_constraints(constraints& in_c) {
 }
 
 } // namespace terraces
-

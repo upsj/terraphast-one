@@ -121,4 +121,3 @@ TEST_CASE("root split", "[rerooting]") {
 
 } // namespace tests
 } // namespace terraces
-
