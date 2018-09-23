@@ -1,14 +1,14 @@
 version: 1.0.{build}
 configuration: Release
-platform: x64
+platform:
+- Win32
+- x64
 clone_depth: 1
 before_build:
-- cmd: >-
-    cmake -G "Visual Studio 14 2015 Win64" -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_BUILD_CLIB=OFF .
+- cmd: cmake -G "Visual Studio 14 2015 Win64" -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_BUILD_CLIB=OFF .
 build:
   project: terraphast.sln
+  parallel: true
   verbosity: minimal
-test:
-  assemblies:
-    only:
-    - '**/unittest.exe'
+test_script:
+- cmd: 'Release/unittest.exe'
