@@ -50,9 +50,11 @@ class storage_blocks {
 private:
 	std::vector<storage_block<T>> m_blocks;
 	index m_block_size;
+	index m_total_size;
 
 public:
-	storage_blocks(index block_size = 1024) : m_blocks{}, m_block_size{block_size} {
+	storage_blocks(index block_size = 1024)
+	        : m_blocks{}, m_block_size{block_size}, m_total_size{block_size} {
 		m_blocks.emplace_back(m_block_size);
 	}
 	storage_blocks(const storage_blocks<T>& other) : storage_blocks{other.m_block_size} {}
@@ -62,10 +64,12 @@ public:
 		return *this;
 	}
 	storage_blocks<T>& operator=(storage_blocks<T>&& other) = default;
+	index total_size() const { return sizeof(T) * m_total_size; }
 
 	T* get() {
 		if (!m_blocks.back().has_space()) {
 			m_blocks.emplace_back(m_block_size);
+			m_total_size += m_block_size;
 		}
 		return m_blocks.back().get();
 	}
@@ -73,6 +77,7 @@ public:
 	T* get_range(index required) {
 		if (!m_blocks.back().has_space(required)) {
 			m_blocks.emplace_back(required);
+			m_total_size += required;
 			auto result = m_blocks.back().get_range(required);
 			auto last_it = --m_blocks.end();
 			auto prev_it = --(--m_blocks.end());

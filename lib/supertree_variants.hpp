@@ -1,6 +1,8 @@
 #ifndef SUPERTREE_VARIANTS_HPP
 #define SUPERTREE_VARIANTS_HPP
 
+#include <chrono>
+
 #include <terraces/constraints.hpp>
 
 #include <terraces/bigint.hpp>
@@ -171,6 +173,43 @@ public:
 
 	index accumulate(index acc, index val) { return acc + val; }
 	index combine(index left, index right) { return left * right; }
+};
+
+/**
+ * A callback decorator that terminates the iteration after a certain time limit.
+ */
+template <typename Callback>
+class timeout_decorator : public Callback {
+private:
+	std::chrono::system_clock::time_point m_start;
+	index m_timeout;
+	bool m_timed_out;
+
+	bool check_timed_out() {
+		auto diff = std::chrono::duration_cast<std::chrono::seconds>(
+		        std::chrono::system_clock::now() - m_start);
+		if (diff.count() > m_timeout) {
+			m_timed_out = true;
+		}
+		return m_timed_out;
+	}
+
+public:
+	using result_type = typename Callback::result_type;
+
+	template <typename... Args>
+	timeout_decorator(Args&&... args, index timeout_seconds)
+	        : Callback{std::forward<Args>(args)...}, m_start{std::chrono::system_clock::now()},
+	          m_timeout{timeout_seconds}, m_timed_out{false} {}
+
+	bool fast_return(const bipartitions& bip_it) {
+		return Callback::fast_return(bip_it) || check_timed_out();
+	}
+	bool continue_iteration(result_type acc) {
+		return Callback::continue_iteration(acc) && !check_timed_out();
+	}
+
+	bool has_timed_out() const { return m_timed_out; }
 };
 
 } // namespace variants

@@ -12,6 +12,7 @@ namespace variants {
 
 class multitree_callback : public abstract_callback<multitree_node*> {
 private:
+	friend class memory_limited_multitree_callback;
 	multitree_impl::storage_blocks<multitree_node> m_nodes;
 	multitree_impl::storage_blocks<index> m_leaves;
 
@@ -64,6 +65,33 @@ public:
 	return_type combine(multitree_node* left, multitree_node* right) {
 		return multitree_impl::make_inner_node(alloc_node(), left, right);
 	}
+};
+
+class memory_limited_multitree_callback : public multitree_callback {
+private:
+	index m_memory_limit;
+	bool m_hit_memory_limit;
+
+	bool check_memory_limit() {
+		auto memory = m_leaves.total_size() + m_nodes.total_size();
+		if (memory > m_memory_limit) {
+			m_hit_memory_limit = true;
+		}
+		return m_hit_memory_limit;
+	}
+
+public:
+	memory_limited_multitree_callback(index limit)
+	        : m_memory_limit(limit), m_hit_memory_limit{false} {}
+
+	bool fast_return(const bipartitions& bip_it) {
+		return multitree_callback::fast_return(bip_it) || check_memory_limit();
+	}
+	bool continue_iteration(result_type acc) {
+		return multitree_callback::continue_iteration(acc) && !check_memory_limit();
+	}
+
+	bool has_hit_memory_limit() const { return m_hit_memory_limit; }
 };
 
 } // namespace variants
