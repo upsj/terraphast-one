@@ -50,8 +50,8 @@ TEST_CASE("", "") {
 	}
 	auto d = create_supertree_data(tree, matrix);
 	SECTION("time-limit") {
-		tree_enumerator<variants::timeout_decorator<variants::count_callback<index>>>
-		        enumerator{{1}};
+		using cb = variants::timeout_decorator<variants::count_callback<index>>;
+		tree_enumerator<cb> enumerator{cb{1}};
 		SECTION("yes") {
 			// artificially hit time limit
 			std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -65,7 +65,8 @@ TEST_CASE("", "") {
 		}
 	}
 	SECTION("memory-limit") {
-		tree_enumerator<variants::memory_limited_multitree_callback> enumerator{{1 << 20}};
+		using cb = variants::memory_limited_multitree_callback;
+		tree_enumerator<cb> enumerator{cb{1 << 20}};
 		SECTION("yes") {
 			// constraints create many bipartitions in first recursion level -> limit
 			enumerator.run(d.num_leaves, d.constraints, d.root);
