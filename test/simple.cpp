@@ -82,9 +82,10 @@ TEST_CASE("simple_results") {
 }
 
 TEST_CASE("simple_results_force") {
-	CHECK(get_terrace_size("((s4, (s3, (s2, (s1, s6)))), s5)", "6 5\n0 1 0 0 0 s1\n0 1 0 0 0 "
-	                                                           "s2\n0 0 0 0 1 s3\n0 0 1 0 1 "
-	                                                           "s4\n0 1 1 0 1 s5\n0 0 1 0 1 s6",
+	CHECK(get_terrace_size("((s4, (s3, (s2, (s1, s6)))), s5)",
+	                       "6 5\n0 1 0 0 0 s1\n0 1 0 0 0 "
+	                       "s2\n0 0 0 0 1 s3\n0 0 1 0 1 "
+	                       "s4\n0 1 1 0 1 s5\n0 0 1 0 1 s6",
 	                       true) == 35);
 }
 

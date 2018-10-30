@@ -38,6 +38,6 @@ private:
 	index m_cols;
 	std::vector<bool> m_vec; // yes, it's evil
 };
-}
+} // namespace terraces
 
 #endif // TERRACES_BITMATRIX_HPP

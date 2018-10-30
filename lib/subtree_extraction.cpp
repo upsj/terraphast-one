@@ -3,10 +3,10 @@
 #include <terraces/errors.hpp>
 #include <terraces/subtree_extraction.hpp>
 
-using std::vector;
-using std::stack;
-using std::pair;
 using std::make_pair;
+using std::pair;
+using std::stack;
+using std::vector;
 
 namespace terraces {
 

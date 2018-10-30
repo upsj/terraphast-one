@@ -21,8 +21,9 @@ std::ostream& print_multitree_node(std::ostream& stream, const multitree_node* n
 	}
 	case multitree_node_type::base_unconstrained: {
 		auto& u = node->unconstrained;
-		return stream << '{' << utils::as_comma_separated_output(
-		                                index_array_view{u.begin, u.end}, names)
+		return stream << '{'
+		              << utils::as_comma_separated_output(index_array_view{u.begin, u.end},
+		                                                  names)
 		              << '}';
 	}
 	case multitree_node_type::inner_node: {
@@ -46,8 +47,9 @@ std::ostream& print_multitree_node(std::ostream& stream, const multitree_node* n
 	}
 	case multitree_node_type::unexplored: {
 		auto& u = node->unexplored;
-		return stream << '[' << utils::as_comma_separated_output(
-		                                index_array_view{u.begin, u.end}, names)
+		return stream << '['
+		              << utils::as_comma_separated_output(index_array_view{u.begin, u.end},
+		                                                  names)
 		              << ']';
 	}
 	default:

@@ -26,8 +26,8 @@ struct node {
 	node(index parent, index left, index right, index taxon)
 	        : data{{parent, left, right, taxon}} {}
 	/* data[0]: parent
-	     * data[1]: left child
-	     * data[2]: right child
+	 * data[1]: left child
+	 * data[2]: right child
 	 * data[3]: taxon index */
 	std::array<index, 4> data = {{none, none, none, none}};
 

@@ -42,7 +42,7 @@ struct unexplored {
 	index* end;
 	index num_leaves() const;
 };
-}
+} // namespace multitree_nodes
 
 struct multitree_node {
 	multitree_node_type type;

@@ -12,8 +12,8 @@
 namespace terraces {
 
 using bits::bitscan;
-using bits::rbitscan;
 using bits::popcount;
+using bits::rbitscan;
 
 struct small_bipartition {
 	index m_mask;

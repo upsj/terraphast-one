@@ -75,7 +75,7 @@ std::vector<bool> root_split(const tree& t, index num_leaves) {
 		                 if (is_leaf(node)) {
 			                 split[node.taxon()] = true;
 		                 }
-		         },
+	                 },
 	                 root.rchild());
 	return split;
 }

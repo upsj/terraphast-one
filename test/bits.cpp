@@ -5,12 +5,12 @@
 namespace terraces {
 namespace tests {
 
-using bits::popcount;
 using bits::bitscan;
-using bits::rbitscan;
-using bits::partial_popcount;
-using bits::next_bit;
 using bits::has_next_bit;
+using bits::next_bit;
+using bits::partial_popcount;
+using bits::popcount;
+using bits::rbitscan;
 
 TEST_CASE("popcount", "[bits]") {
 	CHECK(popcount(0b00000000000000000000000000000000ll) == 0);
