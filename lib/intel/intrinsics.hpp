@@ -3,7 +3,7 @@
 namespace terraces {
 namespace bits {
 
-#ifdef _WIN64
+#if defined(__LP64__) || defined(_LP64)
 inline index popcount(index word) { return index(_popcnt64(word)); }
 
 inline index bitscan(index word) {
