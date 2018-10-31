@@ -102,9 +102,7 @@ big_integer print_terrace_compressed(const supertree_data& data, const name_map&
 	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
 	terminated_early = enumerator.callback().has_timed_out() ||
 	                   enumerator.callback().has_hit_memory_limit();
-	if (!terminated_early) {
-		output << as_newick(result, names);
-	}
+	output << as_newick(result, names);
 
 	return result->num_trees;
 }
