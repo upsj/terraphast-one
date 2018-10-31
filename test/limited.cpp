@@ -90,6 +90,11 @@ TEST_CASE("limit-tests", "[supertree],[advanced-api]") {
 			count_terrace_bigint(d, limits, result);
 			CHECK(result);
 		}
+		SECTION("print") {
+			std::stringstream ss;
+			print_terrace_compressed(d, nums, ss, limits, result);
+			CHECK(result);
+		}
 		SECTION("enumerate") {
 			enumerate_terrace(d, [](const terraces::tree&) {}, limits, result);
 			CHECK(result);
