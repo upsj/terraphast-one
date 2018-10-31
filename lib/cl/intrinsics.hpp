@@ -54,7 +54,7 @@ inline bool add_overflow(index a, index b, index& result) {
 
 inline bool mul_overflow(index a, index b, index& result) {
 	result = a * b;
-	if (max_index / b < a) {
+	if (b != 0 && max_index / b < a) {
 		return true;
 	} else {
 		return false;
