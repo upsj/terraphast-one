@@ -70,47 +70,105 @@ index fast_count_terrace(const supertree_data& data) {
 
 bool check_terrace(const supertree_data& data) { return fast_count_terrace(data) > 1; }
 
-index count_terrace(const supertree_data& data) {
-	tree_enumerator<variants::clamped_count_callback> enumerator{{}};
+index count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early) {
+	tree_enumerator<variants::timeout_decorator<variants::clamped_count_callback>> enumerator{
+	        {limits.time_limit_seconds}};
 	try {
-		return enumerator.run(data.num_leaves, data.constraints, data.root).value();
+		auto result = enumerator.run(data.num_leaves, data.constraints, data.root).value();
+		terminated_early = enumerator.callback().has_timed_out();
+		return result;
 	} catch (terraces::tree_count_overflow_error&) {
 		return std::numeric_limits<index>::max();
 	}
 }
 
+big_integer count_terrace_bigint(const supertree_data& data, execution_limits limits,
+                                 bool& terminated_early) {
+	tree_enumerator<variants::timeout_decorator<variants::count_callback<big_integer>>>
+	        enumerator{{limits.time_limit_seconds}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	terminated_early = enumerator.callback().has_timed_out();
+	return result;
+}
+
+using limited_multitree_callback =
+        variants::timeout_decorator<variants::memory_limited_multitree_callback>;
+
+big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
+                                     std::ostream& output, execution_limits limits,
+                                     bool& terminated_early) {
+	tree_enumerator<limited_multitree_callback> enumerator{
+	        limited_multitree_callback{limits.time_limit_seconds, limits.mem_limit_bytes}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	terminated_early = enumerator.callback().has_timed_out() ||
+	                   enumerator.callback().has_hit_memory_limit();
+	if (!terminated_early) {
+		output << as_newick(result, names);
+	}
+
+	return result->num_trees;
+}
+
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output,
+                          execution_limits limits, bool& terminated_early) {
+	tree_enumerator<limited_multitree_callback> enumerator{
+	        limited_multitree_callback{limits.time_limit_seconds, limits.mem_limit_bytes}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	terminated_early = enumerator.callback().has_timed_out() ||
+	                   enumerator.callback().has_hit_memory_limit();
+	if (!terminated_early) {
+		multitree_iterator mit{result};
+		do {
+			output << as_newick(mit.tree(), names) << '\n';
+		} while (mit.next());
+	}
+	return result->num_trees;
+}
+
+void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback,
+                       execution_limits limits, bool& terminated_early) {
+	tree_enumerator<limited_multitree_callback> enumerator{
+	        limited_multitree_callback{limits.time_limit_seconds, limits.mem_limit_bytes}};
+	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
+	terminated_early = enumerator.callback().has_timed_out() ||
+	                   enumerator.callback().has_hit_memory_limit();
+	if (!terminated_early) {
+		multitree_iterator mit{result};
+		do {
+			callback(mit.tree());
+		} while (mit.next());
+	}
+}
+
+index count_terrace(const supertree_data& data) {
+	execution_limits limits{};
+	bool tmp;
+	return count_terrace(data, limits, tmp);
+}
+
 big_integer count_terrace_bigint(const supertree_data& data) {
-	tree_enumerator<variants::count_callback<big_integer>> enumerator{{}};
-	return enumerator.run(data.num_leaves, data.constraints, data.root);
+	execution_limits limits{};
+	bool tmp;
+	return count_terrace_bigint(data, limits, tmp);
 }
 
 big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
                                      std::ostream& output) {
-	tree_enumerator<variants::multitree_callback> enumerator{{}};
-	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
-	output << as_newick(result, names);
-
-	return result->num_trees;
+	execution_limits limits{};
+	bool tmp;
+	return print_terrace_compressed(data, names, output, limits, tmp);
 }
 
 big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output) {
-	tree_enumerator<variants::multitree_callback> enumerator{{}};
-	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
-	multitree_iterator mit{result};
-	do {
-		output << as_newick(mit.tree(), names) << '\n';
-	} while (mit.next());
-
-	return result->num_trees;
+	execution_limits limits{};
+	bool tmp;
+	return print_terrace(data, names, output, limits, tmp);
 }
 
 void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback) {
-	tree_enumerator<variants::multitree_callback> enumerator{{}};
-	auto result = enumerator.run(data.num_leaves, data.constraints, data.root);
-	multitree_iterator mit{result};
-	do {
-		callback(mit.tree());
-	} while (mit.next());
+	execution_limits limits{};
+	bool tmp;
+	return enumerate_terrace(data, std::move(callback), limits, tmp);
 }
 
 } // namespace terraces

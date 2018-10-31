@@ -186,9 +186,10 @@ private:
 	bool m_timed_out;
 
 	bool check_timed_out() {
-		auto diff = std::chrono::duration_cast<std::chrono::seconds>(
-		        std::chrono::system_clock::now() - m_start);
-		if (diff.count() > m_timeout) {
+		auto diff = index(std::chrono::duration_cast<std::chrono::seconds>(
+		                          std::chrono::system_clock::now() - m_start)
+		                          .count());
+		if (diff > m_timeout) {
 			m_timed_out = true;
 		}
 		return m_timed_out;
@@ -198,7 +199,7 @@ public:
 	using result_type = typename Callback::result_type;
 
 	template <typename... Args>
-	timeout_decorator(Args&&... args, index timeout_seconds)
+	timeout_decorator(index timeout_seconds, Args&&... args)
 	        : Callback{std::forward<Args>(args)...}, m_start{std::chrono::system_clock::now()},
 	          m_timeout{timeout_seconds}, m_timed_out{false} {}
 

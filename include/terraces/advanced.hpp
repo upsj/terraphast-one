@@ -26,6 +26,17 @@ struct supertree_data {
 };
 
 /**
+ * Execution parameters to prevent the algorithm from running too long or using too much memory.
+ * The execution will be interrupted _after_ the limit has been surpassed.
+ */
+struct execution_limits {
+	/** Time limit in seconds. */
+	index time_limit_seconds{std::numeric_limits<index>::max()};
+	/** Memory limit in bytes. */
+	index mem_limit_bytes{std::numeric_limits<index>::max()};
+};
+
+/**
  * Returns the index of the first comprehensive taxon in a occurrence bitmatrix.
  * @param data The occurrence bitmatrix.
  * @return The (row) index of the first comprehensive taxon in the input matrix
@@ -76,20 +87,24 @@ index fast_count_terrace(const supertree_data& data);
  * clamped.
  * \param data The constraints extracted from the tree and missing data matrix describing all
  * possible supertrees.
- * \return The number of trees on the phylogenetic terrace containing the input tree.
- *         Note that if this result is UINT32/64_MAX = 2^32/64 - 1, the computations resulted in an
- * overflow,
- *         i.e. the result is only a lower bound on the number of trees on this terrace.
+ * \param limits The execution limits for the algorithm. Only the time limit will be used.
+ * \param terminated_early Output parameter that will be set to true iff the time limit has been
+ * exceeded. \return The number of trees on the phylogenetic terrace containing the input tree. Note
+ * that if this result is UINT32/64_MAX = 2^32/64 - 1, the computations resulted in an overflow,
+ * i.e. the result is only a lower bound on the number of trees on this terrace.
  */
-index count_terrace(const supertree_data& data);
+index count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early);
 
 /**
  * Counts all trees on a terrace around a phylogenetic tree.
  * \param data The constraints extracted from the tree and missing data matrix describing all
  * possible supertrees.
- * \return The number of trees on the phylogenetic terrace containing the input tree.
+ * \param limits The execution limits for the algorithm. Only the time limit will be used.
+ * \param terminated_early Output parameter that will be set to true iff the time limit has been
+ * exceeded. \return The number of trees on the phylogenetic terrace containing the input tree.
  */
-big_integer count_terrace_bigint(const supertree_data& data);
+big_integer count_terrace_bigint(const supertree_data& data, execution_limits limits,
+                                 bool& terminated_early);
 
 /**
  * Enumerates all trees on a terrace around a phylogenetic tree.
@@ -108,10 +123,14 @@ big_integer count_terrace_bigint(const supertree_data& data);
  * possible supertrees.
  * \param names The name map containing only leaf names. It will be used to output the multitree.
  * \param output The output stream into which the multitree will be written.
- * \return The number of trees on the phylogenetic terrace containing the input tree.
+ * \param limits The execution limits for the algorithm. Both time and memory limits will be used.
+ * \param terminated_early Output parameter that will be set to true iff the time or memory limits
+ * have been exceeded. \return The number of trees on the phylogenetic terrace containing the input
+ * tree.
  */
 big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
-                                     std::ostream& output);
+                                     std::ostream& output, execution_limits limits,
+                                     bool& terminated_early);
 
 /**
  * Enumerates all trees on a terrace around a phylogenetic tree.
@@ -120,9 +139,13 @@ big_integer print_terrace_compressed(const supertree_data& data, const name_map&
  * possible supertrees.
  * \param names The name map containing only leaf names. It will be used to output the multitree.
  * \param output The output stream into which the trees will be written.
- * \return The number of trees on the phylogenetic terrace containing the input tree.
+ * \param limits The execution limits for the algorithm. Both time and memory limits will be used.
+ * \param terminated_early Output parameter that will be set to true iff the time or memory limits
+ * have been exceeded. \return The number of trees on the phylogenetic terrace containing the input
+ * tree.
  */
-big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output,
+                          execution_limits limits, bool& terminated_early);
 
 /**
  * Enumerates all trees on a terrace around a phylogenetic tree.
@@ -130,7 +153,26 @@ big_integer print_terrace(const supertree_data& data, const name_map& names, std
  * \param data The constraints extracted from the tree and missing data matrix describing all
  * possible supertrees.
  * \param callback The callback function taking a tree as a parameter.
+ * \param limits The execution limits for the algorithm. Both time and memory limits will be used.
+ * \param terminated_early Output parameter that will be set to true iff the time or memory limits
+ * have been exceeded.
  */
+void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback,
+                       execution_limits limits, bool& terminated_early);
+
+/** \overload index count_terrace(const supertree_data&, execution_limits, bool&) */
+index count_terrace(const supertree_data& data);
+/** \overload index count_terrace(const supertree_data&, execution_limits, bool&) */
+big_integer count_terrace_bigint(const supertree_data& data);
+/** \overload big_integer print_terrace_compressed(const supertree_data&, const name_map&,
+ * std::ostream&, execution_limits, bool&) */
+big_integer print_terrace_compressed(const supertree_data& data, const name_map& names,
+                                     std::ostream& output);
+/** \overload big_integer print_terrace(const supertree_data&, const name_map&, std::ostream&,
+ * execution_limits, bool&) */
+big_integer print_terrace(const supertree_data& data, const name_map& names, std::ostream& output);
+/** \overload void enumerate_terrace(const supertree_data&, std::function<void(const tree&)>,
+ * execution_limits, bool&) */
 void enumerate_terrace(const supertree_data& data, std::function<void(const tree&)> callback);
 
 } // namespace terraces

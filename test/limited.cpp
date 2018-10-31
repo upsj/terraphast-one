@@ -17,7 +17,7 @@
 namespace terraces {
 namespace tests {
 
-TEST_CASE("", "") {
+TEST_CASE("limit-tests", "[supertree],[advanced-api]") {
 	auto magic = 12u;
 	name_map nums{"root"};
 	index_map indx{{"root", 0}};
@@ -49,7 +49,7 @@ TEST_CASE("", "") {
 		matrix.set(0, i, 1);
 	}
 	auto d = create_supertree_data(tree, matrix);
-	SECTION("time-limit") {
+	SECTION("time-limit-raw") {
 		using cb = variants::timeout_decorator<variants::count_callback<index>>;
 		tree_enumerator<cb> enumerator{cb{1}};
 		SECTION("yes") {
@@ -64,7 +64,7 @@ TEST_CASE("", "") {
 			REQUIRE(!enumerator.callback().has_timed_out());
 		}
 	}
-	SECTION("memory-limit") {
+	SECTION("memory-limit-raw") {
 		using cb = variants::memory_limited_multitree_callback;
 		tree_enumerator<cb> enumerator{cb{1 << 20}};
 		SECTION("yes") {
@@ -77,6 +77,17 @@ TEST_CASE("", "") {
 			enumerator.run(d.num_leaves, {}, d.root);
 			REQUIRE(!enumerator.callback().has_hit_memory_limit());
 		}
+	}
+	SECTION("advanced_api") {
+		execution_limits limits{};
+		limits.time_limit_seconds = 1;
+		bool result;
+		count_terrace(d, limits, result);
+		CHECK(result);
+		count_terrace_bigint(d, limits, result);
+		CHECK(result);
+		enumerate_terrace(d, [](const terraces::tree&) {}, limits, result);
+		CHECK(result);
 	}
 }
 
