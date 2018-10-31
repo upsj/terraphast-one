@@ -82,12 +82,18 @@ TEST_CASE("limit-tests", "[supertree],[advanced-api]") {
 		execution_limits limits{};
 		limits.time_limit_seconds = 1;
 		bool result;
-		count_terrace(d, limits, result);
-		CHECK(result);
-		count_terrace_bigint(d, limits, result);
-		CHECK(result);
-		enumerate_terrace(d, [](const terraces::tree&) {}, limits, result);
-		CHECK(result);
+		SECTION("count") {
+			count_terrace(d, limits, result);
+			CHECK(result);
+		}
+		SECTION("count-bigint") {
+			count_terrace_bigint(d, limits, result);
+			CHECK(result);
+		}
+		SECTION("enumerate") {
+			enumerate_terrace(d, [](const terraces::tree&) {}, limits, result);
+			CHECK(result);
+		}
 	}
 }
 
