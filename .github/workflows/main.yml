@@ -39,7 +39,9 @@ jobs:
       run: cmake --build $GITHUB_WORKSPACE/build -j 8
 
     - name: test
-      run: ctest $GITHUB_WORKSPACE/build --output-on-failure
+      run: |
+        cd build
+        ctest --output-on-failure
 
   osx-build:
     runs-on: macos-latest
@@ -76,7 +78,9 @@ jobs:
       run: cmake --build build -j 8
 
     - name: test
-      run: ctest build --output-on-failure
+      run: |
+        cd build
+        ctest --output-on-failure
 
   windows-build:
     runs-on: windows-latest
@@ -103,5 +107,7 @@ jobs:
       run: cmake --build build -j 8 --config ${{ matrix.config.build_type }}
 
     - name: test
-      run: ctest build -C ${{ matrix.config.build_type }} --output-on-failure
+      run: |
+        cd build
+        ctest -C ${{ matrix.config.build_type }} --output-on-failure
 
