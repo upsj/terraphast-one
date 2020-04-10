@@ -116,7 +116,7 @@ void multitree_iterator::init_subtree(index_t i) {
 
 #define RETURN_UNCONSTRAINED(ret) RETURN_IMPL(ret, m_stack.empty() || !m_stack.top().unconstrained)
 
-#define YIELD(next_state)                                                                          \
+#define YIELD_IMPL(next_state)                                                                     \
 	{                                                                                          \
 		top.state = next_state;                                                            \
 		break;                                                                             \
@@ -124,15 +124,20 @@ void multitree_iterator::init_subtree(index_t i) {
 	/* fall through */                                                                         \
 	case next_state:
 
-#define CALL(idx, next_state)                                                                      \
-	{ m_stack.emplace(idx, false); }                                                           \
-	YIELD(next_state)
+#define YIELD YIELD_IMPL(__COUNTER__)
 
-#define CALL_UNCONSTRAINED(idx, next_state)                                                        \
+#define CALL(idx)                                                                                  \
+	{ m_stack.emplace(idx, false); }                                                           \
+	YIELD
+
+#define CALL_UNCONSTRAINED(idx)                                                                    \
 	{ m_stack.emplace(idx, true); }                                                            \
-	YIELD(next_state)
+	YIELD
 
 bool multitree_iterator::next(index_t root) {
+	// make sure the counter is larger than zero
+	(void)__COUNTER__;
+
 	auto is_trivial = [&](index_t idx) {
 		const auto& choice = m_choices[idx];
 		const auto type = choice.current->type;
@@ -164,14 +169,14 @@ bool multitree_iterator::next(index_t root) {
 			}
 
 			if (!is_trivial(left)) {
-				CALL(left, 1);
+				CALL(left);
 				if (top.result) {
 					RETURN(true);
 				}
 			}
 
 			if (!is_trivial(right)) {
-				CALL(right, 2);
+				CALL(right);
 				if (top.result) {
 					reset(left);
 					RETURN(true);
@@ -205,13 +210,13 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 		switch (top.state) {
 		case 0:
 			if (m_unconstrained_choices[left].has_choices()) {
-				CALL_UNCONSTRAINED(left, 1);
+				CALL_UNCONSTRAINED(left);
 				if (top.result) {
 					RETURN_UNCONSTRAINED(true);
 				}
 			}
 			if (m_unconstrained_choices[right].has_choices()) {
-				CALL_UNCONSTRAINED(right, 2);
+				CALL_UNCONSTRAINED(right);
 				if (top.result) {
 					reset_unconstrained(left);
 					RETURN_UNCONSTRAINED(true);
