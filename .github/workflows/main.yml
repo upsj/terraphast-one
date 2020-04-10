@@ -30,7 +30,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
+      run: |
+        mkdir build
+        cd build
+        CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
       run: cmake --build $GITHUB_WORKSPACE/build -j 8
@@ -64,13 +67,16 @@ jobs:
       run: brew install gmp gcc@9
 
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
+      run: |
+        mkdir build
+        cd build
+        CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
-      run: cmake --build $GITHUB_WORKSPACE/build -j 8
+      run: cmake --build build -j 8
 
     - name: test
-      run: ctest $GITHUB_WORKSPACE/build --output-on-failure
+      run: ctest build --output-on-failure
 
   windows-build:
     runs-on: windows-latest
@@ -88,11 +94,14 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && cmake -DTERRAPHAST_BUILD_CLIB=OFF -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} ..
+      run: |
+        mkdir build
+        cd build
+        cmake -DTERRAPHAST_BUILD_CLIB=OFF -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} ..
 
     - name: build
-      run: cmake --build $GITHUB_WORKSPACE/build -j 8 --config ${{ matrix.config.build_type }}
+      run: cmake --build build -j 8 --config ${{ matrix.config.build_type }}
 
     - name: test
-      run: ctest $GITHUB_WORKSPACE/build -C ${{ matrix.config.build_type }} --output-on-failure
+      run: ctest build -C ${{ matrix.config.build_type }} --output-on-failure
 
