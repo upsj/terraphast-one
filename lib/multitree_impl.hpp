@@ -51,10 +51,12 @@ private:
 	std::vector<storage_block<T>> m_blocks;
 	index_t m_block_size;
 	index_t m_total_size;
+	index_t m_memory_limit;
 
 public:
 	storage_blocks(index_t block_size = 1024)
-	        : m_blocks{}, m_block_size{block_size}, m_total_size{block_size} {
+	        : m_blocks{}, m_block_size{block_size}, m_total_size{block_size},
+	          m_memory_limit{std::numeric_limits<index_t>::max()} {
 		m_blocks.emplace_back(m_block_size);
 	}
 	storage_blocks(const storage_blocks<T>& other) : storage_blocks{other.m_block_size} {}
@@ -76,6 +78,10 @@ public:
 
 	T* get_range(index_t required) {
 		if (!m_blocks.back().has_space(required)) {
+			if (sizeof(T) * (m_total_size + required) > m_memory_limit) {
+				// fail allocation if we require too much memory
+				throw std::bad_alloc{};
+			}
 			m_blocks.emplace_back(required);
 			m_total_size += required;
 			auto result = m_blocks.back().get_range(required);
@@ -88,6 +94,8 @@ public:
 		}
 		return m_blocks.back().get_range(required);
 	}
+
+	void set_memory_limit(index_t memory_limit) { m_memory_limit = memory_limit; }
 };
 
 inline multitree_node* make_single_leaf(multitree_node* n, index_t i) {
