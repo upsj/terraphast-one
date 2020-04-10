@@ -49,18 +49,19 @@ private:
 	terraces::tree m_tree;
 	std::vector<multitree_iterator_choicepoint> m_choices;
 	std::vector<small_bipartition> m_unconstrained_choices;
+	multitree_nodes::unconstrained m_unconstrained_current{};
 
 	void init_subtree(index_t subtree_root);
 	void init_subtree(index_t subtree_root, index_t single_leaf);
 	void init_subtree(index_t subtree_root, multitree_nodes::two_leaves two_leaves);
 	void init_subtree(index_t subtree_root, multitree_nodes::inner_node inner);
 	void init_subtree(index_t subtree_root, multitree_nodes::unconstrained unconstrained);
-	void init_subtree_unconstrained(index_t subtree_root, multitree_nodes::unconstrained data);
+	void init_subtree_unconstrained(index_t subtree_root);
 
 	bool next(index_t root);
-	bool next_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
+	bool next_unconstrained(index_t root);
 	void reset(index_t root);
-	void reset_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
+	void reset_unconstrained(index_t root);
 
 public:
 	multitree_iterator(const multitree_node* root);

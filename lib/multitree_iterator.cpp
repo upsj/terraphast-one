@@ -27,12 +27,13 @@ void multitree_iterator::init_subtree(index_t i, multitree_nodes::two_leaves two
 
 void multitree_iterator::init_subtree(index_t i, multitree_nodes::unconstrained unconstrained) {
 	m_unconstrained_choices[i] = small_bipartition::full_set(unconstrained.num_leaves());
-	init_subtree_unconstrained(i, unconstrained);
+	m_unconstrained_current = unconstrained;
+	init_subtree_unconstrained(i);
 }
 
-void multitree_iterator::init_subtree_unconstrained(index_t i,
-                                                    multitree_nodes::unconstrained data) {
+void multitree_iterator::init_subtree_unconstrained(index_t i) {
 	const auto& bip = m_unconstrained_choices[i];
+	const auto& data = m_unconstrained_current;
 	auto& node = m_tree[i];
 	if (bip.num_leaves() <= 2) {
 		if (bip.num_leaves() == 1) {
@@ -59,9 +60,8 @@ void multitree_iterator::init_subtree_unconstrained(index_t i,
 		m_tree[node.lchild()].parent() = i;
 		m_tree[node.rchild()].parent() = i;
 
-		init_subtree_unconstrained(right, data);
-		init_subtree_unconstrained(left, data);
-		init_subtree_unconstrained(right, data);
+		init_subtree_unconstrained(left);
+		init_subtree_unconstrained(right);
 	}
 }
 
@@ -110,7 +110,12 @@ bool multitree_iterator::next(index_t root) {
 	case multitree_node_type::base_two_leaves:
 		return false;
 	case multitree_node_type::base_unconstrained:
-		return next_unconstrained(root, choice.current->unconstrained);
+		if (!next_unconstrained(root)) {
+			m_unconstrained_current = {};
+			return false;
+		} else {
+			return true;
+		}
 	case multitree_node_type::inner_node:
 	case multitree_node_type::alternative_array: {
 		if (!next(left)) {
@@ -135,7 +140,7 @@ bool multitree_iterator::next(index_t root) {
 	}
 }
 
-bool multitree_iterator::next_unconstrained(index_t root, multitree_nodes::unconstrained data) {
+bool multitree_iterator::next_unconstrained(index_t root) {
 	auto node = m_tree[root];
 	auto left = node.lchild();
 	auto right = node.rchild();
@@ -143,12 +148,12 @@ bool multitree_iterator::next_unconstrained(index_t root, multitree_nodes::uncon
 	if (!choice.has_choices()) {
 		return false;
 	}
-	if (!next_unconstrained(left, data)) {
-		if (next_unconstrained(right, data)) {
-			reset_unconstrained(left, data);
+	if (!next_unconstrained(left)) {
+		if (next_unconstrained(right)) {
+			reset_unconstrained(left);
 		} else {
 			if (choice.next()) {
-				init_subtree_unconstrained(root, data);
+				init_subtree_unconstrained(root);
 			} else {
 				return false;
 			}
@@ -167,7 +172,7 @@ void multitree_iterator::reset(index_t root) {
 	case multitree_node_type::base_two_leaves:
 		return;
 	case multitree_node_type::base_unconstrained:
-		return reset_unconstrained(root, choice.current->unconstrained);
+		return reset_unconstrained(root);
 	case multitree_node_type::inner_node:
 	case multitree_node_type::alternative_array:
 		return init_subtree(root);
@@ -180,12 +185,12 @@ void multitree_iterator::reset(index_t root) {
 	}
 }
 
-void multitree_iterator::reset_unconstrained(index_t root, multitree_nodes::unconstrained data) {
+void multitree_iterator::reset_unconstrained(index_t root) {
 	auto& choice = m_unconstrained_choices[root];
 	if (choice.has_choices()) {
 		choice.reset();
 	}
-	init_subtree_unconstrained(root, data);
+	init_subtree_unconstrained(root);
 }
 
 bool multitree_iterator::next() { return next(0); }
