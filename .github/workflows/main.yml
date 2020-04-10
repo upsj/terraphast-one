@@ -14,17 +14,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP on gcc"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug with GMP on gcc"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release without GMP on gcc"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug without GMP on gcc"}
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release with GMP on clang"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "Debug with GMP on clang"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release without GMP on clang"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "Debug without GMP on clang"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP without native arch on gcc"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release with GMP without native arch on clang"}
-    name: ${{ matrix.config.name }}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/no-gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/no-gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/no-gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/no-gmp"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp/no-native"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp/no-native"}
+    name: linux/${{ matrix.config.name }}
 
     steps:
     - uses: actions/checkout@v2
@@ -33,10 +33,10 @@ jobs:
       run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
-      run: make -C $GITHUB_WORKSPACE/build -j 4
+      run: cmake --build -j 8 $GITHUB_WORKSPACE/build
 
     - name: test
-      run: make -C $GITHUB_WORKSPACE/build test
+      run: ctest $GITHUB_WORKSPACE/build --output-on-failure
 
   osx-build:
     runs-on: macos-latest
@@ -44,18 +44,18 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP on AppleClang"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug with GMP on AppleClang"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release without GMP on AppleClang"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug without GMP on AppleClang"}
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release with GMP on gcc"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "Debug with GMP on gcc"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release without GMP on gcc"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "Debug without GMP on gcc"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP without native arch on AppleClang"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release with GMP without native arch on gcc"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "appleclang/release/gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "appleclang/debug/gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "appleclang/release/no-gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "appleclang/debug/no-gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/gmp"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "gcc/debug/gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/no-gmp"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "gcc/debug/no-gmp"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "appleclang/release/no-native"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/no-native"}
 
-    name: ${{ matrix.config.name }}
+    name: osx/${{ matrix.config.name }}
 
     steps:
     - uses: actions/checkout@v2
@@ -67,8 +67,32 @@ jobs:
       run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
-      run: make -C $GITHUB_WORKSPACE/build -j 4
+      run: cmake --build -j 8 $GITHUB_WORKSPACE/build
 
     - name: test
-      run: make -C $GITHUB_WORKSPACE/build test
+      run: ctest $GITHUB_WORKSPACE/build --output-on-failure
+
+  windows-build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {native: "ON", build_type: "Release", name: "release"}
+        - {native: "ON", build_type: "Debug", name: "debug"}
+        - {native: "OFF", build_type: "Release", name: "release/no-native"}
+        - {native: "OFF", build_type: "Debug", name: "debug/no-native"}
+    name: windows/${{ matrix.config.name }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: configure
+      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && cmake -DTERRAPHAST_BUILD_CLIB=OFF -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} ..
+
+    - name: build
+      run: cmake --build $GITHUB_WORKSPACE/build -j 8 --config ${{ matrix.config.build_type }}
+
+    - name: test
+      run: ctest $GITHUB_WORKSPACE/build -C ${{ matrix.config.build_type }} --output-on-failure
 
