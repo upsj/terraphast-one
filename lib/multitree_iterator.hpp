@@ -1,6 +1,8 @@
 #ifndef MULTITREE_ITERATOR_H
 #define MULTITREE_ITERATOR_H
 
+#include <terraces/errors.hpp>
+
 #include "multitree.hpp"
 #include "small_bipartition.hpp"
 

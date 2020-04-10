@@ -96,8 +96,7 @@ void multitree_iterator::init_subtree(index_t i) {
 		assert(false && "Malformed multitree: Nested alternative_arrays");
 		break;
 	case multitree_node_type::unexplored:
-		assert(false && "Must not use multitree_iterator with unexplored nodes");
-		break;
+		throw multitree_unexplored_error{};
 	}
 }
 
@@ -117,8 +116,7 @@ bool multitree_iterator::next(index_t root) {
 		return next(left) || (next(right) && reset(left)) ||
 		       (choice.has_choices() && choice.next() && (init_subtree(root), true));
 	case multitree_node_type::unexplored: {
-		assert(false && "Must not use multitree_iterator with unexplored nodes");
-		return false;
+		throw multitree_unexplored_error{};
 	}
 	default:
 		assert(false && "Unknown node type in multitree");
@@ -156,8 +154,7 @@ bool multitree_iterator::reset(index_t root) {
 		init_subtree(root);
 		break;
 	case multitree_node_type::unexplored: {
-		assert(false && "Must not use multitree_iterator with unexplored nodes");
-		break;
+		throw multitree_unexplored_error{};
 	}
 	default:
 		assert(false && "Unknown node type in multitree");

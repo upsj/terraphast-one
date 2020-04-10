@@ -1,4 +1,3 @@
-
 #ifndef TERRACES_ERRORS_HPP
 #define TERRACES_ERRORS_HPP
 
@@ -68,6 +67,17 @@ class file_open_error : public std::runtime_error {
  */
 class tree_count_overflow_error : public std::overflow_error {
 	using std::overflow_error::overflow_error;
+};
+
+/**
+ * This error is thrown if during a multitree iteration an unexplored node
+ * is encountered, meaning the multitree enumeration was not complete
+ * (most likely due to time or memory limits)
+ */
+class multitree_unexplored_error : public std::runtime_error {
+public:
+	multitree_unexplored_error()
+	        : std::runtime_error{"multitree_iterator hit unexplored node"} {}
 };
 
 } // namespace terraces
