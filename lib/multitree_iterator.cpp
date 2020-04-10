@@ -160,13 +160,13 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 	const auto right = cur.rchild();
 	switch (state) {
 	case 0:
-		if (next_unconstrained(left)) {
+		if (m_unconstrained_choices[left].has_choices() && next_unconstrained(left)) {
 			return true;
 		}
 		state = 1;
 		// fall through
 	case 1:
-		if (next_unconstrained(right)) {
+		if (m_unconstrained_choices[right].has_choices() && next_unconstrained(right)) {
 			reset_unconstrained(left);
 			return true;
 		}
