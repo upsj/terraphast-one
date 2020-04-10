@@ -12,10 +12,10 @@ namespace terraces {
 
 bipartitions::bipartitions(const ranked_bitvector& leaves, const union_find& sets,
                            utils::stack_allocator<index_t> a)
-        : m_alloc{a}, m_leaves{leaves}, m_sets{sets}, m_set_rep{find_set_reps()},
-          m_end{(index_t(1) << (m_set_rep.count() - 1))} {
+        : m_alloc{a}, m_leaves{leaves}, m_sets{sets}, m_set_rep{find_set_reps()}, m_end{} {
 	utils::ensure<tree_count_overflow_error>(m_set_rep.count() < bits::word_bits,
 	                                         "Huge terrace encountered");
+	m_end = index_t(1) << (m_set_rep.count() - 1);
 }
 
 bool bipartitions::in_left_partition(index_t bip, index_t i) const {
