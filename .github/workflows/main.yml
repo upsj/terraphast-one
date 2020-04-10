@@ -14,16 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/gmp"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/no-gmp"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/no-gmp"}
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/gmp"}
-        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/no-gmp"}
-        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/no-gmp"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp/no-native"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp/no-native"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp", flags: ""}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/gmp", flags: ""}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/no-gmp", flags: ""}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/no-gmp", flags: ""}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp", flags: ""}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/gmp", flags: ""}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/no-gmp", flags: ""}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "clang/debug/no-gmp", flags: ""}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/gmp/no-native", flags: ""}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "clang++", cc: "clang", name: "clang/release/gmp/no-native", flags: ""}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "gcc/release/sanitizers", flags: "-DCMAKE_CXX_FLAGS='-fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined' -DCMAKE_EXE_LINKER_FLAGS='-fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined'"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "gcc/debug/sanitizers", flags: "-DCMAKE_CXX_FLAGS='-fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined' -DCMAKE_EXE_LINKER_FLAGS='-fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined'"}
     name: linux/${{ matrix.config.name }}
 
     steps:
@@ -33,7 +35,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
+        CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake ${{ matrix.config.flags }} -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
       run: cmake --build $GITHUB_WORKSPACE/build -j 8
