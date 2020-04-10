@@ -118,18 +118,27 @@ bool multitree_iterator::next(index_t root) {
 		}
 	case multitree_node_type::inner_node:
 	case multitree_node_type::alternative_array: {
-		if (!next(left)) {
+		int state = 0;
+		switch (state) {
+		case 0:
+			if (next(left)) {
+				return true;
+			}
+			state = 1;
+			// fall through
+		case 1:
 			if (next(right)) {
 				reset(left);
-			} else {
-				if (choice.has_choices() && choice.next()) {
-					init_subtree(root);
-				} else {
-					return false;
-				}
+				return true;
 			}
+			state = 2;
 		}
-		return true;
+
+		if (choice.has_choices() && choice.next()) {
+			init_subtree(root);
+			return true;
+		}
+		return false;
 	}
 	case multitree_node_type::unexplored: {
 		throw multitree_unexplored_error{};
@@ -141,25 +150,38 @@ bool multitree_iterator::next(index_t root) {
 }
 
 bool multitree_iterator::next_unconstrained(index_t root) {
-	auto node = m_tree[root];
-	auto left = node.lchild();
-	auto right = node.rchild();
 	auto& choice = m_unconstrained_choices[root];
 	if (!choice.has_choices()) {
 		return false;
 	}
-	if (!next_unconstrained(left)) {
+	int state = 0;
+	const auto cur = m_tree[root];
+	const auto left = cur.lchild();
+	const auto right = cur.rchild();
+	switch (state) {
+	case 0:
+		if (next_unconstrained(left)) {
+			return true;
+		}
+		state = 1;
+		// fall through
+	case 1:
 		if (next_unconstrained(right)) {
 			reset_unconstrained(left);
-		} else {
-			if (choice.next()) {
-				init_subtree_unconstrained(root);
-			} else {
-				return false;
-			}
+			return true;
 		}
+		state = 2;
+		// fall through
+	case 2:
+		if (choice.next()) {
+			init_subtree_unconstrained(root);
+			return true;
+		}
+		state = 3;
+		// fall through
+	default:
+		return false;
 	}
-	return true;
 }
 
 void multitree_iterator::reset(index_t root) {
