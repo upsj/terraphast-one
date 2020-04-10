@@ -60,7 +60,7 @@ public:
 			auto alternatives = alloc_nodes(bip_it.num_bip());
 			return multitree_impl::make_alternative_array(new_node, alternatives,
 			                                              bip_it.leaves().count());
-		} catch (std::bad_alloc) {
+		} catch (std::bad_alloc&) {
 			return multitree_impl::make_unexplored(new_node,
 			                                       alloc_leaves(bip_it.leaves()));
 		}
