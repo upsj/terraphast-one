@@ -100,6 +100,26 @@ void multitree_iterator::init_subtree(index_t i) {
 	}
 }
 
+#define RETURN(ret)                                                                                \
+	{                                                                                          \
+		auto res = ret;                                                                    \
+		stack.pop();                                                                       \
+		if (stack.empty()) {                                                               \
+			return res;                                                                \
+		}                                                                                  \
+		stack.top().result = res;                                                          \
+		break;                                                                             \
+	}
+
+#define CALL(idx, next_state)                                                                      \
+	{                                                                                          \
+		stack.emplace(idx);                                                                \
+		top.state = next_state;                                                            \
+		break;                                                                             \
+	}                                                                                          \
+	/* fall through */                                                                         \
+	case next_state:
+
 bool multitree_iterator::next(index_t root) {
 	auto node = m_tree[root];
 	auto left = node.lchild();
@@ -154,33 +174,44 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 	if (!choice.has_choices()) {
 		return false;
 	}
-	int state = 0;
-	const auto cur = m_tree[root];
-	const auto left = cur.lchild();
-	const auto right = cur.rchild();
-	switch (state) {
-	case 0:
-		if (m_unconstrained_choices[left].has_choices() && next_unconstrained(left)) {
-			return true;
+	struct state_t {
+		index_t root;
+		int state{};
+		bool result{};
+		state_t(index_t root) : root{root} {}
+	};
+	std::stack<state_t> stack;
+	stack.emplace(root);
+	while (true) {
+		auto& top = stack.top();
+		const auto idx = top.root;
+		const auto cur = m_tree[idx];
+		auto& choice = m_unconstrained_choices[idx];
+
+		const auto left = cur.lchild();
+		const auto right = cur.rchild();
+		switch (top.state) {
+		case 0:
+			if (m_unconstrained_choices[left].has_choices()) {
+				CALL(left, 1);
+				if (top.result) {
+					RETURN(true);
+				}
+			}
+			if (m_unconstrained_choices[right].has_choices()) {
+				CALL(right, 2);
+				if (top.result) {
+					reset_unconstrained(left);
+					RETURN(true);
+				}
+			}
+			if (choice.next()) {
+				init_subtree_unconstrained(idx);
+				RETURN(true);
+			}
+			RETURN(false);
+		default:;
 		}
-		state = 1;
-		// fall through
-	case 1:
-		if (m_unconstrained_choices[right].has_choices() && next_unconstrained(right)) {
-			reset_unconstrained(left);
-			return true;
-		}
-		state = 2;
-		// fall through
-	case 2:
-		if (choice.next()) {
-			init_subtree_unconstrained(root);
-			return true;
-		}
-		state = 3;
-		// fall through
-	default:
-		return false;
 	}
 }
 
