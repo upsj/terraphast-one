@@ -30,6 +30,9 @@ private:
 		return {a_leaves, a_leaves + size};
 	}
 
+protected:
+	void set_node_memory_limit(index_t limit) { m_nodes.set_memory_limit(limit); }
+
 public:
 	using return_type = multitree_node*;
 
@@ -50,8 +53,17 @@ public:
 
 	return_type begin_iteration(const bipartitions& bip_it, const bitvector&,
 	                            const constraints&) {
-		return multitree_impl::make_alternative_array(
-		        alloc_node(), alloc_nodes(bip_it.num_bip()), bip_it.leaves().count());
+		auto new_node = alloc_node();
+		try {
+			// alloc_nodes can fail for huge bip_ip.num_bip()
+			// in this case, we return an unexplored node instead of failing completely
+			auto alternatives = alloc_nodes(bip_it.num_bip());
+			return multitree_impl::make_alternative_array(new_node, alternatives,
+			                                              bip_it.leaves().count());
+		} catch (std::bad_alloc) {
+			return multitree_impl::make_unexplored(new_node,
+			                                       alloc_leaves(bip_it.leaves()));
+		}
 	}
 
 	return_type accumulate(multitree_node* acc, multitree_node* node) {
@@ -82,11 +94,16 @@ private:
 
 public:
 	memory_limited_multitree_callback(index_t limit)
-	        : m_memory_limit(limit), m_hit_memory_limit{false} {}
+	        : m_memory_limit(limit), m_hit_memory_limit{false} {
+		// this is only a rough upper bound, but the number of leaves should be much below
+		// the number of nodes in the multitree.
+		set_node_memory_limit(limit);
+	}
 
 	bool fast_return(const bipartitions& bip_it) {
 		return multitree_callback::fast_return(bip_it) || check_memory_limit();
 	}
+
 	bool continue_iteration(result_type acc) {
 		return multitree_callback::continue_iteration(acc) && !check_memory_limit();
 	}
