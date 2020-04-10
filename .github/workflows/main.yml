@@ -33,7 +33,7 @@ jobs:
       run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
-      run: cmake --build -j 8 $GITHUB_WORKSPACE/build
+      run: cmake --build $GITHUB_WORKSPACE/build -j 8
 
     - name: test
       run: ctest $GITHUB_WORKSPACE/build --output-on-failure
@@ -67,7 +67,7 @@ jobs:
       run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
-      run: cmake --build -j 8 $GITHUB_WORKSPACE/build
+      run: cmake --build $GITHUB_WORKSPACE/build -j 8
 
     - name: test
       run: ctest $GITHUB_WORKSPACE/build --output-on-failure
