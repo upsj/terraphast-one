@@ -1,6 +1,8 @@
 #ifndef MULTITREE_ITERATOR_H
 #define MULTITREE_ITERATOR_H
 
+#include <terraces/errors.hpp>
+
 #include "multitree.hpp"
 #include "small_bipartition.hpp"
 
@@ -57,8 +59,8 @@ private:
 
 	bool next(index_t root);
 	bool next_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
-	bool reset(index_t root);
-	bool reset_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
+	void reset(index_t root);
+	void reset_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
 
 public:
 	multitree_iterator(const multitree_node* root);

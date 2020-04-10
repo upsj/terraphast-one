@@ -112,9 +112,20 @@ bool multitree_iterator::next(index_t root) {
 	case multitree_node_type::base_unconstrained:
 		return next_unconstrained(root, choice.current->unconstrained);
 	case multitree_node_type::inner_node:
-	case multitree_node_type::alternative_array:
-		return next(left) || (next(right) && reset(left)) ||
-		       (choice.has_choices() && choice.next() && (init_subtree(root), true));
+	case multitree_node_type::alternative_array: {
+		if (!next(left)) {
+			if (next(right)) {
+				reset(left);
+			} else {
+				if (choice.has_choices() && choice.next()) {
+					init_subtree(root);
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	case multitree_node_type::unexplored: {
 		throw multitree_unexplored_error{};
 	}
@@ -132,12 +143,21 @@ bool multitree_iterator::next_unconstrained(index_t root, multitree_nodes::uncon
 	if (!choice.has_choices()) {
 		return false;
 	}
-	return next_unconstrained(left, data) ||
-	       (next_unconstrained(right, data) && reset_unconstrained(left, data)) ||
-	       (choice.next() && (init_subtree_unconstrained(root, data), true));
+	if (!next_unconstrained(left, data)) {
+		if (next_unconstrained(right, data)) {
+			reset_unconstrained(left, data);
+		} else {
+			if (choice.next()) {
+				init_subtree_unconstrained(root, data);
+			} else {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
-bool multitree_iterator::reset(index_t root) {
+void multitree_iterator::reset(index_t root) {
 	auto& choice = m_choices[root];
 	if (choice.has_choices()) {
 		choice.reset();
@@ -145,31 +165,27 @@ bool multitree_iterator::reset(index_t root) {
 	switch (choice.current->type) {
 	case multitree_node_type::base_single_leaf:
 	case multitree_node_type::base_two_leaves:
-		break;
+		return;
 	case multitree_node_type::base_unconstrained:
-		reset_unconstrained(root, choice.current->unconstrained);
-		break;
+		return reset_unconstrained(root, choice.current->unconstrained);
 	case multitree_node_type::inner_node:
 	case multitree_node_type::alternative_array:
-		init_subtree(root);
-		break;
+		return init_subtree(root);
 	case multitree_node_type::unexplored: {
 		throw multitree_unexplored_error{};
 	}
 	default:
 		assert(false && "Unknown node type in multitree");
-		break;
+		return;
 	}
-	return true;
 }
 
-bool multitree_iterator::reset_unconstrained(index_t root, multitree_nodes::unconstrained data) {
+void multitree_iterator::reset_unconstrained(index_t root, multitree_nodes::unconstrained data) {
 	auto& choice = m_unconstrained_choices[root];
 	if (choice.has_choices()) {
 		choice.reset();
 	}
 	init_subtree_unconstrained(root, data);
-	return true;
 }
 
 bool multitree_iterator::next() { return next(0); }
