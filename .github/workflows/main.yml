@@ -24,7 +24,7 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE build && cd $GITHUB_WORKSPACE && cmake ..
+      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && cmake ..
 
     - name: build
       run: make -C $GITHUB_WORKSPACE/build -j 
