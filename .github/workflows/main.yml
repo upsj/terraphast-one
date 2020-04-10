@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CXX=${{ matrix.compiler }} cmake -DTERRAPHAST_USE_GMP=${{ matrix.use_gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.use_arch_native }} ..
+      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CXX=${{ matrix.compiler }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.use_gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.use_gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.use_arch_native }} ..
 
     - name: build
       run: make -C $GITHUB_WORKSPACE/build -j 4
