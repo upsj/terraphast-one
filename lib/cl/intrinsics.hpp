@@ -1,5 +1,7 @@
 #include <terraces/definitions.hpp>
 
+#include <intrin.h>
+
 #ifdef _WIN64
 #pragma intrinsic(_BitScanForward64, _BitScanReverse64, __popcnt64)
 #else
