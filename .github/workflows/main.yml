@@ -7,23 +7,68 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  linux-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-          use_gmp: ['ON', 'OFF']
-          use_arch_native: ['ON', 'OFF']
-          compiler: ['g++', 'clang++']
+      fail-fast: false
+      matrix:
+        config:
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP on gcc"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug with GMP on gcc"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release without GMP on gcc"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug without GMP on gcc"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release with GMP on clang"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "Debug with GMP on clang"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release without GMP on clang"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "clang++", cc: "clang", name: "Debug without GMP on clang"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP without native arch on gcc"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "clang++", cc: "clang", name: "Release with GMP without native arch on clang"}
+    name: ${{ matrix.config.name }}
 
     steps:
     - uses: actions/checkout@v2
 
     - name: configure
-      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CXX=${{ matrix.compiler }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.use_gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.use_gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.use_arch_native }} ..
+      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
 
     - name: build
       run: make -C $GITHUB_WORKSPACE/build -j 4
 
     - name: test
       run: make -C $GITHUB_WORKSPACE/build test
+
+  osx-build:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP on AppleClang"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug with GMP on AppleClang"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release without GMP on AppleClang"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "Debug without GMP on AppleClang"}
+        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release with GMP on gcc"}
+        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "Debug with GMP on gcc"}
+        - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release without GMP on gcc"}
+        - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "Debug without GMP on gcc"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "Release with GMP without native arch on AppleClang"}
+        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "Release with GMP without native arch on gcc"}
+
+    name: ${{ matrix.config.name }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup
+      run: brew install gmp gcc@9
+
+    - name: configure
+      run: mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build && CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} cmake -DTERRAPHAST_BUILD_CLIB=${{ matrix.config.gmp }} -DTERRAPHAST_USE_GMP=${{ matrix.config.gmp }} -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ..
+
+    - name: build
+      run: make -C $GITHUB_WORKSPACE/build -j 4
+
+    - name: test
+      run: make -C $GITHUB_WORKSPACE/build test
+
