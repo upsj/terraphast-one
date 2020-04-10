@@ -50,6 +50,13 @@ private:
 	std::vector<multitree_iterator_choicepoint> m_choices;
 	std::vector<small_bipartition> m_unconstrained_choices;
 	multitree_nodes::unconstrained m_unconstrained_current{};
+	struct state_t {
+		index_t root;
+		int state{};
+		bool result{};
+		state_t(index_t root) : root{root} {}
+	};
+	std::stack<state_t> m_stack;
 
 	void init_subtree(index_t subtree_root);
 	void init_subtree(index_t subtree_root, index_t single_leaf);

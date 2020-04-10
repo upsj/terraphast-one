@@ -103,22 +103,25 @@ void multitree_iterator::init_subtree(index_t i) {
 #define RETURN(ret)                                                                                \
 	{                                                                                          \
 		auto res = ret;                                                                    \
-		stack.pop();                                                                       \
-		if (stack.empty()) {                                                               \
+		m_stack.pop();                                                                     \
+		if (m_stack.empty()) {                                                             \
 			return res;                                                                \
 		}                                                                                  \
-		stack.top().result = res;                                                          \
+		m_stack.top().result = res;                                                        \
 		break;                                                                             \
 	}
 
-#define CALL(idx, next_state)                                                                      \
+#define YIELD(next_state)                                                                          \
 	{                                                                                          \
-		stack.emplace(idx);                                                                \
 		top.state = next_state;                                                            \
 		break;                                                                             \
 	}                                                                                          \
 	/* fall through */                                                                         \
 	case next_state:
+
+#define CALL(idx, next_state)                                                                      \
+	{ m_stack.emplace(idx); }                                                                  \
+	YIELD(next_state)
 
 bool multitree_iterator::next(index_t root) {
 	auto node = m_tree[root];
@@ -174,16 +177,9 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 	if (!choice.has_choices()) {
 		return false;
 	}
-	struct state_t {
-		index_t root;
-		int state{};
-		bool result{};
-		state_t(index_t root) : root{root} {}
-	};
-	std::stack<state_t> stack;
-	stack.emplace(root);
+	m_stack.emplace(root);
 	while (true) {
-		auto& top = stack.top();
+		auto& top = m_stack.top();
 		const auto idx = top.root;
 		const auto cur = m_tree[idx];
 		auto& choice = m_unconstrained_choices[idx];
