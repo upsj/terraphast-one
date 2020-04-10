@@ -53,12 +53,13 @@ jobs:
         - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "appleclang/debug/gmp"}
         - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++", cc: "gcc", name: "appleclang/release/no-gmp"}
         - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++", cc: "gcc", name: "appleclang/debug/no-gmp"}
-        - {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/gmp"}
-        - {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "gcc/debug/gmp"}
+        # The GMP library provided by Homebrew seemingly links against the wrong stdlib, so we cannot use it
+        #- {gmp: "ON", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/gmp"}
+        #- {gmp: "ON", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "gcc/debug/gmp"}
         - {gmp: "OFF", native: "ON", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/no-gmp"}
         - {gmp: "OFF", native: "ON", build_type: "Debug", cxx: "g++-9", cc: "gcc-9", name: "gcc/debug/no-gmp"}
         - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++", cc: "gcc", name: "appleclang/release/no-native"}
-        - {gmp: "ON", native: "OFF", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/no-native"}
+        - {gmp: "OFF", native: "OFF", build_type: "Release", cxx: "g++-9", cc: "gcc-9", name: "gcc/release/no-gmp/no-native"}
 
     name: osx/${{ matrix.config.name }}
 
@@ -88,10 +89,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {native: "ON", build_type: "Release", name: "release"}
-        - {native: "ON", build_type: "Debug", name: "debug"}
-        - {native: "OFF", build_type: "Release", name: "release/no-native"}
-        - {native: "OFF", build_type: "Debug", name: "debug/no-native"}
+        - {build_type: "Release", name: "release"}
+        - {build_type: "Debug", name: "debug"}
     name: windows/${{ matrix.config.name }}
 
     steps:
@@ -101,7 +100,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DTERRAPHAST_BUILD_CLIB=OFF -DTERRAPHAST_USE_GMP=OFF -DTERRAPHAST_ARCH_NATIVE=${{ matrix.config.native }} ..
+        cmake -DTERRAPHAST_BUILD_CLIB=OFF -DTERRAPHAST_USE_GMP=OFF ..
 
     - name: build
       run: cmake --build build -j 8 --config ${{ matrix.config.build_type }}
