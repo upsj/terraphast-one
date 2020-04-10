@@ -9,10 +9,10 @@ namespace terraces {
 
 namespace {
 
-bool is_rchild(const tree& t, index node) { return t[t[node].parent()].rchild() == node; }
+bool is_rchild(const tree& t, index_t node) { return t[t[node].parent()].rchild() == node; }
 
-void copy_subtree(const tree& src, tree& dst, index sub_root) {
-	std::stack<index> stack;
+void copy_subtree(const tree& src, tree& dst, index_t sub_root) {
+	std::stack<index_t> stack;
 	stack.push(sub_root);
 	while (!stack.empty()) {
 		auto idx = stack.top();
@@ -34,7 +34,7 @@ void copy_subtree(const tree& src, tree& dst, index sub_root) {
 	}
 }
 
-void copy_reversed(const tree& src, tree& dst, index child, index cur, index parent) {
+void copy_reversed(const tree& src, tree& dst, index_t child, index_t cur, index_t parent) {
 	auto coming_from_right = is_rchild(src, child);
 	auto opposite_idx = src[cur].child(!coming_from_right);
 	dst[cur].child(coming_from_right) = parent;
@@ -44,7 +44,8 @@ void copy_reversed(const tree& src, tree& dst, index child, index cur, index par
 	copy_subtree(src, dst, opposite_idx);
 }
 
-void copy_reversed_final(const tree& src, tree& dst, index child, index cur, index root_rchild) {
+void copy_reversed_final(const tree& src, tree& dst, index_t child, index_t cur,
+                         index_t root_rchild) {
 	auto coming_from_right = is_rchild(src, child);
 	auto opposite_idx = src[cur].child(!coming_from_right);
 	dst[cur].child(coming_from_right) = root_rchild;
@@ -55,7 +56,7 @@ void copy_reversed_final(const tree& src, tree& dst, index child, index cur, ind
 	copy_subtree(src, dst, root_rchild);
 }
 
-void insert_root(tree& t, index lchild, index rchild, bool reverse) {
+void insert_root(tree& t, index_t lchild, index_t rchild, bool reverse) {
 	t[0].parent() = none;
 	t[0].taxon() = none;
 	t[0].child(reverse) = lchild;
@@ -66,21 +67,22 @@ void insert_root(tree& t, index lchild, index rchild, bool reverse) {
 
 } // anonymous namespace
 
-std::vector<bool> root_split(const tree& t, index num_leaves) {
+std::vector<bool> root_split(const tree& t, index_t num_leaves) {
 	std::vector<bool> split(num_leaves);
 	auto root = t[0];
-	foreach_preorder(t,
-	                 [&](index i) {
-		                 auto node = t[i];
-		                 if (is_leaf(node)) {
-			                 split[node.taxon()] = true;
-		                 }
-	                 },
-	                 root.rchild());
+	foreach_preorder(
+	        t,
+	        [&](index_t i) {
+		        auto node = t[i];
+		        if (is_leaf(node)) {
+			        split[node.taxon()] = true;
+		        }
+	        },
+	        root.rchild());
 	return split;
 }
 
-tree reroot_at_node(const tree& t, index node_idx) {
+tree reroot_at_node(const tree& t, index_t node_idx) {
 	utils::ensure<std::invalid_argument>(node_idx != 0, "can't reroot at the root");
 	terraces::check_rooted_tree(t);
 	// if the node is already below the root, we don't reroot.
@@ -118,10 +120,10 @@ tree reroot_at_node(const tree& t, index node_idx) {
 	return out;
 }
 
-void reroot_at_taxon_inplace(tree& t, index comp_taxon) {
+void reroot_at_taxon_inplace(tree& t, index_t comp_taxon) {
 	// identify node corresponding to comp_taxon
-	index root_leaf = none;
-	for (index i = 0; i < t.size(); ++i) {
+	index_t root_leaf = none;
+	for (index_t i = 0; i < t.size(); ++i) {
 		if (t[i].taxon() == comp_taxon) {
 			assert(root_leaf == none);
 			root_leaf = i;
@@ -131,8 +133,8 @@ void reroot_at_taxon_inplace(tree& t, index comp_taxon) {
 	terraces::check_rooted_tree(t);
 
 	// first: swap at inner nodes s.t. root_leaf is the rightmost leaf
-	index cur = root_leaf;
-	index p = t[cur].parent();
+	index_t cur = root_leaf;
+	index_t p = t[cur].parent();
 	while (cur != 0) {
 		// if cur lies in the left subtree, swap it to the right
 		if (t[p].lchild() == cur) {

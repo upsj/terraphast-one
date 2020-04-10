@@ -23,7 +23,7 @@ TEST_CASE("full_run_disjoint", "[rerooting],[tree_extraction],[constraints],[sup
 	auto ts = subtrees(t, b);
 	auto cs = compute_constraints(ts);
 	auto names = name_map(t.size());
-	index root = 0;
+	index_t root = 0;
 	CHECK(count_terrace({cs, 5, root}) == 15);
 }
 

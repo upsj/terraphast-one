@@ -9,11 +9,11 @@
 namespace terraces {
 
 namespace {
-static constexpr auto max_index = std::numeric_limits<index>::max();
+static constexpr auto max_index = std::numeric_limits<index_t>::max();
 }
 
 template <bool except>
-checked_uint<except>::checked_uint(index value) : m_value{value} {}
+checked_uint<except>::checked_uint(index_t value) : m_value{value} {}
 
 // clamped version
 template <>
@@ -52,7 +52,7 @@ bool checked_uint<except>::is_clamped() const {
 }
 
 template <bool except>
-index checked_uint<except>::value() const {
+index_t checked_uint<except>::value() const {
 	return m_value;
 }
 

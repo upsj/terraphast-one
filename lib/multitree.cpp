@@ -4,10 +4,10 @@
 namespace terraces {
 
 struct index_array_view {
-	index* _begin;
-	index* _end;
-	index* begin() const { return _begin; }
-	index* end() const { return _end; }
+	index_t* _begin;
+	index_t* _end;
+	index_t* begin() const { return _begin; }
+	index_t* end() const { return _end; }
 };
 
 std::ostream& print_multitree_node(std::ostream& stream, const multitree_node* node,

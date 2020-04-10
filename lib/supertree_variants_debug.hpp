@@ -16,8 +16,8 @@ namespace variants {
 
 template <typename Result>
 struct stack_state {
-	index current_bip;
-	index max_bip;
+	index_t current_bip;
+	index_t max_bip;
 	bool right;
 	Result intermediate;
 
@@ -46,7 +46,7 @@ public:
 		return result;
 	}
 
-	void step_iteration(const bipartitions& bip_it, index bip) {
+	void step_iteration(const bipartitions& bip_it, index_t bip) {
 		Callback::step_iteration(bip_it, bip);
 		m_stack.back().current_bip = bip;
 	}
@@ -130,7 +130,7 @@ public:
 		return Callback::begin_iteration(bip_it, c_occ, c);
 	}
 
-	void step_iteration(const bipartitions& bip_it, index bip) {
+	void step_iteration(const bipartitions& bip_it, index_t bip) {
 		Callback::step_iteration(bip_it, bip);
 		if (not m_first_iteration) {
 			--m_depth;

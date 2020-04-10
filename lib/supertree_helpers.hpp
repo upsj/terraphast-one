@@ -20,7 +20,7 @@ namespace terraces {
  *          whose entries are all within \p leaves.
  */
 bitvector filter_constraints(const ranked_bitvector& leaves, const bitvector& c_occ,
-                             const constraints& c, utils::stack_allocator<index> a);
+                             const constraints& c, utils::stack_allocator<index_t> a);
 
 /**
  * Applies the given constraints to the given leaves to
@@ -33,7 +33,7 @@ bitvector filter_constraints(const ranked_bitvector& leaves, const bitvector& c_
  * \returns A \ref union_find representation of the sets created by applying the constraints.
  */
 union_find apply_constraints(const ranked_bitvector& leaves, const bitvector& c_occ,
-                             const constraints& c, utils::stack_allocator<index> a);
+                             const constraints& c, utils::stack_allocator<index_t> a);
 
 } // namespace terraces
 

@@ -1,0 +1,13 @@
+{
+        "BasedOnStyle": "llvm",
+        "IndentWidth": 8,
+        "TabWidth": 8,
+        "ContinuationIndentWidth": 8,
+        "UseTab": "ForIndentation",
+        "BreakBeforeBraces": "Attach",
+        "AlwaysBreakTemplateDeclarations": "true",
+        "ColumnLimit": 100,
+        "PointerBindsToType": "true",
+        "AccessModifierOffset": -8,
+        "ConstructorInitializerIndentWidth": 8,
+}

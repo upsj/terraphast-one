@@ -25,27 +25,27 @@ inline bool is_leaf(const node& n) {
 void check_rooted_tree(const tree& t);
 
 template <typename Result>
-Result count_unrooted_trees(index num_leaves) {
+Result count_unrooted_trees(index_t num_leaves) {
 	Result result = 1;
-	for (index i = 3; i <= num_leaves + 1; i++) {
+	for (index_t i = 3; i <= num_leaves + 1; i++) {
 		result *= (2 * i - 5);
 	}
 	return result;
 }
 
-inline index num_leaves_from_nodes(index num_nodes) {
+inline index_t num_leaves_from_nodes(index_t num_nodes) {
 	assert(num_nodes % 2 != 0);
 	return (num_nodes + 1) / 2;
 }
 
-inline index num_nodes_from_leaves(index num_nodes) { return 2 * num_nodes - 1; }
+inline index_t num_nodes_from_leaves(index_t num_nodes) { return 2 * num_nodes - 1; }
 
 template <typename F1, typename F2, typename F3, typename F4>
 void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf_cb,
-                    index root_idx) {
+                    index_t root_idx) {
 	enum class visited { none, left, both };
 
-	std::stack<std::pair<index, visited>> stack;
+	std::stack<std::pair<index_t, visited>> stack;
 	stack.push(std::make_pair(root_idx, visited::none));
 	while (!stack.empty()) {
 		auto current = stack.top();
@@ -81,20 +81,20 @@ void tree_traversal(const tree& t, F1 pre_cb, F2 post_cb, F3 sibling_cb, F4 leaf
  * Traverses a tree in post-order while calling a given callback on every node.
  */
 template <typename F>
-void foreach_postorder(const tree& t, F cb, index root = 0) {
-	auto nop = [](index) {};
+void foreach_postorder(const tree& t, F cb, index_t root = 0) {
+	auto nop = [](index_t) {};
 	tree_traversal(t, nop, cb, nop, cb, root);
 }
 
 template <typename F>
-void foreach_preorder(const tree& t, F cb, index root = 0) {
-	auto nop = [](index) {};
+void foreach_preorder(const tree& t, F cb, index_t root = 0) {
+	auto nop = [](index_t) {};
 	tree_traversal(t, cb, nop, nop, cb, root);
 }
 
 // For testing purposes
-std::vector<index> preorder(const tree& t);
-std::vector<index> postorder(const tree& t);
+std::vector<index_t> preorder(const tree& t);
+std::vector<index_t> postorder(const tree& t);
 
 // output trees
 void print_tree_dot(const tree& t, const name_map& names, std::ostream& output, bool rooted);

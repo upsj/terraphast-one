@@ -28,10 +28,10 @@ supertree_data create_supertree_data(const tree& tree, const bitmatrix& data) {
 	return {constraints, num_leaves, root};
 }
 
-index find_comprehensive_taxon(const bitmatrix& data) {
-	for (index i = 0; i < data.rows(); ++i) {
+index_t find_comprehensive_taxon(const bitmatrix& data) {
+	for (index_t i = 0; i < data.rows(); ++i) {
 		bool comp = true;
-		for (index j = 0; j < data.cols(); ++j) {
+		for (index_t j = 0; j < data.cols(); ++j) {
 			comp &= data.get(i, j);
 		}
 		if (comp) {
@@ -42,16 +42,16 @@ index find_comprehensive_taxon(const bitmatrix& data) {
 }
 
 bitmatrix maximum_comprehensive_columnset(const bitmatrix& data) {
-	std::vector<index> row_counts(data.rows(), 0u);
-	for (index i = 0; i < data.rows(); ++i) {
-		for (index j = 0; j < data.cols(); ++j) {
+	std::vector<index_t> row_counts(data.rows(), 0u);
+	for (index_t i = 0; i < data.rows(); ++i) {
+		for (index_t j = 0; j < data.cols(); ++j) {
 			row_counts[i] += data.get(i, j) ? 1u : 0u;
 		}
 	}
 	auto it = std::max_element(row_counts.begin(), row_counts.end());
-	index comp_row = static_cast<index>(std::distance(row_counts.begin(), it));
-	std::vector<index> columns;
-	for (index j = 0; j < data.cols(); ++j) {
+	index_t comp_row = static_cast<index_t>(std::distance(row_counts.begin(), it));
+	std::vector<index_t> columns;
+	for (index_t j = 0; j < data.cols(); ++j) {
 		if (data.get(comp_row, j)) {
 			columns.push_back(j);
 		}
@@ -59,18 +59,18 @@ bitmatrix maximum_comprehensive_columnset(const bitmatrix& data) {
 	return data.get_cols(columns);
 }
 
-index fast_count_terrace(const supertree_data& data) {
+index_t fast_count_terrace(const supertree_data& data) {
 	tree_enumerator<variants::check_callback> enumerator{{}};
 	try {
 		return enumerator.run(data.num_leaves, data.constraints, data.root);
 	} catch (terraces::tree_count_overflow_error&) {
-		return std::numeric_limits<index>::max();
+		return std::numeric_limits<index_t>::max();
 	}
 }
 
 bool check_terrace(const supertree_data& data) { return fast_count_terrace(data) > 1; }
 
-index count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early) {
+index_t count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early) {
 	tree_enumerator<variants::timeout_decorator<variants::clamped_count_callback>> enumerator{
 	        {limits.time_limit_seconds}};
 	try {
@@ -78,7 +78,7 @@ index count_terrace(const supertree_data& data, execution_limits limits, bool& t
 		terminated_early = enumerator.callback().has_timed_out();
 		return result;
 	} catch (terraces::tree_count_overflow_error&) {
-		return std::numeric_limits<index>::max();
+		return std::numeric_limits<index_t>::max();
 	}
 }
 
@@ -138,7 +138,7 @@ void enumerate_terrace(const supertree_data& data, std::function<void(const tree
 	}
 }
 
-index count_terrace(const supertree_data& data) {
+index_t count_terrace(const supertree_data& data) {
 	execution_limits limits{};
 	bool tmp;
 	return count_terrace(data, limits, tmp);

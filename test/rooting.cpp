@@ -10,7 +10,7 @@
 namespace terraces {
 namespace tests {
 
-bool parent_child_relationship(tree& t, index parent, index child) {
+bool parent_child_relationship(tree& t, index_t parent, index_t child) {
 	bool left_child = t[parent].lchild() == child;
 	if (left_child) {
 		return t[t[parent].lchild()].parent() == parent;
@@ -99,7 +99,7 @@ TEST_CASE("arbitrary rooting isomorphy", "[rerooting]") {
 	const auto named_tree = parse_new_nwk("((1,2),((3,4),5))");
 	auto& t = named_tree.tree;
 	auto reference = tree_bipartitions(t);
-	for (index i = 1; i < t.size(); ++i) {
+	for (index_t i = 1; i < t.size(); ++i) {
 		auto rerooted_t = reroot_at_node(t, i);
 		auto bips = tree_bipartitions(rerooted_t);
 		CHECK(reference == bips);

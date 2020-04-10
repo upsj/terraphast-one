@@ -15,15 +15,15 @@ TEST_CASE("subtree extraction: full data", "[subtree_extraction]") {
 	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
 	bitmatrix bm{4, 1};
-	for (index row = 0; row < bm.rows(); ++row) {
+	for (index_t row = 0; row < bm.rows(); ++row) {
 		bm.set(row, 0, true);
 	}
 
 	auto t2 = subtrees(t, bm)[0];
 	check_rooted_tree(t);
 	check_rooted_tree(t2);
-	vector<index> exp_pre{0, 1, 2, 3, 4, 5, 6};
-	vector<index> exp_post{3, 4, 2, 5, 1, 6, 0};
+	vector<index_t> exp_pre{0, 1, 2, 3, 4, 5, 6};
+	vector<index_t> exp_post{3, 4, 2, 5, 1, 6, 0};
 	auto res_pre = preorder(t2);
 	auto res_post = postorder(t2);
 	CHECK(t2[3].taxon() == 3);
@@ -51,10 +51,10 @@ TEST_CASE("subtree extraction: example", "[subtree_extraction]") {
 	auto t1 = trees[0];
 	auto t2 = trees[1];
 
-	vector<index> exp_pre1{0, 1, 2, 3, 4};
-	vector<index> exp_pre2{0, 1, 2, 3, 4};
-	vector<index> exp_post1{2, 3, 1, 4, 0};
-	vector<index> exp_post2{2, 3, 1, 4, 0};
+	vector<index_t> exp_pre1{0, 1, 2, 3, 4};
+	vector<index_t> exp_pre2{0, 1, 2, 3, 4};
+	vector<index_t> exp_post1{2, 3, 1, 4, 0};
+	vector<index_t> exp_post2{2, 3, 1, 4, 0};
 	CHECK(t1[2].taxon() == 0);
 	CHECK(t1[3].taxon() == 1);
 	CHECK(t1[4].taxon() == 2);

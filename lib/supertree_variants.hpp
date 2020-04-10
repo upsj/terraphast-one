@@ -41,9 +41,9 @@ public:
 	Result exit(Result val) { return val; }
 
 	/** Returns the result for a single leaf. */
-	Result base_one_leaf(index);
+	Result base_one_leaf(index_t);
 	/** Returns the result for two leaves. */
-	Result base_two_leaves(index, index);
+	Result base_two_leaves(index_t, index_t);
 	/** Returns the result for multiple leaves without constraints. */
 	Result base_unconstrained(const ranked_bitvector&);
 	/** Returns an empty result. */
@@ -82,7 +82,7 @@ public:
 	 */
 	bool continue_iteration(Result) { return true; }
 	/** Called when an iteration step begins. */
-	void step_iteration(const bipartitions&, index) {}
+	void step_iteration(const bipartitions&, index_t) {}
 	/** Called when the last iteration step has finished. */
 	void finish_iteration() {}
 	/** Called before descending into the left subset. */
@@ -114,9 +114,9 @@ class count_callback : public abstract_callback<Number> {
 public:
 	using return_type = typename abstract_callback<Number>::result_type;
 	// only one choice for a single leaf
-	return_type base_one_leaf(index) { return 1; }
+	return_type base_one_leaf(index_t) { return 1; }
 	// only one choice for two leaves
-	return_type base_two_leaves(index, index) { return 1; }
+	return_type base_two_leaves(index_t, index_t) { return 1; }
 	// (#unrooted trees) choices for leaves with no constraints
 	return_type base_unconstrained(const ranked_bitvector& leaves) {
 		return count_unrooted_trees<return_type>(leaves.count());
@@ -124,7 +124,7 @@ public:
 	return_type null_result() const { return 0; }
 
 	// The number of bipartitions gives a lower bound on the number of trees.
-	index fast_return_value(const bipartitions& bip_it) { return bip_it.num_bip(); }
+	index_t fast_return_value(const bipartitions& bip_it) { return bip_it.num_bip(); }
 
 	// Multiple choices are counted independently
 	return_type accumulate(return_type acc, return_type val) { return acc + val; }
@@ -150,29 +150,29 @@ public:
  * This allows to quickly check whether a tree lies on a phylogenetic terrace.
  * It will always run faster than callbacks that enumerate all possible trees.
  */
-class check_callback : public abstract_callback<index> {
+class check_callback : public abstract_callback<index_t> {
 public:
-	using return_type = index;
+	using return_type = index_t;
 
 	// No choices for a single leaf
-	index base_one_leaf(index) { return 1; }
+	index_t base_one_leaf(index_t) { return 1; }
 	// No choices for two leaves
-	index base_two_leaves(index, index) { return 1; }
+	index_t base_two_leaves(index_t, index_t) { return 1; }
 	// There are at least two possible trees if we have at least three unconstrained leaves
-	index base_unconstrained(const ranked_bitvector&) { return 2; }
+	index_t base_unconstrained(const ranked_bitvector&) { return 2; }
 	return_type null_result() const { return 0; }
 
 	/* Since we assume there are no incompatible constraints,
 	 * every subcall will return at least 1, so the number of bipartitions
 	 * gives a simple lower bound for the number of trees. */
 	bool fast_return(const bipartitions& bip_it) { return bip_it.num_bip() > 1; }
-	index fast_return_value(const bipartitions& bip_it) { return bip_it.num_bip(); }
+	index_t fast_return_value(const bipartitions& bip_it) { return bip_it.num_bip(); }
 
 	/* No need to keep on counting if we already know we are on a terrace. */
-	bool continue_iteration(index acc) { return acc < 2; }
+	bool continue_iteration(index_t acc) { return acc < 2; }
 
-	index accumulate(index acc, index val) { return acc + val; }
-	index combine(index left, index right) { return left * right; }
+	index_t accumulate(index_t acc, index_t val) { return acc + val; }
+	index_t combine(index_t left, index_t right) { return left * right; }
 };
 
 /**
@@ -182,13 +182,13 @@ template <typename Callback>
 class timeout_decorator : public Callback {
 private:
 	std::chrono::system_clock::time_point m_start;
-	index m_timeout;
+	index_t m_timeout;
 	bool m_timed_out;
 
 	bool check_timed_out() {
-		auto diff = index(std::chrono::duration_cast<std::chrono::seconds>(
-		                          std::chrono::system_clock::now() - m_start)
-		                          .count());
+		auto diff = index_t(std::chrono::duration_cast<std::chrono::seconds>(
+		                            std::chrono::system_clock::now() - m_start)
+		                            .count());
 		if (diff > m_timeout) {
 			m_timed_out = true;
 		}
@@ -199,7 +199,7 @@ public:
 	using result_type = typename Callback::result_type;
 
 	template <typename... Args>
-	timeout_decorator(index timeout_seconds, Args&&... args)
+	timeout_decorator(index_t timeout_seconds, Args&&... args)
 	        : Callback{std::forward<Args>(args)...}, m_start{std::chrono::system_clock::now()},
 	          m_timeout{timeout_seconds}, m_timed_out{false} {}
 

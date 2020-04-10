@@ -4,7 +4,7 @@
 
 #ifdef USE_GMP
 namespace terraces {
-big_integer::big_integer(index i) : m_value{i} {}
+big_integer::big_integer(index_t i) : m_value{i} {}
 big_integer& big_integer::operator+=(const big_integer& other) {
 	m_value += other.m_value;
 	return *this;

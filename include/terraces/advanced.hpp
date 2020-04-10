@@ -18,11 +18,11 @@ struct supertree_data {
 	/** The lca constraints describing the structure of the possible supertrees */
 	terraces::constraints constraints;
 	/** The number of leaves of the supertree. */
-	index num_leaves;
+	index_t num_leaves;
 	/** The index of the 'root leaf' in leaf-based numbering.
 	 * It will be placed as a leaf below the root of all supertrees.
 	 * In terms of phylogenetic trees, this means the index of a comprehensive taxon. */
-	index root;
+	index_t root;
 };
 
 /**
@@ -31,9 +31,9 @@ struct supertree_data {
  */
 struct execution_limits {
 	/** Time limit in seconds. */
-	index time_limit_seconds{std::numeric_limits<index>::max()};
+	index_t time_limit_seconds{std::numeric_limits<index_t>::max()};
 	/** Memory limit in bytes. */
-	index mem_limit_bytes{std::numeric_limits<index>::max()};
+	index_t mem_limit_bytes{std::numeric_limits<index_t>::max()};
 };
 
 /**
@@ -42,7 +42,7 @@ struct execution_limits {
  * @return The (row) index of the first comprehensive taxon in the input matrix
  *         or @ref none if none exists.
  */
-index find_comprehensive_taxon(const bitmatrix& data);
+index_t find_comprehensive_taxon(const bitmatrix& data);
 
 /**
  * Extracts a maximum size subset of the columns
@@ -79,7 +79,7 @@ bool check_terrace(const supertree_data& data);
  * possible supertrees.
  * \return A lower bound to the number of trees on the phylogenetic terrace.
  */
-index fast_count_terrace(const supertree_data& data);
+index_t fast_count_terrace(const supertree_data& data);
 
 /**
  * Counts all trees on a terrace around a phylogenetic tree.
@@ -93,7 +93,7 @@ index fast_count_terrace(const supertree_data& data);
  * that if this result is UINT32/64_MAX = 2^32/64 - 1, the computations resulted in an overflow,
  * i.e. the result is only a lower bound on the number of trees on this terrace.
  */
-index count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early);
+index_t count_terrace(const supertree_data& data, execution_limits limits, bool& terminated_early);
 
 /**
  * Counts all trees on a terrace around a phylogenetic tree.
@@ -161,7 +161,7 @@ void enumerate_terrace(const supertree_data& data, std::function<void(const tree
                        execution_limits limits, bool& terminated_early);
 
 /** \overload index count_terrace(const supertree_data&, execution_limits, bool&) */
-index count_terrace(const supertree_data& data);
+index_t count_terrace(const supertree_data& data);
 /** \overload index count_terrace(const supertree_data&, execution_limits, bool&) */
 big_integer count_terrace_bigint(const supertree_data& data);
 /** \overload big_integer print_terrace_compressed(const supertree_data&, const name_map&,

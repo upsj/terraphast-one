@@ -27,15 +27,15 @@ bool is_on_terrace_from_file(const std::string& nwk_filename, const std::string&
  * \returns the number of trees on the terrace. If the number of trees is not representable in
  * 32/64 bits, this method returns the maximum value of uint32/64_t instead.
  */
-index get_terrace_size(std::istream& nwk_stream, std::istream& matrix_stream, bool force = false);
-index get_terrace_size(std::istream& nwk_stream, const std::string& matrix_string,
-                       bool force = false);
-index get_terrace_size(const std::string& nwk_string, std::istream& matrix_stream,
-                       bool force = false);
-index get_terrace_size(const std::string& nwk_string, const std::string& matrix_string,
-                       bool force = false);
-index get_terrace_size_from_file(const std::string& nwk_filename,
-                                 const std::string& matrix_filename, bool force = false);
+index_t get_terrace_size(std::istream& nwk_stream, std::istream& matrix_stream, bool force = false);
+index_t get_terrace_size(std::istream& nwk_stream, const std::string& matrix_string,
+                         bool force = false);
+index_t get_terrace_size(const std::string& nwk_string, std::istream& matrix_stream,
+                         bool force = false);
+index_t get_terrace_size(const std::string& nwk_string, const std::string& matrix_string,
+                         bool force = false);
+index_t get_terrace_size_from_file(const std::string& nwk_filename,
+                                   const std::string& matrix_filename, bool force = false);
 
 /**
  * Count the number of trees on the terrace.

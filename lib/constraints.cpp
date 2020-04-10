@@ -21,15 +21,15 @@ std::ostream& operator<<(std::ostream& stream, utils::named_output<constraints, 
 
 constraints compute_constraints(const std::vector<tree>& trees) {
 	constraints result;
-	auto num_nodes = (*std::max_element(
-	                          trees.begin(), trees.end(),
-	                          [](const tree& a, const tree& b) { return a.size() < b.size(); }))
-	                         .size();
-	std::vector<std::pair<index, index>> outermost_nodes(num_nodes, {none, none});
+	auto num_nodes =
+	        (*std::max_element(trees.begin(), trees.end(), [](const tree& a, const tree& b) {
+		        return a.size() < b.size();
+	        })).size();
+	std::vector<std::pair<index_t, index_t>> outermost_nodes(num_nodes, {none, none});
 
 	for (auto& t : trees) {
 		// collect outermost nodes for each subtree (these have lca i)
-		foreach_postorder(t, [&](index i) {
+		foreach_postorder(t, [&](index_t i) {
 			auto node = t[i];
 			if (is_leaf(node)) {
 				outermost_nodes[i].first = i;
@@ -41,7 +41,7 @@ constraints compute_constraints(const std::vector<tree>& trees) {
 		});
 
 		// extract constraints for each edge
-		foreach_preorder(t, [&](index i) {
+		foreach_preorder(t, [&](index_t i) {
 			auto node = t[i];
 			if (!is_leaf(node)) {
 				auto lchild = node.lchild();
@@ -72,7 +72,7 @@ constraints compute_constraints(const std::vector<tree>& trees) {
 	return result;
 }
 
-index deduplicate_constraints(constraints& in_c) {
+index_t deduplicate_constraints(constraints& in_c) {
 	for (auto& c : in_c) {
 		c = {std::min(c.left, c.shared), std::max(c.left, c.shared), c.right};
 	}
@@ -80,7 +80,7 @@ index deduplicate_constraints(constraints& in_c) {
 		return std::tie(a.left, a.shared, a.right) < std::tie(b.left, b.shared, b.right);
 	});
 	auto it = std::unique(in_c.begin(), in_c.end());
-	index count = (index)std::distance(it, in_c.end());
+	index_t count = (index_t)std::distance(it, in_c.end());
 	in_c.erase(it, in_c.end());
 	return count;
 }

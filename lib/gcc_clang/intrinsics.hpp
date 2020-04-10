@@ -3,21 +3,21 @@
 namespace terraces {
 namespace bits {
 
-inline index popcount(index word) { return index(__builtin_popcountll(word)); }
+inline index_t popcount(index_t word) { return index_t(__builtin_popcountll(word)); }
 
-inline index bitscan(index word) { return index(__builtin_ctzll(word)); }
+inline index_t bitscan(index_t word) { return index_t(__builtin_ctzll(word)); }
 
-static_assert(sizeof(long long) >= sizeof(index), "intrinsic word sizes incompatible");
+static_assert(sizeof(long long) >= sizeof(index_t), "intrinsic word sizes incompatible");
 
-inline index rbitscan(index word) {
-	return index(std::numeric_limits<long long>::digits - __builtin_clzll(word));
+inline index_t rbitscan(index_t word) {
+	return index_t(std::numeric_limits<long long>::digits - __builtin_clzll(word));
 }
 
-inline bool add_overflow(index a, index b, index& result) {
+inline bool add_overflow(index_t a, index_t b, index_t& result) {
 	return __builtin_add_overflow(a, b, &result);
 }
 
-inline bool mul_overflow(index a, index b, index& result) {
+inline bool mul_overflow(index_t a, index_t b, index_t& result) {
 	return __builtin_mul_overflow(a, b, &result);
 }
 

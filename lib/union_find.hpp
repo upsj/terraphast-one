@@ -11,28 +11,28 @@ namespace terraces {
 
 class union_find {
 public:
-	using value_type = index;
+	using value_type = index_t;
 
 private:
-	std::vector<index, utils::stack_allocator<index>> m_parent;
+	std::vector<index_t, utils::stack_allocator<index_t>> m_parent;
 #ifndef NDEBUG
 	bool m_compressed;
 #endif // NDEBUG
 
 public:
-	union_find(index, utils::stack_allocator<index> a);
-	index find(index);
-	index simple_find(index x) const {
+	union_find(index_t, utils::stack_allocator<index_t> a);
+	index_t find(index_t);
+	index_t simple_find(index_t x) const {
 		assert(m_compressed);
 		return is_representative(x) ? x : m_parent[x];
 	}
-	index size() const { return m_parent.size(); }
+	index_t size() const { return m_parent.size(); }
 	void compress();
-	void merge(index, index);
-	bool is_representative(index x) const { return m_parent[x] >= m_parent.size(); }
+	void merge(index_t, index_t);
+	bool is_representative(index_t x) const { return m_parent[x] >= m_parent.size(); }
 
 	static union_find make_bipartition(const std::vector<bool>& split,
-	                                   utils::stack_allocator<index> alloc);
+	                                   utils::stack_allocator<index_t> alloc);
 };
 
 } // namespace terraces

@@ -12,7 +12,7 @@ void check_rooted_tree(const tree& t) {
 	                                     "invalid trivial tree");
 
 	// check if parent/child assignment is symmetric
-	for (index i = 0; i < t.size(); ++i) {
+	for (index_t i = 0; i < t.size(); ++i) {
 		auto n = t[i];
 		if (is_leaf(n)) {
 			// leaf l: child of parent is correct
@@ -39,40 +39,40 @@ void check_rooted_tree(const tree& t) {
 std::ostream& operator<<(std::ostream& s, newick_t tree_pair) {
 	const auto& t = *tree_pair.t;
 	const auto& names = *tree_pair.names;
-	auto pre_cb = [&](index) { s << '('; };
-	auto post_cb = [&](index) { s << ')'; };
-	auto leaf_cb = [&](index i) {
+	auto pre_cb = [&](index_t) { s << '('; };
+	auto post_cb = [&](index_t) { s << ')'; };
+	auto leaf_cb = [&](index_t i) {
 		if (t[i].taxon() != none)
 			s << names[t[i].taxon()];
 	};
-	auto sibling_cb = [&](index) { s << ','; };
-	index root = 0;
+	auto sibling_cb = [&](index_t) { s << ','; };
+	index_t root = 0;
 	tree_traversal(t, pre_cb, post_cb, sibling_cb, leaf_cb, root);
 	s << ';';
 	return s;
 }
 
-std::vector<index> preorder(const tree& t) {
-	std::vector<index> result;
-	foreach_preorder(t, [&](index i) { result.push_back(i); });
+std::vector<index_t> preorder(const tree& t) {
+	std::vector<index_t> result;
+	foreach_preorder(t, [&](index_t i) { result.push_back(i); });
 	return result;
 }
 
-std::vector<index> postorder(const tree& t) {
-	std::vector<index> result;
-	foreach_postorder(t, [&](index i) { result.push_back(i); });
+std::vector<index_t> postorder(const tree& t) {
+	std::vector<index_t> result;
+	foreach_postorder(t, [&](index_t i) { result.push_back(i); });
 	return result;
 }
 
 void print_tree_dot(const tree& t, const name_map& n, std::ostream& stream, bool rooted) {
-	auto nop = [](index) {};
+	auto nop = [](index_t) {};
 	std::string edge = rooted ? " -> " : " -- ";
-	auto node_cb = [&](index node) {
+	auto node_cb = [&](index_t node) {
 		stream << node << " [shape=point];\n";
 		stream << t[node].lchild() << edge << node << ";\n";
 		stream << t[node].rchild() << edge << node << ";\n";
 	};
-	auto leaf_cb = [&](index node) {
+	auto leaf_cb = [&](index_t node) {
 		stream << node << " [label=\"" << n[t[node].taxon()] << "\"];\n";
 	};
 	stream << (rooted ? "digraph {\n" : "graph {\n");

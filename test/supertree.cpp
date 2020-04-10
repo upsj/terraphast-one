@@ -8,12 +8,12 @@
 namespace terraces {
 namespace tests {
 
-uint64_t count_supertree(index num_leaves, const constraints& constraints) {
+uint64_t count_supertree(index_t num_leaves, const constraints& constraints) {
 	tree_enumerator<variants::count_callback<uint64_t>> e{{}};
 	return e.run(num_leaves, constraints);
 }
 
-bool check_supertree(index num_leaves, const constraints& constraints) {
+bool check_supertree(index_t num_leaves, const constraints& constraints) {
 	tree_enumerator<variants::check_callback> e{{}};
 	return e.run(num_leaves, constraints) > 1;
 }

@@ -16,7 +16,7 @@
 namespace terraces {
 namespace tests {
 
-void check_unique_trees(multitree_node* root, index num_trees) {
+void check_unique_trees(multitree_node* root, index_t num_trees) {
 	multitree_iterator it(root);
 
 	std::vector<std::vector<simple_bitvector>> bipartitions;
@@ -47,11 +47,11 @@ TEST_CASE("multitree_iterator init simple", "[multitree]") {
 TEST_CASE("multitree_iterator init unconstrained", "[multitree]") {
 	name_map names{"1", "2", "3", "4", "5", "6", "7", "8"};
 	constraints constraints{{0, 1, 2}};
-	index root_species = 0;
+	index_t root_species = 0;
 	tree_enumerator<variants::multitree_callback> enumerator{{}};
 	auto result = enumerator.run(names.size(), constraints, root_species);
 
-	check_unique_trees(result, count_unrooted_trees<index>(7));
+	check_unique_trees(result, count_unrooted_trees<index_t>(7));
 }
 
 } // namespace tests

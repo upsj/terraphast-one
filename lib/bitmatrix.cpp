@@ -4,23 +4,23 @@
 
 namespace terraces {
 
-bitmatrix::bitmatrix(index rows, index cols) : m_rows{rows}, m_cols{cols}, m_vec(rows * cols) {}
+bitmatrix::bitmatrix(index_t rows, index_t cols) : m_rows{rows}, m_cols{cols}, m_vec(rows * cols) {}
 
-index bitmatrix::rows() const { return m_rows; }
-index bitmatrix::cols() const { return m_cols; }
+index_t bitmatrix::rows() const { return m_rows; }
+index_t bitmatrix::cols() const { return m_cols; }
 
-bool bitmatrix::get(index row, index col) const {
+bool bitmatrix::get(index_t row, index_t col) const {
 	assert(row < m_rows && col < m_cols);
 	return m_vec[row * m_cols + col];
 }
 
-void bitmatrix::set(index row, index col, bool val) {
+void bitmatrix::set(index_t row, index_t col, bool val) {
 	assert(row < m_rows && col < m_cols);
 	m_vec[row * m_cols + col] = val;
 }
 
-void bitmatrix::row_or(index in1, index in2, index out) {
-	for (index i = 0; i < cols(); ++i) {
+void bitmatrix::row_or(index_t in1, index_t in2, index_t out) {
+	for (index_t i = 0; i < cols(); ++i) {
 		set(out, i, get(in1, i) || get(in2, i));
 	}
 }

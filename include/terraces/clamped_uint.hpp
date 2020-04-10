@@ -9,15 +9,15 @@ namespace terraces {
 
 template <bool except>
 class checked_uint {
-	index m_value;
+	index_t m_value;
 
 public:
-	checked_uint(index value = 0);
+	checked_uint(index_t value = 0);
 
 	checked_uint<except>& operator+=(checked_uint<except> other);
 	checked_uint<except>& operator*=(checked_uint<except> other);
 	bool is_clamped() const;
-	index value() const;
+	index_t value() const;
 };
 
 template <bool except>

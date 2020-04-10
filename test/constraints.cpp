@@ -15,7 +15,7 @@ TEST_CASE("constraint extraction: full data", "[subtree_extraction],[constraints
 	       {0, 2, 3, none},    {0, none, none, 2}, {2, none, none, 3}};
 
 	bitmatrix bm{4, 1};
-	for (index row = 0; row < bm.rows(); ++row) {
+	for (index_t row = 0; row < bm.rows(); ++row) {
 		bm.set(row, 0, true);
 	}
 

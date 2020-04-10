@@ -5,7 +5,7 @@
 namespace terraces {
 
 std::ostream& operator<<(std::ostream& s, const node& n) {
-	auto print_index = [&s](index i) {
+	auto print_index = [&s](index_t i) {
 		if (i == none) {
 			s << "none";
 		} else {

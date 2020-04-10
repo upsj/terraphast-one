@@ -6,7 +6,7 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("fast_set1", "[fast_set]") {
-	basic_ranked_bitvector<std::allocator<index>> set{10, {}};
+	basic_ranked_bitvector<std::allocator<index_t>> set{10, {}};
 	for (auto&& el : set) {
 		(void)el;
 		FAIL("element in empty set!");
@@ -26,7 +26,7 @@ TEST_CASE("fast_set1", "[fast_set]") {
 	CHECK((++set.begin()) == set.end());
 	set.set(2);
 	set.update_ranks();
-	index count = 0;
+	index_t count = 0;
 	for (auto&& el : set) {
 		(void)el;
 		++count;

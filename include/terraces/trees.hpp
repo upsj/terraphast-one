@@ -23,28 +23,28 @@ namespace terraces {
  */
 struct node {
 	node() : data{{none, none, none, none}} {}
-	node(index parent, index left, index right, index taxon)
+	node(index_t parent, index_t left, index_t right, index_t taxon)
 	        : data{{parent, left, right, taxon}} {}
 	/* data[0]: parent
 	 * data[1]: left child
 	 * data[2]: right child
 	 * data[3]: taxon index */
-	std::array<index, 4> data = {{none, none, none, none}};
+	std::array<index_t, 4> data = {{none, none, none, none}};
 
-	index parent() const { return data[0]; }
-	index& parent() { return data[0]; }
+	index_t parent() const { return data[0]; }
+	index_t& parent() { return data[0]; }
 
-	index lchild() const { return data[1]; }
-	index& lchild() { return data[1]; }
+	index_t lchild() const { return data[1]; }
+	index_t& lchild() { return data[1]; }
 
-	index rchild() const { return data[2]; }
-	index& rchild() { return data[2]; }
+	index_t rchild() const { return data[2]; }
+	index_t& rchild() { return data[2]; }
 
-	index child(bool right) const { return data[1u + bool(right)]; }
-	index& child(bool right) { return data[1u + bool(right)]; }
+	index_t child(bool right) const { return data[1u + bool(right)]; }
+	index_t& child(bool right) { return data[1u + bool(right)]; }
 
-	index taxon() const { return data[3]; }
-	index& taxon() { return data[3]; }
+	index_t taxon() const { return data[3]; }
+	index_t& taxon() { return data[3]; }
 
 	bool operator==(const node& o) const { return data == o.data; }
 
@@ -73,7 +73,7 @@ inline newick_t as_newick(const tree& t, const name_map& names) { return {&t, &n
 std::ostream& operator<<(std::ostream& s, newick_t tree_pair);
 
 /** Maps the name of a species to its index in the tree. */
-using index_map = std::unordered_map<std::string, index>;
+using index_map = std::unordered_map<std::string, index_t>;
 
 } // namespace terraces
 

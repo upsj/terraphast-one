@@ -16,11 +16,11 @@ namespace terraces {
  * where the LCA's are compared by their height in the tree.
  */
 struct constraint {
-	index left;
-	index shared;
-	index right;
+	index_t left;
+	index_t shared;
+	index_t right;
 
-	constraint(index left, index shared, index right)
+	constraint(index_t left, index_t shared, index_t right)
 	        : left{left}, shared{shared}, right{right} {}
 
 	bool operator==(const constraint& o) const {
@@ -48,7 +48,7 @@ constraints compute_constraints(const std::vector<tree>& trees);
  * \param in_c The input constraints.
  * \returns The input constraints without duplicates and possibly reordered.
  */
-index deduplicate_constraints(constraints& in_c);
+index_t deduplicate_constraints(constraints& in_c);
 
 } // namespace terraces
 

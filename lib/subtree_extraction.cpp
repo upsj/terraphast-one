@@ -10,23 +10,23 @@ using std::vector;
 
 namespace terraces {
 
-std::pair<bitmatrix, std::vector<index>> compute_node_occ(const tree& t, const bitmatrix& occ) {
+std::pair<bitmatrix, std::vector<index_t>> compute_node_occ(const tree& t, const bitmatrix& occ) {
 	auto num_nodes = num_nodes_from_leaves(occ.rows());
 	auto num_sites = occ.cols();
 	utils::ensure<bad_input_error>(t.size() == num_nodes,
 	                               bad_input_error_type::tree_mismatching_size);
 	check_rooted_tree(t);
 	auto node_occ = bitmatrix{t.size(), occ.cols()};
-	std::vector<index> num_leaves_per_site(occ.cols(), 0);
+	std::vector<index_t> num_leaves_per_site(occ.cols(), 0);
 
 	// compute occurrences on inner nodes: bitwise or of the children
-	foreach_postorder(t, [&](index i) {
+	foreach_postorder(t, [&](index_t i) {
 		auto node = t[i];
 		if (is_leaf(node)) {
 			// copy data from taxon occurrence matrix
 			utils::ensure<bad_input_error>(node.taxon() != none,
 			                               bad_input_error_type::tree_unnamed_leaf);
-			for (index site = 0; site < num_sites; ++site) {
+			for (index_t site = 0; site < num_sites; ++site) {
 				auto has_leaf = occ.get(node.taxon(), site);
 				node_occ.set(i, site, has_leaf);
 				num_leaves_per_site[site] += has_leaf;
@@ -38,10 +38,10 @@ std::pair<bitmatrix, std::vector<index>> compute_node_occ(const tree& t, const b
 	return {std::move(node_occ), std::move(num_leaves_per_site)};
 }
 
-index induced_lca(const tree& t, const bitmatrix& node_occ, index column) {
-	index lca = 0;
+index_t induced_lca(const tree& t, const bitmatrix& node_occ, index_t column) {
+	index_t lca = 0;
 	while (!is_leaf(t[lca])) {
-		auto present = [&](index node) { return node_occ.get(node, column); };
+		auto present = [&](index_t node) { return node_occ.get(node, column); };
 		assert(present(lca));
 		auto node = t[lca];
 		if (present(node.lchild()) && present(node.rchild())) {
@@ -54,22 +54,22 @@ index induced_lca(const tree& t, const bitmatrix& node_occ, index column) {
 }
 
 tree subtree(const tree& t, const bitmatrix& node_occ,
-             const std::vector<index>& num_leaves_per_site, index site) {
+             const std::vector<index_t>& num_leaves_per_site, index_t site) {
 	auto root = induced_lca(t, node_occ, site);
 	if (is_leaf(t[root])) {
 		// tree containing only a single leaf
 		return {{none, none, none, t[root].taxon()}};
 	}
 
-	auto present = [&](index node) { return node_occ.get(node, site); };
+	auto present = [&](index_t node) { return node_occ.get(node, site); };
 	assert(present(t[root].lchild()) && present(t[root].rchild()));
 
 	tree out_tree;
 	out_tree.reserve(num_nodes_from_leaves(num_leaves_per_site[site]));
 	out_tree.emplace_back(); // root node
 
-	stack<index> boundary;
-	auto callback = [&](index i) {
+	stack<index_t> boundary;
+	auto callback = [&](index_t i) {
 		auto node = t[i];
 		bool leaf_occ = is_leaf(node) && present(i);
 		bool inner_occ = !is_leaf(node) && present(node.lchild()) && present(node.rchild());
@@ -108,7 +108,7 @@ std::vector<tree> subtrees(const tree& t, const bitmatrix& occ) {
 	// collect leaves and inner nodes: bitwise and of the children
 	vector<tree> out_trees;
 
-	for (index site = 0; site < num_sites; ++site) {
+	for (index_t site = 0; site < num_sites; ++site) {
 		out_trees.push_back(subtree(t, node_occ, num_leaves_per_site, site));
 	}
 

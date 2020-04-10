@@ -11,7 +11,7 @@ namespace tests {
 
 TEST_CASE("bipartition1", "[bipartition]") {
 	auto fl = utils::free_list{};
-	auto alloc = utils::stack_allocator<index>{fl, 4};
+	auto alloc = utils::stack_allocator<index_t>{fl, 4};
 	union_find u(4, alloc);
 	ranked_bitvector s{4, alloc};
 	s.set(0);

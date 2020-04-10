@@ -4,7 +4,7 @@
 namespace terraces {
 
 bitvector filter_constraints(const ranked_bitvector& leaves, const bitvector& c_occ,
-                             const constraints& c, utils::stack_allocator<index> a) {
+                             const constraints& c, utils::stack_allocator<index_t> a) {
 	bitvector result{c_occ.size(), a};
 	for (auto c_i = c_occ.first_set(); c_i < c_occ.last_set(); c_i = c_occ.next_set(c_i)) {
 		if (leaves.get(c[c_i].left) && leaves.get(c[c_i].shared) &&
@@ -16,7 +16,7 @@ bitvector filter_constraints(const ranked_bitvector& leaves, const bitvector& c_
 }
 
 union_find apply_constraints(const ranked_bitvector& leaves, const bitvector& c_occ,
-                             const constraints& c, utils::stack_allocator<index> a) {
+                             const constraints& c, utils::stack_allocator<index_t> a) {
 	auto sets = union_find(leaves.count(), a);
 	for (auto c_i = c_occ.first_set(); c_i < c_occ.last_set(); c_i = c_occ.next_set(c_i)) {
 		auto& cons = c[c_i];
@@ -36,9 +36,9 @@ constraints map_constraints(const ranked_bitvector& leaves, const constraints& c
 	return result;
 }
 
-ranked_bitvector leaf_occ(const tree& tree, utils::stack_allocator<index> a) {
+ranked_bitvector leaf_occ(const tree& tree, utils::stack_allocator<index_t> a) {
 	ranked_bitvector leaves{tree.size(), a};
-	for (index i = 0; i < tree.size(); i++) {
+	for (index_t i = 0; i < tree.size(); i++) {
 		if (is_leaf(tree[i])) {
 			leaves.set(i);
 		}

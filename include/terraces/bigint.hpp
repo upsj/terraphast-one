@@ -16,7 +16,7 @@ class big_integer {
 	mpz_class m_value;
 
 public:
-	big_integer(index i = 0);
+	big_integer(index_t i = 0);
 	big_integer& operator+=(const big_integer& other);
 	big_integer& operator*=(const big_integer& other);
 	bool is_clamped() const;

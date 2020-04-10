@@ -10,8 +10,8 @@
 #include <unordered_set>
 #include <vector>
 
-using index = std::size_t;
-constexpr static auto none = std::numeric_limits<index>::max();
+using index_t = std::size_t;
+constexpr static auto none = std::numeric_limits<index_t>::max();
 
 inline std::default_random_engine& get_rng() {
 	thread_local auto rng = [] {
@@ -21,20 +21,20 @@ inline std::default_random_engine& get_rng() {
 	return rng;
 }
 
-inline index rand_index(index max) {
-	auto dist = std::uniform_int_distribution<index>{0u, max};
+inline index_t rand_index(index_t max) {
+	auto dist = std::uniform_int_distribution<index_t>{0u, max};
 	return dist(get_rng());
 }
 
 struct tree_node {
-	explicit tree_node(index parent = none, index left = none, index right = none)
+	explicit tree_node(index_t parent = none, index_t left = none, index_t right = none)
 	        : parent{parent}, left{left}, right{right} {}
-	index parent = none;
-	index left = none;
-	index right = none;
+	index_t parent = none;
+	index_t left = none;
+	index_t right = none;
 	std::uint8_t visited = 0u;
 
-	void set_children(index l, index r) {
+	void set_children(index_t l, index_t r) {
 		left = l;
 		right = r;
 	}
@@ -43,9 +43,9 @@ struct tree_node {
 };
 
 using tree = std::vector<tree_node>;
-using index_list = std::vector<index>;
+using index_list = std::vector<index_t>;
 
-inline index extract_random(index_list& list) {
+inline index_t extract_random(index_list& list) {
 	const auto i = rand_index(list.size() - 1u);
 	const auto ret = list[i];
 	list[i] = list.back();
@@ -54,7 +54,7 @@ inline index extract_random(index_list& list) {
 }
 
 inline void print(std::ostream& out, tree& t, const std::vector<std::string>& names) {
-	auto current = index{};
+	auto current = index_t{};
 	while (current != none) {
 		auto& cur = t[current];
 		switch (cur.visited) {
@@ -86,7 +86,7 @@ int main(int argc, char** argv) try {
 	if (argc < 2) {
 		return 1;
 	}
-	const auto num_leafs = index{std::stoul(argv[1])};
+	const auto num_leafs = index_t{std::stoul(argv[1])};
 	if (num_leafs < 2) {
 		return 2;
 	}
@@ -103,7 +103,7 @@ int main(int argc, char** argv) try {
 		t[parent].set_children(lchild, rchild);
 	}
 	auto names = std::vector<std::string>(t.size());
-	for (auto i = index{}; i < leafs.size(); ++i) {
+	for (auto i = index_t{}; i < leafs.size(); ++i) {
 		names[leafs[i]] = "s" + std::to_string(i);
 	}
 	print(std::cout, t, names);

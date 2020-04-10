@@ -50,7 +50,7 @@ TEST_CASE("limit-tests", "[supertree],[advanced-api]") {
 	}
 	auto d = create_supertree_data(tree, matrix);
 	SECTION("time-limit-raw") {
-		using cb = variants::timeout_decorator<variants::count_callback<index>>;
+		using cb = variants::timeout_decorator<variants::count_callback<index_t>>;
 		tree_enumerator<cb> enumerator{cb{1}};
 		SECTION("yes") {
 			// artificially hit time limit
@@ -96,7 +96,8 @@ TEST_CASE("limit-tests", "[supertree],[advanced-api]") {
 			CHECK(result);
 		}
 		SECTION("enumerate") {
-			enumerate_terrace(d, [](const terraces::tree&) {}, limits, result);
+			enumerate_terrace(
+			        d, [](const terraces::tree&) {}, limits, result);
 			CHECK(result);
 		}
 	}

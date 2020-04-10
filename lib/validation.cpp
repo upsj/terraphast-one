@@ -13,7 +13,7 @@ namespace terraces {
 std::vector<simple_bitvector> tree_bipartitions(const tree& t) {
 	std::vector<simple_bitvector> bips(t.size(), {0, {}});
 	std::vector<simple_bitvector> subtrees(t.size(), {(t.size() + 1) / 2, {}});
-	foreach_postorder(t, [&](index i) {
+	foreach_postorder(t, [&](index_t i) {
 		auto n = t[i];
 		if (is_leaf(n)) {
 			subtrees[i].set(n.taxon());
@@ -21,7 +21,7 @@ std::vector<simple_bitvector> tree_bipartitions(const tree& t) {
 			subtrees[i].set_bitwise_or(subtrees[n.lchild()], subtrees[n.rchild()]);
 		}
 	});
-	foreach_preorder(t, [&](index i) {
+	foreach_preorder(t, [&](index_t i) {
 		auto n = t[i];
 		bool at_root = is_root(n);
 		bool at_rhs_of_root =
@@ -50,7 +50,7 @@ bool is_isomorphic_unrooted(const tree& fst, const tree& snd) {
 	return fst_bip == snd_bip;
 }
 
-bool is_isomorphic_rooted_impl(const tree& fst, const tree& snd, index fst_idx, index snd_idx) {
+bool is_isomorphic_rooted_impl(const tree& fst, const tree& snd, index_t fst_idx, index_t snd_idx) {
 	auto fst_node = fst[fst_idx];
 	auto snd_node = snd[snd_idx];
 	if (is_leaf(fst_node) != is_leaf(snd_node)) {

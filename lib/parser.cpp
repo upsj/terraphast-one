@@ -27,10 +27,10 @@ struct token {
 };
 
 struct parser_state {
-	index parent;
-	index self;
+	index_t parent;
+	index_t self;
 
-	parser_state(index parent, index self) : parent{parent}, self{self} {}
+	parser_state(index_t parent, index_t self) : parent{parent}, self{self} {}
 };
 
 using parser_stack = std::stack<parser_state, std::vector<parser_state>>;
@@ -143,7 +143,9 @@ tree parse_nwk_impl(const std::string& input, NameCallback cb) {
 			break;
 		}
 		case parsing::token_type::eof:
-		default: { throw std::logic_error{"dafuq?"}; }
+		default: {
+			throw std::logic_error{"dafuq?"};
+		}
 		}
 	}
 	if (unrooted) {
@@ -191,8 +193,8 @@ named_tree parse_new_nwk(const std::string& input) {
 }
 
 occurrence_data parse_bitmatrix(std::istream& input) {
-	index cols{};
-	index rows{};
+	index_t cols{};
+	index_t rows{};
 	input >> rows >> cols >> std::ws;
 
 	bitmatrix mat{rows, cols};
@@ -209,7 +211,7 @@ occurrence_data parse_bitmatrix(std::istream& input) {
 		auto taxon_id = names.size();
 
 		// fill matrix
-		for (index i = 0; i < cols; ++i) {
+		for (index_t i = 0; i < cols; ++i) {
 			it = utils::skip_ws(it, end);
 			utils::ensure<bad_input_error>(
 			        it != end, bad_input_error_type::bitmatrix_size_invalid, line);

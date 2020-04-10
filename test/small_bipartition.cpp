@@ -8,7 +8,7 @@ namespace tests {
 
 TEST_CASE("small_bipartition", "[unconstrained]") {
 	small_bipartition bip{0b00101001011100};
-	auto step = [&](index i) {
+	auto step = [&](index_t i) {
 		CHECK(bip.is_valid());
 		CHECK(bip.left_mask() == i);
 		bip.next();

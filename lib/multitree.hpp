@@ -20,13 +20,13 @@ struct multitree_node;
 
 namespace multitree_nodes {
 struct two_leaves {
-	index left_leaf;
-	index right_leaf;
+	index_t left_leaf;
+	index_t right_leaf;
 };
 struct unconstrained {
-	index* begin;
-	index* end;
-	index num_leaves() const;
+	index_t* begin;
+	index_t* end;
+	index_t num_leaves() const;
 };
 struct inner_node {
 	multitree_node* left;
@@ -35,21 +35,21 @@ struct inner_node {
 struct alternative_array {
 	multitree_node* begin;
 	multitree_node* end;
-	index num_alternatives() const;
+	index_t num_alternatives() const;
 };
 struct unexplored {
-	index* begin;
-	index* end;
-	index num_leaves() const;
+	index_t* begin;
+	index_t* end;
+	index_t num_leaves() const;
 };
 } // namespace multitree_nodes
 
 struct multitree_node {
 	multitree_node_type type;
-	index num_leaves;
+	index_t num_leaves;
 	big_integer num_trees;
 	union {
-		index single_leaf;
+		index_t single_leaf;
 		multitree_nodes::two_leaves two_leaves;
 		multitree_nodes::unconstrained unconstrained;
 		multitree_nodes::inner_node inner_node;
@@ -69,11 +69,11 @@ inline newick_multitree_t as_newick(const multitree_node* root, const name_map& 
 	return {root, &names};
 }
 
-inline index multitree_nodes::alternative_array::num_alternatives() const {
-	return (index)(end - begin);
+inline index_t multitree_nodes::alternative_array::num_alternatives() const {
+	return (index_t)(end - begin);
 }
-inline index multitree_nodes::unexplored::num_leaves() const { return (index)(end - begin); }
-inline index multitree_nodes::unconstrained::num_leaves() const { return (index)(end - begin); }
+inline index_t multitree_nodes::unexplored::num_leaves() const { return (index_t)(end - begin); }
+inline index_t multitree_nodes::unconstrained::num_leaves() const { return (index_t)(end - begin); }
 
 } // namespace terraces
 

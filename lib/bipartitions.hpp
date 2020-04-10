@@ -17,36 +17,36 @@ namespace terraces {
  */
 class bipartitions {
 private:
-	utils::stack_allocator<index> m_alloc;
+	utils::stack_allocator<index_t> m_alloc;
 	const ranked_bitvector& m_leaves;
 	const union_find& m_sets;
 	const ranked_bitvector m_set_rep;
 
-	index m_end;
+	index_t m_end;
 
-	bool in_left_partition(index bip, index i) const;
+	bool in_left_partition(index_t bip, index_t i) const;
 	/** Returns a bitvector containing a 1 for every set representative in the union-find
 	 * structure. */
 	ranked_bitvector find_set_reps() const;
 
 public:
 	bipartitions(const ranked_bitvector& leaves, const union_find& sets,
-	             utils::stack_allocator<index>);
+	             utils::stack_allocator<index_t>);
 	/** Returns the first leaf set represented by the given bipartition index. */
-	ranked_bitvector get_first_set(index bip, utils::stack_allocator<index> alloc) const;
+	ranked_bitvector get_first_set(index_t bip, utils::stack_allocator<index_t> alloc) const;
 	/** Replaces a leaf subset by its complement. */
 	void flip_set(ranked_bitvector& set) const;
 	/** Returns both leaf sets represented by the given bipartition index. */
 	std::pair<ranked_bitvector, ranked_bitvector>
-	get_both_sets(index bip, utils::stack_allocator<index> alloc) const;
+	get_both_sets(index_t bip, utils::stack_allocator<index_t> alloc) const;
 	/**Returns both leaf sets represented by the given bipartition index.
 	 * ONLY USE THIS METHOD IN SINGLE-THREADED EXECUTION! */
-	std::pair<ranked_bitvector, ranked_bitvector> get_both_sets_unsafe(index bip) const;
+	std::pair<ranked_bitvector, ranked_bitvector> get_both_sets_unsafe(index_t bip) const;
 
-	index begin_bip() const { return 1; }
-	index end_bip() const { return m_end; }
+	index_t begin_bip() const { return 1; }
+	index_t end_bip() const { return m_end; }
 	/** Returns the number of bipartitions. */
-	index num_bip() const { return m_end - 1; }
+	index_t num_bip() const { return m_end - 1; }
 	/** Returns the union-find representation of the leaf sets. */
 	const union_find& sets() const { return m_sets; }
 	/** Returns the leaves on which the union-find representation is based. */

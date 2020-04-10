@@ -14,16 +14,16 @@ class multitree_callback : public abstract_callback<multitree_node*> {
 private:
 	friend class memory_limited_multitree_callback;
 	multitree_impl::storage_blocks<multitree_node> m_nodes;
-	multitree_impl::storage_blocks<index> m_leaves;
+	multitree_impl::storage_blocks<index_t> m_leaves;
 
 	multitree_node* alloc_node() { return m_nodes.get(); }
 
-	multitree_node* alloc_nodes(index num) { return m_nodes.get_range(num); }
+	multitree_node* alloc_nodes(index_t num) { return m_nodes.get_range(num); }
 
-	std::pair<index*, index*> alloc_leaves(const ranked_bitvector& leaves) {
+	std::pair<index_t*, index_t*> alloc_leaves(const ranked_bitvector& leaves) {
 		auto size = leaves.count();
 		auto a_leaves = m_leaves.get_range(size);
-		index i = 0;
+		index_t i = 0;
 		for (auto el : leaves) {
 			a_leaves[i++] = el;
 		}
@@ -33,10 +33,10 @@ private:
 public:
 	using return_type = multitree_node*;
 
-	return_type base_one_leaf(index i) {
+	return_type base_one_leaf(index_t i) {
 		return multitree_impl::make_single_leaf(alloc_node(), i);
 	}
-	return_type base_two_leaves(index i, index j) {
+	return_type base_two_leaves(index_t i, index_t j) {
 		return multitree_impl::make_two_leaves(alloc_node(), i, j);
 	}
 	return_type base_unconstrained(const ranked_bitvector& leaves) {
@@ -69,7 +69,7 @@ public:
 
 class memory_limited_multitree_callback : public multitree_callback {
 private:
-	index m_memory_limit;
+	index_t m_memory_limit;
 	bool m_hit_memory_limit;
 
 	bool check_memory_limit() {
@@ -81,7 +81,7 @@ private:
 	}
 
 public:
-	memory_limited_multitree_callback(index limit)
+	memory_limited_multitree_callback(index_t limit)
 	        : m_memory_limit(limit), m_hit_memory_limit{false} {}
 
 	bool fast_return(const bipartitions& bip_it) {

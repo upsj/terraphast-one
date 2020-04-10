@@ -20,26 +20,26 @@ private:
 	utils::free_list m_fl1;
 	utils::free_list m_fl2;
 	utils::free_list m_fl3;
-	index m_fl1_allocsize;
-	index m_fl2_allocsize;
-	index m_fl3_allocsize;
+	index_t m_fl1_allocsize;
+	index_t m_fl2_allocsize;
+	index_t m_fl3_allocsize;
 
 	const constraints* m_constraints;
 
 	result_type run(const ranked_bitvector& leaves, const bitvector& constraint_occ);
 	result_type iterate(bipartitions& bip_it, const bitvector& new_constraint_occ);
 
-	void init_freelists(index leaf_count, index constraint_count);
-	utils::stack_allocator<index> leaf_allocator();
-	utils::stack_allocator<index> c_occ_allocator();
-	utils::stack_allocator<index> union_find_allocator();
+	void init_freelists(index_t leaf_count, index_t constraint_count);
+	utils::stack_allocator<index_t> leaf_allocator();
+	utils::stack_allocator<index_t> c_occ_allocator();
+	utils::stack_allocator<index_t> union_find_allocator();
 
 public:
 	explicit tree_enumerator(Callback cb);
-	result_type run(index num_leaves, const constraints& constraints,
+	result_type run(index_t num_leaves, const constraints& constraints,
 	                const std::vector<bool>& root_split);
-	result_type run(index num_leaves, const constraints& constraints, index root_leaf);
-	result_type run(index num_leaves, const constraints& constraints);
+	result_type run(index_t num_leaves, const constraints& constraints, index_t root_leaf);
+	result_type run(index_t num_leaves, const constraints& constraints);
 	const Callback& callback() const { return m_cb; }
 };
 
@@ -48,7 +48,7 @@ tree_enumerator<Callback>::tree_enumerator(Callback cb)
         : m_cb{std::move(cb)}, m_constraints{nullptr} {}
 
 template <typename Callback>
-auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constraints)
+auto tree_enumerator<Callback>::run(index_t num_leaves, const constraints& constraints)
         -> result_type {
 	init_freelists(num_leaves, constraints.size());
 	auto leaves = full_ranked_set(num_leaves, leaf_allocator());
@@ -59,7 +59,7 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 }
 
 template <typename Callback>
-auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constraints,
+auto tree_enumerator<Callback>::run(index_t num_leaves, const constraints& constraints,
                                     const std::vector<bool>& root_split) -> result_type {
 	init_freelists(num_leaves, constraints.size());
 	auto leaves = full_ranked_set(num_leaves, leaf_allocator());
@@ -79,8 +79,8 @@ auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constra
 }
 
 template <typename Callback>
-auto tree_enumerator<Callback>::run(index num_leaves, const constraints& constraints,
-                                    index root_leaf) -> result_type {
+auto tree_enumerator<Callback>::run(index_t num_leaves, const constraints& constraints,
+                                    index_t root_leaf) -> result_type {
 	std::vector<bool> root_split(num_leaves);
 	root_split[root_leaf] = true;
 	return run(num_leaves, constraints, root_split);
@@ -118,7 +118,7 @@ auto tree_enumerator<Callback>::run(const ranked_bitvector& leaves, const bitvec
 }
 
 template <typename Callback>
-void tree_enumerator<Callback>::init_freelists(index leaf_count, index constraint_count) {
+void tree_enumerator<Callback>::init_freelists(index_t leaf_count, index_t constraint_count) {
 	m_fl1_allocsize = ranked_bitvector::alloc_size(leaf_count);
 	m_fl2_allocsize = ranked_bitvector::alloc_size(constraint_count);
 	m_fl3_allocsize = leaf_count;
@@ -128,17 +128,17 @@ void tree_enumerator<Callback>::init_freelists(index leaf_count, index constrain
 }
 
 template <typename Callback>
-utils::stack_allocator<index> tree_enumerator<Callback>::leaf_allocator() {
+utils::stack_allocator<index_t> tree_enumerator<Callback>::leaf_allocator() {
 	return {m_fl1, m_fl1_allocsize};
 }
 
 template <typename Callback>
-utils::stack_allocator<index> tree_enumerator<Callback>::c_occ_allocator() {
+utils::stack_allocator<index_t> tree_enumerator<Callback>::c_occ_allocator() {
 	return {m_fl2, m_fl2_allocsize};
 }
 
 template <typename Callback>
-utils::stack_allocator<index> tree_enumerator<Callback>::union_find_allocator() {
+utils::stack_allocator<index_t> tree_enumerator<Callback>::union_find_allocator() {
 	return {m_fl3, m_fl3_allocsize};
 }
 

@@ -9,7 +9,7 @@ namespace terraces {
 namespace tests {
 
 TEST_CASE("clamped_uint", "[checked_uint]") {
-	auto max = std::numeric_limits<index>::max();
+	auto max = std::numeric_limits<index_t>::max();
 	CHECK((clamped_uint{10} + clamped_uint{417}).value() == 10 + 417);
 	CHECK((clamped_uint{10} * clamped_uint{417}).value() == 10 * 417);
 	CHECK((clamped_uint{max} + clamped_uint{1}).is_clamped());
@@ -19,7 +19,7 @@ TEST_CASE("clamped_uint", "[checked_uint]") {
 }
 
 TEST_CASE("overflow_except_uint", "[checked_uint]") {
-	auto max = std::numeric_limits<index>::max();
+	auto max = std::numeric_limits<index_t>::max();
 	CHECK((overflow_except_uint{10} + overflow_except_uint{417}).value() == 10 + 417);
 	CHECK((overflow_except_uint{10} * overflow_except_uint{417}).value() == 10 * 417);
 	CHECK_THROWS_AS(overflow_except_uint{max} + overflow_except_uint{1},

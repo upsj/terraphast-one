@@ -18,7 +18,7 @@ using namespace terraces;
 
 bool is_comprehensive(const tree& t, const bitmatrix& matrix) {
 	const auto node_occ = compute_node_occ(t, matrix).first;
-	for (terraces::index i = 0; i < matrix.cols(); ++i) {
+	for (terraces::index_t i = 0; i < matrix.cols(); ++i) {
 		if (induced_lca(t, node_occ, i) != 0) {
 			return false;
 		}
@@ -43,7 +43,7 @@ void count_and_check_trees(const multitree_node* multitree, const bitmatrix& mat
 	// check for supertree property
 	for (const auto& supertree : supertrees) {
 		auto trees = subtrees(supertree, matrix);
-		for (terraces::index i = 0; i < trees.size(); ++i) {
+		for (terraces::index_t i = 0; i < trees.size(); ++i) {
 			if (!is_isomorphic_rooted(ref_trees[i], trees[i])) {
 				std::cerr << "PANIC! Invalid supertree:\nPartition " << i
 				          << "\nSupertree: " << as_newick(supertree, names)
@@ -55,14 +55,14 @@ void count_and_check_trees(const multitree_node* multitree, const bitmatrix& mat
 	}
 
 	// check for isomorphic trees
-	std::vector<std::pair<std::vector<simple_bitvector>, terraces::index>> tree_bips;
-	for (terraces::index i = 0; i < supertrees.size(); ++i) {
+	std::vector<std::pair<std::vector<simple_bitvector>, terraces::index_t>> tree_bips;
+	for (terraces::index_t i = 0; i < supertrees.size(); ++i) {
 		const auto& supertree = supertrees[i];
 		tree_bips.emplace_back(tree_bipartitions(supertree), i);
 	}
 	std::sort(tree_bips.begin(), tree_bips.end());
 	int dupes = 0;
-	for (terraces::index i = 1; i < supertrees.size(); ++i) {
+	for (terraces::index_t i = 1; i < supertrees.size(); ++i) {
 		if (tree_bips[i - 1].first == tree_bips[i].first) {
 			++dupes;
 			std::cerr << "Duplicate tree found:\n"
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	terraces::index root_node = std::stoul(argv[3]);
+	terraces::index_t root_node = std::stoul(argv[3]);
 	bool use_root_split = bool(std::stoi(argv[4]));
 
 	try {
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 		auto tree = parse_nwk(utils::read_file_full(argv[1]), data.indices);
 		auto num_leaves = data.matrix.rows();
 		name_map number_names;
-		for (terraces::index i = 0; i < num_leaves; ++i) {
+		for (terraces::index_t i = 0; i < num_leaves; ++i) {
 			number_names.push_back(std::to_string(i));
 		}
 

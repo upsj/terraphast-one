@@ -23,21 +23,21 @@ template <typename T>
 class storage_block {
 private:
 	std::unique_ptr<T[], array_deleter<T>> begin;
-	index size;
-	index max_size;
+	index_t size;
+	index_t max_size;
 
 public:
-	storage_block(index max_size)
+	storage_block(index_t max_size)
 	        : begin{make_unique_array<T>(max_size)}, size{0}, max_size{max_size} {}
 
-	bool has_space(index required = 1) { return size + required <= max_size; }
+	bool has_space(index_t required = 1) { return size + required <= max_size; }
 
 	T* get() {
 		assert(has_space());
 		return begin.get() + (size++);
 	}
 
-	T* get_range(index required) {
+	T* get_range(index_t required) {
 		assert(has_space(required));
 		auto result = begin.get() + size;
 		size += required;
@@ -49,11 +49,11 @@ template <typename T>
 class storage_blocks {
 private:
 	std::vector<storage_block<T>> m_blocks;
-	index m_block_size;
-	index m_total_size;
+	index_t m_block_size;
+	index_t m_total_size;
 
 public:
-	storage_blocks(index block_size = 1024)
+	storage_blocks(index_t block_size = 1024)
 	        : m_blocks{}, m_block_size{block_size}, m_total_size{block_size} {
 		m_blocks.emplace_back(m_block_size);
 	}
@@ -64,7 +64,7 @@ public:
 		return *this;
 	}
 	storage_blocks<T>& operator=(storage_blocks<T>&& other) = default;
-	index total_size() const { return sizeof(T) * m_total_size; }
+	index_t total_size() const { return sizeof(T) * m_total_size; }
 
 	T* get() {
 		if (!m_blocks.back().has_space()) {
@@ -74,7 +74,7 @@ public:
 		return m_blocks.back().get();
 	}
 
-	T* get_range(index required) {
+	T* get_range(index_t required) {
 		if (!m_blocks.back().has_space(required)) {
 			m_blocks.emplace_back(required);
 			m_total_size += required;
@@ -90,7 +90,7 @@ public:
 	}
 };
 
-inline multitree_node* make_single_leaf(multitree_node* n, index i) {
+inline multitree_node* make_single_leaf(multitree_node* n, index_t i) {
 	n->type = multitree_node_type::base_single_leaf;
 	n->single_leaf = i;
 	n->num_leaves = 1;
@@ -98,7 +98,7 @@ inline multitree_node* make_single_leaf(multitree_node* n, index i) {
 	return n;
 }
 
-inline multitree_node* make_two_leaves(multitree_node* n, index i, index j) {
+inline multitree_node* make_two_leaves(multitree_node* n, index_t i, index_t j) {
 	n->type = multitree_node_type::base_two_leaves;
 	n->two_leaves = {i, j};
 	n->num_leaves = 2;
@@ -106,13 +106,13 @@ inline multitree_node* make_two_leaves(multitree_node* n, index i, index j) {
 	return n;
 }
 
-inline multitree_node* make_unconstrained(multitree_node* n, std::pair<index*, index*> range) {
+inline multitree_node* make_unconstrained(multitree_node* n, std::pair<index_t*, index_t*> range) {
 	auto begin = range.first;
 	auto end = range.second;
 	n->type = multitree_node_type::base_unconstrained;
 	n->unconstrained = {begin, end};
-	n->num_leaves = (index)(end - begin);
-	n->num_trees = count_unrooted_trees<index>(n->num_leaves);
+	n->num_leaves = (index_t)(end - begin);
+	n->num_trees = count_unrooted_trees<index_t>(n->num_leaves);
 	return n;
 }
 
@@ -126,7 +126,7 @@ inline multitree_node* make_inner_node(multitree_node* n, multitree_node* left,
 }
 
 inline multitree_node* make_alternative_array(multitree_node* n, multitree_node* begin,
-                                              index leaves) {
+                                              index_t leaves) {
 	n->type = multitree_node_type::alternative_array;
 	n->alternative_array = {begin, begin};
 	n->num_leaves = leaves;
@@ -134,12 +134,12 @@ inline multitree_node* make_alternative_array(multitree_node* n, multitree_node*
 	return n;
 }
 
-inline multitree_node* make_unexplored(multitree_node* n, std::pair<index*, index*> range) {
+inline multitree_node* make_unexplored(multitree_node* n, std::pair<index_t*, index_t*> range) {
 	auto begin = range.first;
 	auto end = range.second;
 	n->type = multitree_node_type::unexplored;
 	n->unexplored = {begin, end};
-	n->num_leaves = (index)(end - begin);
+	n->num_leaves = (index_t)(end - begin);
 	n->num_trees = 0;
 	return n;
 }
