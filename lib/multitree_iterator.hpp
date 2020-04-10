@@ -54,7 +54,9 @@ private:
 		index_t root;
 		int state{};
 		bool result{};
-		state_t(index_t root) : root{root} {}
+		bool unconstrained{};
+		state_t(index_t root, bool unconstrained)
+		        : root{root}, unconstrained{unconstrained} {}
 	};
 	std::stack<state_t> m_stack;
 

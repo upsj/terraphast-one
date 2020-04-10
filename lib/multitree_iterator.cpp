@@ -1,4 +1,5 @@
 #include "multitree_iterator.hpp"
+#include "utils.hpp"
 
 namespace terraces {
 
@@ -100,16 +101,20 @@ void multitree_iterator::init_subtree(index_t i) {
 	}
 }
 
-#define RETURN(ret)                                                                                \
+#define RETURN_IMPL(ret, cond)                                                                     \
 	{                                                                                          \
 		auto res = ret;                                                                    \
 		m_stack.pop();                                                                     \
-		if (m_stack.empty()) {                                                             \
+		if (cond) {                                                                        \
 			return res;                                                                \
 		}                                                                                  \
 		m_stack.top().result = res;                                                        \
 		break;                                                                             \
 	}
+
+#define RETURN(ret) RETURN_IMPL(ret, m_stack.empty())
+
+#define RETURN_UNCONSTRAINED(ret) RETURN_IMPL(ret, m_stack.empty() || !m_stack.top().unconstrained)
 
 #define YIELD(next_state)                                                                          \
 	{                                                                                          \
@@ -120,55 +125,66 @@ void multitree_iterator::init_subtree(index_t i) {
 	case next_state:
 
 #define CALL(idx, next_state)                                                                      \
-	{ m_stack.emplace(idx); }                                                                  \
+	{ m_stack.emplace(idx, false); }                                                           \
+	YIELD(next_state)
+
+#define CALL_UNCONSTRAINED(idx, next_state)                                                        \
+	{ m_stack.emplace(idx, true); }                                                            \
 	YIELD(next_state)
 
 bool multitree_iterator::next(index_t root) {
-	auto node = m_tree[root];
-	auto left = node.lchild();
-	auto right = node.rchild();
-	auto& choice = m_choices[root];
-	switch (choice.current->type) {
-	case multitree_node_type::base_single_leaf:
-	case multitree_node_type::base_two_leaves:
+	auto is_trivial = [&](index_t idx) {
+		const auto& choice = m_choices[idx];
+		const auto type = choice.current->type;
+		utils::ensure<multitree_unexplored_error>(type != multitree_node_type::unexplored);
+		return type == multitree_node_type::base_single_leaf ||
+		       type == multitree_node_type::base_two_leaves;
+	};
+	if (is_trivial(root)) {
 		return false;
-	case multitree_node_type::base_unconstrained:
-		if (!next_unconstrained(root)) {
-			m_unconstrained_current = {};
-			return false;
-		} else {
-			return true;
-		}
-	case multitree_node_type::inner_node:
-	case multitree_node_type::alternative_array: {
-		int state = 0;
-		switch (state) {
+	}
+	m_stack.emplace(root, false);
+	while (true) {
+		auto& top = m_stack.top();
+		const auto idx = top.root;
+		const auto node = m_tree[idx];
+		const auto left = node.lchild();
+		const auto right = node.rchild();
+		auto& choice = m_choices[idx];
+		const auto type = choice.current->type;
+		switch (top.state) {
 		case 0:
-			if (next(left)) {
-				return true;
+			if (type == multitree_node_type::base_unconstrained) {
+				if (!next_unconstrained(idx)) {
+					m_unconstrained_current = {};
+					RETURN(false);
+				} else {
+					RETURN(true);
+				}
 			}
-			state = 1;
-			// fall through
-		case 1:
-			if (next(right)) {
-				reset(left);
-				return true;
-			}
-			state = 2;
-		}
 
-		if (choice.has_choices() && choice.next()) {
-			init_subtree(root);
-			return true;
+			if (!is_trivial(left)) {
+				CALL(left, 1);
+				if (top.result) {
+					RETURN(true);
+				}
+			}
+
+			if (!is_trivial(right)) {
+				CALL(right, 2);
+				if (top.result) {
+					reset(left);
+					RETURN(true);
+				}
+			}
+
+			if (choice.has_choices() && choice.next()) {
+				init_subtree(idx);
+				RETURN(true);
+			}
+			RETURN(false);
+		default:;
 		}
-		return false;
-	}
-	case multitree_node_type::unexplored: {
-		throw multitree_unexplored_error{};
-	}
-	default:
-		assert(false && "Unknown node type in multitree");
-		return false;
 	}
 }
 
@@ -177,7 +193,7 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 	if (!choice.has_choices()) {
 		return false;
 	}
-	m_stack.emplace(root);
+	m_stack.emplace(root, true);
 	while (true) {
 		auto& top = m_stack.top();
 		const auto idx = top.root;
@@ -189,23 +205,23 @@ bool multitree_iterator::next_unconstrained(index_t root) {
 		switch (top.state) {
 		case 0:
 			if (m_unconstrained_choices[left].has_choices()) {
-				CALL(left, 1);
+				CALL_UNCONSTRAINED(left, 1);
 				if (top.result) {
-					RETURN(true);
+					RETURN_UNCONSTRAINED(true);
 				}
 			}
 			if (m_unconstrained_choices[right].has_choices()) {
-				CALL(right, 2);
+				CALL_UNCONSTRAINED(right, 2);
 				if (top.result) {
 					reset_unconstrained(left);
-					RETURN(true);
+					RETURN_UNCONSTRAINED(true);
 				}
 			}
 			if (choice.next()) {
 				init_subtree_unconstrained(idx);
-				RETURN(true);
+				RETURN_UNCONSTRAINED(true);
 			}
-			RETURN(false);
+			RETURN_UNCONSTRAINED(false);
 		default:;
 		}
 	}
