@@ -59,6 +59,7 @@ private:
 		        : root{root}, unconstrained{unconstrained} {}
 	};
 	std::stack<state_t> m_stack;
+	std::stack<index_t> m_init_stack;
 
 	void init_subtree(index_t subtree_root);
 	void init_subtree(index_t subtree_root, index_t single_leaf);
