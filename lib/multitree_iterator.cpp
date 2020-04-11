@@ -161,7 +161,6 @@ bool multitree_iterator::next(index_t root) {
 		case 0:
 			if (type == multitree_node_type::base_unconstrained) {
 				if (!next_unconstrained(idx)) {
-					m_unconstrained_current = {};
 					RETURN(false);
 				} else {
 					RETURN(true);
