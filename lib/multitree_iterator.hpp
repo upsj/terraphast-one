@@ -1,6 +1,8 @@
 #ifndef MULTITREE_ITERATOR_H
 #define MULTITREE_ITERATOR_H
 
+#include <terraces/errors.hpp>
+
 #include "multitree.hpp"
 #include "small_bipartition.hpp"
 
@@ -47,13 +49,14 @@ private:
 	terraces::tree m_tree;
 	std::vector<multitree_iterator_choicepoint> m_choices;
 	std::vector<small_bipartition> m_unconstrained_choices;
+	std::stack<index_t> m_init_stack;
 
-	void init_subtree(index_t subtree_root);
+	bool init_subtree(index_t subtree_root);
 	void init_subtree(index_t subtree_root, index_t single_leaf);
 	void init_subtree(index_t subtree_root, multitree_nodes::two_leaves two_leaves);
 	void init_subtree(index_t subtree_root, multitree_nodes::inner_node inner);
 	void init_subtree(index_t subtree_root, multitree_nodes::unconstrained unconstrained);
-	void init_subtree_unconstrained(index_t subtree_root, multitree_nodes::unconstrained data);
+	bool init_subtree_unconstrained(index_t subtree_root, multitree_nodes::unconstrained data);
 
 	bool next(index_t root);
 	bool next_unconstrained(index_t root, multitree_nodes::unconstrained unconstrained);
