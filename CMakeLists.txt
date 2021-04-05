@@ -158,7 +158,7 @@ if(TERRAPHAST_BUILD_TESTS)
 		test/bitvector.cpp
 		test/clamped_uint.cpp
 		test/constraints.cpp
-		test/compile_test.cpp
+		#test/compile_test.cpp
 		test/fast_set.cpp
 		test/integration.cpp
 		test/multitree_iterator.cpp
