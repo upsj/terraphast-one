@@ -1,6 +1,6 @@
 Documentation Home                         {#mainpage}
 ==================
- 
+  
 C++ tool to check for and enumerate terraces in phylogenetic tree space.
 
 -----
